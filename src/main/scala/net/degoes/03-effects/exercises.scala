@@ -145,21 +145,25 @@ object zio_values {
   //
   // EXERCISE 1
   //
-  // Lift the integer `2` into a strictly-evaluated `IO`.
+  // Using the `IO.now` method, lift the integer `2` into a strictly-evaluated
+  // `IO`.
   //
   val ioInteger: IO[Nothing, Int] = ???
 
   //
   // EXERCISE 2
   //
-  // Lift the string "Functional Scala" into a lazily-evaluated `IO`.
+  // Using the `IO.point` method, lift the string "Functional Scala" into a
+  // lazily-evaluated `IO`.
   //
   val ioString: IO[Nothing, String] = ???
 
   //
   // EXERCISE 3
   //
-  // Lift the string "Bad Input" into a failed `IO`.
+  // Using the `IO.fail` method to lift the string "Bad Input" into a failed
+  // `IO`.
+  //
   val failedInput: IO[String, Nothing] = ???
 }
 
@@ -171,7 +175,8 @@ object zio_composition {
   // EXERCISE 1
   //
   // Map the `IO[Nothing, Int]` into an `IO[Nothing, String]` by converting the
-  // integer into its string rendering using the `map` method of `IO`.
+  // integer into its string rendering using the `map` method of the `IO`
+  // object.
   //
   (IO.point(42) ? : IO[Nothing, String])
 
@@ -179,13 +184,16 @@ object zio_composition {
   // EXERCISE 2
   //
   // Map the `IO[Int, Nothing]` into an `IO[String, Nothing]` by converting the
-  // integer error into its string rendering using the `leftMap` method of `IO`.
+  // integer error into its string rendering using the `leftMap` method of the
+  // `IO` object.
+  //
   (IO.fail(42) ? : IO[String, Nothing])
 
   //
   // EXERCISE 3
   //
-  // Using the `flatMap` method of `IO`, add `ioX` and `ioY` together.
+  // Using the `flatMap` and `map` methods of `IO`, add `ioX` and `ioY`
+  // together.
   //
   val ioX: IO[Nothing, Int] = IO.point(42)
   val ioY: IO[Nothing, Int] = IO.point(58)
@@ -209,8 +217,7 @@ object zio_composition {
   for {
     v1 <- IO.point(42)
     v2 <- IO.point(58)
-    v3 <- IO.point("The Total Is: ")
-  } yield v3 + (v1 + v2).toString
+  } yield "The total is: " + (v1 + v2).toString
 
   //
   // EXERCISE 6
@@ -218,14 +225,17 @@ object zio_composition {
   // Rewrite the following ZIO program, which uses conditionals, into its
   // procedural equivalent.
   //
-  def analyzeAverageAge1(spouse1: IO[Nothing, Int], spouse2: IO[Nothing, Int]): IO[Nothing, String] =
-    for {
-      age1 <- spouse1
-      age2 <- spouse2
-      rez  <- if (((age1 + age2) / 2) < 40) IO.point("You don't have kids yet")
-              else IO.point("You might have kids yet")
-    } yield rez
-  def analyzeAverageAge2(spouse1: Int, spouse2: Int): String =
+  def decode1(read: () => Byte): Either[Byte, Int] = {
+    val b = read()
+    if (b < 0) Left(b)
+    else {
+      Right(b.toInt +
+      (read().toInt << 8) +
+      (read().toInt << 8) +
+      (read().toInt << 8))
+    }
+  }
+  def decode2[E](read: IO[E, Byte]): IO[E, Either[Byte, Int]] =
     ???
 
   //
@@ -234,11 +244,14 @@ object zio_composition {
   // Rewrite the following procedural program, which uses conditionals, into its
   // ZIO equivalent.
   //
-  def analyzeName1(first: String, last: String): String =
-    if ((first + " " + last).length > 20) "Your full name is really long"
-    else if ((first + last).contains(" ")) "Your name is really weird"
-    else "Your name is pretty normal"
-  def analyzeName2(first: IO[Nothing, String], last: IO[Nothing, String]): IO[Nothing, String] = ???
+  def getName1(print: String => Unit, read: () => String): Option[String] = {
+    print("Do you want to enter your name?")
+    read().toLowerCase.take(1) match {
+      case "y" => Some(read())
+      case _ => None
+    }
+  }
+  def getName2[E](print: String => IO[E, String], read: IO[E, String]): IO[E, Option[String]] = ???
 
   //
   // EXERCISE 8
@@ -256,11 +269,13 @@ object zio_composition {
   //
   // Translate the following loop into its ZIO equivalent.
   //
-  def decrementUntilFour1(int: Int): Unit =
-    if (int < 4) ()
-    else if ((int / 2 + 2) == int) () else decrementUntilFour1(int - 1)
-  def decrementUntilFour2(int: IO[Nothing, Int]): IO[Nothing, Unit] =
-    ???
+  def repeatN1(n: Int, action: () => Unit): Unit =
+    if (n <= 0) ()
+    else {
+      action()
+      repeatN1(n - 1, action)
+    }
+  def repeatN2(n: Int, action: IO[Nothing, Unit]): IO[Nothing, Unit] = ???
 
   //
   // EXERCISE 10
@@ -279,7 +294,8 @@ object zio_composition {
   //
   // EXERCISE 12
   //
-  // Translate the following expression into its `flatMap` equivalent.
+  // Translate the following expression into an equivalent expression using
+  // the `map` and `flatMap` methods of the `IO` object.
   //
   (IO.point(42) <* IO.point(19)) *> IO.point(1)
 }
@@ -292,15 +308,17 @@ object zio_failure {
   //
   // EXERCISE 1
   //
-  // Create an `IO[String, Int]` value that represents a failure with a string
-  // error message, containing a user-readable description of the failure.
+  // Using the `IO.fail` method, create an `IO[String, Int]` value that
+  // represents a failure with a string error message, containing a user-
+  // readable description of the failure.
+  //
   val stringFailure1: IO[String, Int] = ???
 
   //
   // EXERCISE 2
   //
-  // Create an `IO[Int, String]` value that represents a failure with an integer
-  // error code.
+  // Using the `IO.fail` method, create an `IO[Int, String]` value that
+  // represents a failure with an integer error code.
   //
   val intFailure: IO[Int, String] = ???
 
@@ -320,7 +338,8 @@ object zio_failure {
   def accessArr1[A](i: Int, a: Array[A]): A =
     if (i < 0 || i >= a.length) throw new IndexOutOfBoundsException("The index " + i + " is out of bounds [0, " + a.length + ")")
     else a(i)
-  def accessArr2[A](i: Int, a: Array[A]): IO[IndexOutOfBoundsException, A] = ???
+  def accessArr2[A](i: Int, a: Array[A]): IO[IndexOutOfBoundsException, A] =
+    ???
 
   //
   // EXERCISE 5
@@ -347,7 +366,7 @@ object zio_failure {
   //
   // EXERCISE 7
   //
-  // Recover from a dvision by zero error by using `redeem`.
+  // Recover from a division by zero error by using `redeem`.
   //
   val recovered2: IO[Nothing, Int] = divide1(100, 0).redeem(???, ???)
 
@@ -693,8 +712,68 @@ object zio_schedule {
 }
 
 object zio_interop {
-  // import scalaz.zio.interop._
-  // import scalaz.zio.interop.catz._
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
+
+  import scala.concurrent.Future
+  import scalaz.zio.interop.future._
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  //
+  // EXERCISE 1
+  //
+  // Use `IO.fromFuture` method to convert the following `Future` into an `IO`.
+  //
+  val future1 = () => Future.successful("Hello World")
+  val io1 = IO.fromFuture(???)(global)
+
+  //
+  // EXERCISE 2
+  //
+  // Use the `toFuture` method on `IO` to convert the following `io` to `Future`.
+  //
+  val io2: IO[Throwable, Int] = IO.point(42)
+  val future2: IO[Nothing, Future[Int]] = io2 ?
+
+  //
+  // EXERCISE 3
+  //
+  // Use the Fiber.fromFuture` method to convert the following `Future` into
+  // an `IO`.
+  //
+  val future3 = () => Future.failed[Int](new Error("Uh ohs!"))
+  val fiber1: Fiber[Throwable, Int] = Fiber.fromFuture(???)(global)
+
+  import scalaz.zio.interop.Task
+  import scalaz.zio.interop.catz._
+  import cats.effect.concurrent.Ref
+
+  //
+  // EXERCISE 4
+  //
+  // The following example uses the `Ref` from `cats-effect`, demonstrating how
+  // `cats-effect` structures work with ZIO.
+  //
+  class Worker(number: Int, ref: Ref[Task, Int]) {
+    def work: Task[Unit] =
+      for {
+        c1 <- ref.get
+        _  <- putStrLn(s"#$number >> $c1")
+        c2 <- ref.modify(x => (x + 1, x))
+        _  <- putStrLn(s"#$number >> $c2")
+      } yield ()
+  }
+
+  val program: Task[Unit] =
+    for {
+      ref <- Ref.of[Task, Int](0)
+      w1  = new Worker(1, ref)
+      w2  = new Worker(2, ref)
+      w3  = new Worker(3, ref)
+      f   <- IO.forkAll(List(w1.work, w2.work, w3.work))
+      _   <- f.join
+    } yield ()
 }
 
 object zio_ref {
