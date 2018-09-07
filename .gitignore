@@ -20,3 +20,14 @@ project/plugins/project/
 
 .DS_Store
 
+# Ensime
+.ensime
+.ensime_cache/
+.ensime*.log
+
+# Vim
+.*.sw[a-z]
+*.un~
+Session.vim
+tags
+
