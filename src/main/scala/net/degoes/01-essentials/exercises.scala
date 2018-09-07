@@ -109,7 +109,7 @@ object functions {
   //
   // EXERCISE 2
   //
-  // Convert the following partial function into a total function.
+  // Convert the following non-function into a function.
   //
   def arrayUpdate1[A](arr: Array[A], i: Int, f: A => A): Unit =
     arr.updated(i, f(arr(i)))
@@ -118,7 +118,7 @@ object functions {
   //
   // EXERCISE 3
   //
-  // Convert the following partial function into a total function.
+  // Convert the following non-function into a function.
   //
   def divide1(a: Int, b: Int): Int = a / b
   def divide2(a: Int, b: Int): ??? = ???
@@ -126,8 +126,7 @@ object functions {
   //
   // EXERCISE 4
   //
-  // Convert the following non-deterministic function into a deterministic
-  // function.
+  // Convert the following non-function into a function.
   //
   var id = 0
   def freshId1(): Int = {
@@ -140,8 +139,7 @@ object functions {
   //
   // EXERCISE 5
   //
-  // Convert the following non-deterministic function into a deterministic
-  // function.
+  // Convert the following non-function into a function.
   //
   import java.time.LocalDateTime
   def afterOneHour1: LocalDateTime = LocalDateTime.now.plusHours(1)
@@ -150,8 +148,7 @@ object functions {
   //
   // EXERCISE 6
   //
-  // Convert the following side-effecting function into a function that is
-  // free of side effects.
+  // Convert the following non-function into function.
   //
   def head1[A](as: List[A]): A = {
     if (as.length == 0) println("Oh no, it's impossible!!!")
@@ -162,8 +159,7 @@ object functions {
   //
   // EXERCISE 7
   //
-  // Convert the following side-effecting function into a function that is
-  // free of side effects.
+  // Convert the following non-function into a function.
   //
   trait Account
   trait Processor {
@@ -182,6 +178,42 @@ object functions {
 
   //
   // EXERCISE 8
+  //
+  // Implement the following function under the Scalazzi subset of Scala.
+  //
+  def printLine(line: String): Unit = ???
+
+  //
+  // EXERCISE 9
+  //
+  // Implement the following function under the Scalazzi subset of Scala.
+  //
+  def readLine: String = ???
+
+  //
+  // EXERCISE 10
+  //
+  // Implement the following function under the Scalazzi subset of Scala.
+  //
+  def systemExit(code: Int): Unit = ???
+
+  //
+  // EXERCISE 11
+  //
+  // Rewrite the following non-function `printer1` into a pure function, which
+  // could be used by pure or impure code.
+  //
+  def printer1(): Unit = {
+    println("Welcome to the help page!")
+    println("To list commands, type `commands`.")
+    println("For help on a command, type `help <command>`")
+    println("To exit the help page, type `exit`.")
+  }
+  def printer2[A](println: String => A, combine: (A, A) => A): A =
+    ???
+
+  //
+  // EXERCISE 12
   //
   // Create a purely-functional drawing library that is equivalent in
   // expressive power to the following procedural library.
@@ -215,43 +247,32 @@ object functions {
     def finish(): List[List[Boolean]] =
       canvas.map(_.toList).toList
   }
-  def draw2(size: Int /* ??? */): ??? = ???
+  def draw2(size: Int /* ??? */ ): ??? = ???
+}
+
+object higher_order {
+  case class Parser[+E, +A](
+    run: String => Either[E, (String, A)])
+
+  def fail[E](e: E): Parser[E, Nothing] =
+    Parser(_ => Left(e))
+
+  def point[A](a: => A): Parser[Nothing, A] =
+    Parser(input => Right((input, a)))
+
+  def char[E](e: E): Parser[E, Char] =
+    Parser(input => input.headOption match {
+      case None => Left(e)
+      case Some(char) => Right((input.drop(1), char))
+    })
 
   //
-  // EXERCISE 9
+  // EXERCISE 1
   //
-  // Implement the following function under the Scalazzi subset of Scala.
+  // Implement the following higher-order function.
   //
-  def printLine(line: String): Unit = ???
-
-  //
-  // EXERCISE 10
-  //
-  // Implement the following function under the Scalazzi subset of Scala.
-  //
-  def readLine: String = ???
-
-  //
-  // EXERCISE 11
-  //
-  // Implement the following function under the Scalazzi subset of Scala.
-  //
-  def systemExit(code: Int): Unit = ???
-
-  //
-  // EXERCISE 12
-  //
-  // Rewrite the following non-function `printer1` into a pure function, which
-  // could be used by pure or impure code.
-  //
-  def printer1(): Unit = {
-    println("Welcome to the help page!")
-    println("To list commands, type `commands`.")
-    println("For help on a command, type `help <command>`")
-    println("To exit the help page, type `exit`.")
-  }
-  def printer2[A](println: String => A, combine: (A, A) => A): A =
-    ???
+  def alt[E1, E2, A, B](l: Parser[E1, A], r: Parser[E2, B]):
+    Parser[E2, Either[A, B]] = ???
 }
 
 object poly_functions {
@@ -264,6 +285,7 @@ object poly_functions {
   object snd {
     ???
   }
+  // snd(1, "foo") // "foo"
 
   //
   // EXERCISE 2
@@ -275,6 +297,8 @@ object poly_functions {
   object repeat {
     ???
   }
+  // repeat[Int](100)(0, _ + 1) // 100
+  // repeat[String](10)("", _ + "*") // "**********"
 
   //
   // EXERCISE 3
@@ -291,6 +315,40 @@ object poly_functions {
   //
   def countExample2[A, B](f: A => B, g: A => B, a: A): B = ???
   val countExample2Answer = ???
+
+  //
+  // EXERCISE 5
+  //
+  // Implement the function `groupBy`.
+  //
+  val Data =
+    "poweroutage;2018-09-20;level=20" :: Nil
+  val By: String => String =
+    (data: String) => data.split(";")(1)
+  val Reducer: (String, List[String]) => String =
+    (date, events) =>
+      "On date " +
+        date + ", there were " +
+        events.length + " power outages"
+  val Expected =
+    Map("2018-09-20" ->
+      "On date 2018-09-20, there were 1 power outages")
+  def groupBy1(
+    l: List[String],
+    by: String => String)(
+      reducer: (String, List[String]) => String):
+      Map[String, String] = ???
+  // groupBy1(Data, By)(Reducer) == Expected
+
+  //
+  // EXERCISE 6
+  //
+  // Make the function `groupBy1` as polymorphic as possible and implement
+  // the polymorphic function. Compare to the original.
+  //
+  object groupBy2 {
+    ???
+  }
 }
 
 object higher_kinded {
@@ -306,7 +364,7 @@ object higher_kinded {
   //
   // EXERCISE 1
   //
-  // Identify a type constructor that takes one type paraemter (i.e. has kind
+  // Identify a type constructor that takes one type parameter (i.e. has kind
   // `* => *`), and place your answer inside the square brackets.
   //
   type Answer1 = `* => *`[???]
@@ -324,7 +382,7 @@ object higher_kinded {
   //
   // Create a new type that has kind `(* -> *) -> *`.
   //
-  type NewType1/*??? */
+  type NewType1 /* ??? */
   type Answer3 = `(* => *) => *`[?????]
 
   //
@@ -344,7 +402,7 @@ object higher_kinded {
   //
   // EXERCISE 6
   //
-  // Create a trait with kind `[* => *, ((* => *) => *)] => *`.
+  // Create a trait with kind `[* => *, (* => *) => *] => *`.
   //
   trait Answer6 /*[]*/
 
@@ -422,6 +480,75 @@ object higher_kinded {
 }
 
 object typeclasses {
+  //
+  // Scalaz 7 Encoding
+  //
+  sealed trait Ordering
+  case object EQ extends Ordering
+  case object LT extends Ordering
+  case object GT extends Ordering
+
+  trait Ord[A] {
+    def compare(l: A, r: A): Ordering
+  }
+  object Ord {
+    def apply[A](implicit A: Ord[A]): Ord[A] = A
+
+    implicit val OrdInt: Ord[Int] = new Ord[Int] {
+      def compare(l: Int, r: Int): Ordering =
+        if (l < r) LT else if (l > r) GT else EQ
+    }
+  }
+  implicit class OrdSyntax[A](l: A) {
+    def =?= (r: A)(implicit A: Ord[A]): Ordering =
+      A.compare(l, r)
+  }
+  case class Person(age: Int, name: String)
+  object Person {
+    implicit val OrdPerson: Ord[Person] = new Ord[Person] {
+      def compare(l: Person, r: Person): Ordering =
+        if (l.age < r.age) LT else if (l.age > r.age) GT
+        else if (l.name < r.name) LT else if (l.name > r.name) GT
+        else EQ
+    }
+  }
+
+  //
+  // EXERCISE 1
+  //
+  // Write a version of `sort1` called `sort2` that uses the polymorphic `List`
+  // type constructor, and which uses the `Ord` type class, including the
+  // compare syntax operator `=?=` to compare elements.
+  //
+  sealed trait IntList { self =>
+    def partition(f: Int => Boolean): (IntList, IntList) =
+      self match {
+        case IntNil => (IntNil, IntNil)
+        case IntCons(head, tail) =>
+          val (left, right) = tail.partition(f)
+          if (f(head)) (IntCons(head, left), right)
+          else (left, IntCons(head, right))
+      }
+    def ++ (that: IntList): IntList = self match {
+      case IntNil => that
+      case IntCons(head, tail) => IntCons(head, tail ++ that)
+    }
+  }
+  case object IntNil extends IntList
+  case class IntCons(head: Int, tail: IntList) extends IntList
+  // Sort on monomorphic list:
+  def sort1(l: IntList): IntList = l match {
+    case IntNil => IntNil
+    case IntCons(head, tail) =>
+      val (lessThan, notLessThan) = tail.partition(_ < head)
+
+      lessThan ++ IntCons(head, IntNil) ++ notLessThan
+  }
+  def sort2[A: Ord](l: List[A]): List[A] = ???
+
+  //
+  // Scalaz 8 Encoding
+  //
   sealed abstract class InstanceOfModule {
     type InstanceOf[T] <: T
     def instanceOf[T](t: T): InstanceOf[T]
@@ -467,28 +594,28 @@ object typeclasses {
     def <> (r: => A)(implicit A: Semigroup[A]): A = A.append(l(), r)
   }
   //
-  // EXERCISE 1
+  // EXERCISE 2
   //
   // Create an instance of the `Semigroup` type class for `java.time.Instant`.
   //
   implicit val SemigroupInstant: Semigroup[java.time.Instant] = ???
 
   //
-  // EXERCISE 2
+  // EXERCISE 3
   //
   // Create an instance of the `Semigroup` type class for `Int`.
   //
   implicit val SemigroupInt: Semigroup[Int] = ???
 
   //
-  // EXERCISE 3
+  // EXERCISE 4
   //
   // Create an instance of the `Semigroup` type class for `Set[A]`.
   //
   implicit def SemigroupSet[A]: Semigroup[Set[A]] = ???
 
   //
-  // EXERCISE 4
+  // EXERCISE 5
   //
   // Create an instance of the `Semigroup` type class for `Map[K, ?]`. Hint:
   // you will need some constraint applied to the values.
@@ -497,7 +624,7 @@ object typeclasses {
     ???
 
   //
-  // EXERCISE 5
+  // EXERCISE 6
   //
   // Create a type class `Monoid[A]` that implies `Semigroup[A]` (that is, every
   // `Monoid[A]` must be a `Semigroup[A]`), which adds a single operation called
@@ -521,35 +648,35 @@ object typeclasses {
   def empty[A: Monoid]: A = ???
 
   //
-  // EXERCISE 6
+  // EXERCISE 7
   //
   // Create an instance of the `Monoid` type class for `java.time.Instant`.
   //
   implicit val MonoidInstant: Monoid[java.time.Instant] = ???
 
   //
-  // EXERCISE 7
+  // EXERCISE 8
   //
   // Create an instance of the `Monoid` type class for `String`.
   //
   implicit val MonoidString: Monoid[String] = ???
 
   //
-  // EXERCISE 8
+  // EXERCISE 9
   //
   // Create an instance of the `Monoid` type class for `List[A]`.
   //
   implicit def MonoidList[A]: Monoid[List[A]] = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Create an instance of the `Monoid` type class for `Int`.
   //
   implicit val MonoidInt: Monoid[Int] = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Using a newtype, create an instance of the `Monoid` type class for `Int`
   // representing the additive monoid, with addition as `append`, and 0 as
@@ -559,7 +686,7 @@ object typeclasses {
   implicit val MonoidSum: Monoid[Sum] = ???
 
   //
-  // EXERCISE 11
+  // EXERCISE 12
   //
   // Using a newtype, create an instance of the `Monoid` type class for `Int`
   // representing the multiplicative monoid, with multiplication as `append`,
@@ -569,7 +696,7 @@ object typeclasses {
   implicit val MonoidProduct: Monoid[Product] = ???
 
   //
-  // EXERCISE 12
+  // EXERCISE 13
   //
   // Create an instance of the `Collection` type class for `List`.
   //
