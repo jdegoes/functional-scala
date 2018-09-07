@@ -25,7 +25,14 @@ object algebra {
   implicit val SemigroupPermission: Monoid[Permission] = ???
   val example2 = mzero[Permission] |+| Permission()
 
-
+  //
+  // EXERCISE 3
+  //
+  // Define an instance of `Semigroup` for `(A, B)` when both `A` and
+  // `B` form semigroups.
+  //
+  implicit def SemigroupTuple2[A: Semigroup, B: Semigroup]: Semigroup[(A, B)] =
+    ???
 }
 
 object functor {
