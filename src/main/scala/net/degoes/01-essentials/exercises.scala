@@ -480,11 +480,60 @@ object higher_kinded {
 }
 
 object typeclasses {
+  /**
+   * {{
+   * Identity:      a ==> equals(a, a)
+   *
+   * Transitivity:  equals(a, b) && equals(b, c) ==>
+   *                equals(a, c)
+   *
+   * Symmetry:      equals(a, b) ==> equals(b, a)
+   * }}
+   */
+  trait Eq[A] {
+    def equals(l: A, r: A): Boolean
+  }
+  object Eq {
+    def apply[A](implicit eq: Eq[A]): Eq[A] = eq
+
+    implicit val EqInt: Eq[Int] = new Eq[Int] {
+      def equals(l: Int, r: Int): Boolean = l == r
+    }
+    implicit def EqList[A: Eq]: Eq[List[A]] =
+      new Eq[List[A]] {
+        def equals(l: List[A], r: List[A]): Boolean =
+          (l, r) match {
+            case (Nil, Nil) => true
+            case (Nil, _) => false
+            case (_, Nil) => false
+            case (l :: ls, r :: rs) =>
+              (l === r) && equals(ls, rs)
+          }
+      }
+  }
+  implicit class EqSyntax[A](val l: A) extends AnyVal {
+    def === (r: A)(implicit eq: Eq[A]): Boolean =
+      eq.equals(l, r)
+  }
+  def allEquals[A: Eq](l: List[A]): Boolean =
+    l match {
+      case Nil => true
+      case ref :: as =>
+        as.foldLeft(true) {
+          case (b, a) => b && (ref === a)
+        }
+    }
+  allEquals(List(
+    List(1, 2),
+    List(1, 2),
+    List(1, 2),
+    List(1, 2)))
+
   //
   // Scalaz 7 Encoding
   //
   sealed trait Ordering
-  case object EQ extends Ordering
+  case object EQUAL extends Ordering
   case object LT extends Ordering
   case object GT extends Ordering
 
@@ -496,7 +545,7 @@ object typeclasses {
 
     implicit val OrdInt: Ord[Int] = new Ord[Int] {
       def compare(l: Int, r: Int): Ordering =
-        if (l < r) LT else if (l > r) GT else EQ
+        if (l < r) LT else if (l > r) GT else EQUAL
     }
   }
   implicit class OrdSyntax[A](l: A) {
@@ -509,7 +558,11 @@ object typeclasses {
       def compare(l: Person, r: Person): Ordering =
         if (l.age < r.age) LT else if (l.age > r.age) GT
         else if (l.name < r.name) LT else if (l.name > r.name) GT
-        else EQ
+        else EQUAL
+    }
+    implicit val EqPerson: Eq[Person] = new Eq[Person] {
+      def equals(l: Person, r: Person): Boolean =
+        l == r
     }
   }
 
@@ -520,30 +573,7 @@ object typeclasses {
   // type constructor, and which uses the `Ord` type class, including the
   // compare syntax operator `=?=` to compare elements.
   //
-  sealed trait IntList { self =>
-    def partition(f: Int => Boolean): (IntList, IntList) =
-      self match {
-        case IntNil => (IntNil, IntNil)
-        case IntCons(head, tail) =>
-          val (left, right) = tail.partition(f)
-          if (f(head)) (IntCons(head, left), right)
-          else (left, IntCons(head, right))
-      }
-    def ++ (that: IntList): IntList = self match {
-      case IntNil => that
-      case IntCons(head, tail) => IntCons(head, tail ++ that)
-    }
-  }
-  case object IntNil extends IntList
-  case class IntCons(head: Int, tail: IntList) extends IntList
-  // Sort on monomorphic list:
-  def sort1(l: IntList): IntList = l match {
-    case IntNil => IntNil
-    case IntCons(head, tail) =>
-      val (lessThan, notLessThan) = tail.partition(_ < head)
-
-      lessThan ++ IntCons(head, IntNil) ++ notLessThan
-  }
+  def sort1(l: List[Int]): List[Int] = ???
   def sort2[A: Ord](l: List[A]): List[A] = ???
 
   //
