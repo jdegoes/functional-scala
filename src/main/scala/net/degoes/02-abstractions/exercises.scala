@@ -12,7 +12,8 @@ object algebra {
   // Define a semigroup for `NotEmpty` below.
   //
   case class NotEmpty[+A](head: A, tail: Option[NotEmpty[A]])
-  implicit def NotEmptySemigroup[A]: Semigroup[NotEmpty[A]] = ???
+  implicit def NotEmptySemigroup[A]: Semigroup[NotEmpty[A]] =
+    ???
   val example1 = NotEmpty(1, None) |+| NotEmpty(2, None)
 
   //
@@ -33,6 +34,13 @@ object algebra {
   //
   implicit def SemigroupTuple2[A: Semigroup, B: Semigroup]: Semigroup[(A, B)] =
     ???
+
+  //
+  // EXERCISE 4
+  //
+  // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
+  //
+  implicit def MonoidNotEmpty[A]: Monoid[NotEmpty[A]] = ???
 }
 
 object functor {
