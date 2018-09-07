@@ -22,8 +22,8 @@ object algebra {
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
   //
-  case class Permission()
-  implicit val SemigroupPermission: Monoid[Permission] = ???
+  case class Permission(/* ??? */)
+  implicit val MonoidPermission: Monoid[Permission] = ???
   val example2 = mzero[Permission] |+| Permission()
 
   //
@@ -32,8 +32,8 @@ object algebra {
   // Define an instance of `Semigroup` for `(A, B)` when both `A` and
   // `B` form semigroups.
   //
-  implicit def SemigroupTuple2[A: Semigroup, B: Semigroup]: Semigroup[(A, B)] =
-    ???
+  implicit def SemigroupTuple2[A: Semigroup, B: Semigroup]:
+    Semigroup[(A, B)] = ???
 
   //
   // EXERCISE 4
