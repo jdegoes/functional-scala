@@ -52,7 +52,11 @@ object functor {
   sealed trait BTree[+A]
   case class Leaf[A](a: A) extends BTree[A]
   case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
-  implicit val BTreeFunctor: Functor[BTree] = ???
+  implicit val BTreeFunctor: Functor[BTree] =
+    new Functor[BTree] {
+      def map[A, B](fa: BTree[A])(f: A => B): BTree[B] =
+        ???
+    }
 
   //
   // EXERCISE 2
@@ -105,30 +109,52 @@ object functor {
     Functor[FunctorNest[F, G, ?]] = ???
 
   //
-  // EXERCUSE 8
+  // EXERCISE 8
   //
-  // Implement `zip` in terms of the applicative composition using `|@|`.
+  // Define `Applicative` for `Option`.
   //
-  val example1 = (Option(3) |@| Option(5))((_, _))
-  val example2 = zip(Option(3), Option(5))
-  def zip[F[_]: Applicative, A, B](l: F[A], r: F[B]): F[(A, B)] = ???
+  implicit val OptionApplicative: Applicative[Option] =
+    new Applicative[Option] {
+      def point[A](a: => A): Option[A] = ???
+
+      def ap[A, B](fa: => Option[A])(f: => Option[A => B]): Option[B] =
+        ???
+    }
 
   //
   // EXERCISE 9
   //
-  // Define an instance of `Applicative` for `Parser[E, ?]`.
+  // Implement `zip` in terms of the applicative composition using `|@|`.
   //
-  implicit def ApplicativeParser[E]: Applicative[Parser[E, ?]] = ???
+  val example1 = (Option(3) |@| Option(5))((_, _))
+  val example2 = zip(Option(3), Option("foo")) : Option[(Int, String)]
+  def zip[F[_]: Applicative, A, B](l: F[A], r: F[B]): F[(A, B)] =
+    ???
+  def ap2[F[_]: Applicative, A, B](fa: F[A], fab: F[A => B]): F[B] =
+    ???
 
   //
   // EXERCISE 10
+  //
+  // Define an instance of `Applicative` for `Parser[E, ?]`.
+  //
+  implicit def ApplicativeParser[E]: Applicative[Parser[E, ?]] =
+    new Applicative[Parser[E, ?]] {
+      def point[A](a: => A): Parser[E,A] = ???
+
+      def ap[A, B](fa: => Parser[E,A])(
+        f: => Parser[E, A => B]): Parser[E,B] = ???
+    }
+
+  //
+  // EXERCISE 11
   //
   // Define an instance of `Monad` for `BTree`.
   //
   implicit val MonadBTree: Monad[BTree] = ???
 
   //
-  // EXERCISE 11
+  // EXERCISE 12
   //
   // Define an instance of `Monad` for `Parser[E, ?]`.
   //
@@ -148,7 +174,7 @@ object foldable {
   //
   // EXERCISE 2
   //
-  // Define an instance of `Foldable` for `A => ?`.
+  // Try to define an instance of `Foldable` for `A => ?`.
   //
   implicit def FunctionFoldable[A]: Foldable[A => ?] = ???
 
@@ -162,7 +188,7 @@ object foldable {
   //
   // EXERCISE 4
   //
-  // Define an instance of `Traverse` for `Parser[E, ?]`.
+  // Try to define an instance of `Traverse` for `Parser[E, ?]`.
   //
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   implicit def TraverseParser[E]: Traverse[Parser[E, ?]] = ???

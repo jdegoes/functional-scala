@@ -273,6 +273,41 @@ object higher_order {
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: Parser[E2, B]):
     Parser[E2, Either[A, B]] = ???
+
+  //
+  // EXERCISE 2
+  //
+  // Implement the following higher-order function.
+  //
+  def join[A, B, C](f: A => B, g: A => C): A => (B, C) = ???
+
+  //
+  // EXERCISE 3
+  //
+  // Implement the following higher-order function.
+  //
+  def parallel[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) = ???
+
+  //
+  // EXERCISE 4
+  //
+  // Implement the following higher-order function.
+  //
+  def leftChoice[A, B, C](f: A => B, g: C => B): Either[A, C] => B = ???
+
+  //
+  // EXERCISE 5
+  //
+  // Implement the following higher-order function.
+  //
+  def choice[A, B, C, D](f: A => B, g: C => D): Either[A, C] => Either[B, D] = ???
+
+  //
+  // EXERCISE 6
+  //
+  // Implement the following higer-order function.
+  //
+  def compose[A, B, C](f: B => C, g: A => B): A => C = ???
 }
 
 object poly_functions {
@@ -482,7 +517,7 @@ object higher_kinded {
 object typeclasses {
   /**
    * {{
-   * Identity:      a ==> equals(a, a)
+   * Refkexivity:   a ==> equals(a, a)
    *
    * Transitivity:  equals(a, b) && equals(b, c) ==>
    *                equals(a, c)
@@ -515,19 +550,6 @@ object typeclasses {
     def === (r: A)(implicit eq: Eq[A]): Boolean =
       eq.equals(l, r)
   }
-  def allEquals[A: Eq](l: List[A]): Boolean =
-    l match {
-      case Nil => true
-      case ref :: as =>
-        as.foldLeft(true) {
-          case (b, a) => b && (ref === a)
-        }
-    }
-  allEquals(List(
-    List(1, 2),
-    List(1, 2),
-    List(1, 2),
-    List(1, 2)))
 
   //
   // Scalaz 7 Encoding
