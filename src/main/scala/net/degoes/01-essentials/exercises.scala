@@ -330,8 +330,8 @@ object poly_functions {
   //
   // EXERCISE 1
   //
-  // Create a polymorphic function called `snd` that returns the second
-  // element out of any `(A, B)`.
+  // Create a polymorphic function of two type parameters `A` and `B` called
+  // `snd` that returns the second element out of any pair of `A` and `B`.
   //
   object snd {
     ???
@@ -533,7 +533,7 @@ object higher_kinded {
 object typeclasses {
   /**
    * {{
-   * Refkexivity:   a ==> equals(a, a)
+   * Reflexivity:   a ==> equals(a, a)
    *
    * Transitivity:  equals(a, b) && equals(b, c) ==>
    *                equals(a, c)
@@ -611,7 +611,13 @@ object typeclasses {
   // type constructor, and which uses the `Ord` type class, including the
   // compare syntax operator `=?=` to compare elements.
   //
-  def sort1(l: List[Int]): List[Int] = ???
+  def sort1(l: List[Int]): List[Int] = l match {
+    case Nil => Nil
+    case x :: xs =>
+      val (lessThan, notLessThan) = xs.partition(_ < x)
+
+      sort1(lessThan) ++ List(x) ++ sort1(notLessThan)
+  }
   def sort2[A: Ord](l: List[A]): List[A] = ???
 
   //
