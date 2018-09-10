@@ -47,13 +47,31 @@ object types {
   //
   // EXERCISE 6
   //
+  // Prove that `A * 1` is equivalent to `A` by implementing the following two
+  // functions.
+  //
+  def to1[A](t: (A, Unit)): A = ???
+  def from1[A](a: A): (A, Unit) = ???
+
+  //
+  // EXERCISE 7
+  //
   // Create a sum type of `Int` and `String` representing the identifier of
   // a robot (a number) or a person (a name).
   //
   type Identifier = ???
 
   //
-  // EXERCISE 7
+  // EXERCISE 8
+  //
+  // Prove that `A + 0` is equivalent to `A` by implementing the following two
+  // functions.
+  //
+  def to2[A](t: Either[A, Nothing]): A = ???
+  def from2[A](a: A): Either[A, Nothing] = ???
+
+  //
+  // EXERCISE 9
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // credit card, which has a number, an expiration date, and a security code.
@@ -61,7 +79,7 @@ object types {
   type CreditCard = ???
 
   //
-  // EXERCISE 8
+  // EXERCISE 10
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // payment method, which could be a credit card, bank account, or
@@ -70,7 +88,7 @@ object types {
   type PaymentMethod = ???
 
   //
-  // EXERCISE 8
+  // EXERCISE 11
   //
   // Create either a sum type or a product type (as appropriate) to represent an
   // employee at a company, which has a title, salary, name, employment date.
@@ -78,7 +96,7 @@ object types {
   type Employee = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 12
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // piece on a chess board, which could be a pawn, rook, bishop, knight,
@@ -87,7 +105,7 @@ object types {
   type ChessPiece = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 13
   //
   // Create an ADT model of a game world, including a map, a player, non-player
   // characters, different classes of items, and character stats.
