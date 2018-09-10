@@ -574,6 +574,17 @@ object typeclasses {
   case object EQUAL extends Ordering
   case object LT extends Ordering
   case object GT extends Ordering
+  object Ordering {
+    implicit val OrderingEq: Eq[Ordering] = new Eq[Ordering] {
+      def equals(l: Ordering, r: Ordering): Boolean =
+        (l, r) match {
+          case (EQUAL, EQUAL) => true
+          case (LT, LT) => true
+          case (GT, GT) => true
+          case _ => false
+        }
+    }
+  }
 
   trait Ord[A] {
     def compare(l: A, r: A): Ordering
@@ -586,7 +597,7 @@ object typeclasses {
         if (l < r) LT else if (l > r) GT else EQUAL
     }
   }
-  implicit class OrdSyntax[A](l: A) {
+  implicit class OrdSyntax[A](val l: A) extends AnyVal {
     def =?= (r: A)(implicit A: Ord[A]): Ordering =
       A.compare(l, r)
   }
