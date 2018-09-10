@@ -293,7 +293,7 @@ object higher_order {
   //
   // Implement the following higher-order function.
   //
-  def leftChoice[A, B, C](f: A => B, g: C => B): Either[A, C] => B = ???
+  def either[A, B, C](f: A => B, g: C => B): Either[A, C] => B = ???
 
   //
   // EXERCISE 5
