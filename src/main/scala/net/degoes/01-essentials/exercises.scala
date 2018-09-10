@@ -279,14 +279,14 @@ object higher_order {
   //
   // Implement the following higher-order function.
   //
-  def join[A, B, C](f: A => B, g: A => C): A => (B, C) = ???
+  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) = ???
 
   //
   // EXERCISE 3
   //
   // Implement the following higher-order function.
   //
-  def parallel[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) = ???
+  def cross[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) = ???
 
   //
   // EXERCISE 4
