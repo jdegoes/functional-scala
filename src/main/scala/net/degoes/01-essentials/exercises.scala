@@ -119,7 +119,7 @@ object functions {
   //
   // EXERCISE 1
   //
-  // Convert the following partial function into a total function.
+  // Convert the following non-function into a function.
   //
   def parseInt1(s: String): Int = s.toInt
   def parseInt2(s: String): ??? = ???
@@ -227,8 +227,7 @@ object functions {
     println("For help on a command, type `help <command>`")
     println("To exit the help page, type `exit`.")
   }
-  def printer2[A](println: String => A, combine: (A, A) => A): A =
-    ???
+  def printer2[A](println: String => A, combine: (A, A) => A): A = ???
 
   //
   // EXERCISE 12
@@ -265,7 +264,7 @@ object functions {
     def finish(): List[List[Boolean]] =
       canvas.map(_.toList).toList
   }
-  def draw2(size: Int /* ??? */ ): ??? = ???
+  def draw2(size: Int /* */): ??? = ???
 }
 
 object higher_order {
@@ -273,59 +272,58 @@ object higher_order {
     run: String => Either[E, (String, A)])
 
   def fail[E](e: E): Parser[E, Nothing] =
-    Parser(_ => Left(e))
+    Parser(input => Left(e))
 
   def point[A](a: => A): Parser[Nothing, A] =
     Parser(input => Right((input, a)))
 
   def char[E](e: E): Parser[E, Char] =
-    Parser(input => input.headOption match {
-      case None => Left(e)
-      case Some(char) => Right((input.drop(1), char))
-    })
+    Parser(input =>
+      if (input.length == 0) Left(e)
+      else Right((input.drop(1), input.charAt(0))))
 
   //
   // EXERCISE 1
   //
   // Implement the following higher-order function.
   //
-  def alt[E1, E2, A, B](l: Parser[E1, A], r: Parser[E2, B]):
-    Parser[E2, Either[A, B]] = ???
+  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) = ???
 
   //
   // EXERCISE 2
   //
   // Implement the following higher-order function.
   //
-  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) = ???
+  def cross[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) = ???
 
   //
   // EXERCISE 3
   //
   // Implement the following higher-order function.
   //
-  def cross[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) = ???
+  def either[A, B, C](f: A => B, g: C => B): Either[A, C] => B = ???
 
   //
   // EXERCISE 4
   //
   // Implement the following higher-order function.
   //
-  def either[A, B, C](f: A => B, g: C => B): Either[A, C] => B = ???
+  def choice[A, B, C, D](f: A => B, g: C => D): Either[A, C] => Either[B, D] = ???
 
   //
   // EXERCISE 5
   //
-  // Implement the following higher-order function.
+  // Implement the following higer-order function.
   //
-  def choice[A, B, C, D](f: A => B, g: C => D): Either[A, C] => Either[B, D] = ???
+  def compose[A, B, C](f: B => C, g: A => B): A => C = ???
 
   //
   // EXERCISE 6
   //
-  // Implement the following higer-order function.
+  // Implement the following higher-order function.
   //
-  def compose[A, B, C](f: B => C, g: A => B): A => C = ???
+  def alt[E1, E2, A, B](l: Parser[E1, A], r: Parser[E2, B]):
+    Parser[E2, Either[A, B]] = ???
 }
 
 object poly_functions {
