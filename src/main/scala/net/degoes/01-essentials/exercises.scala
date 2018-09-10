@@ -558,7 +558,7 @@ object typeclasses {
             case (Nil, _) => false
             case (_, Nil) => false
             case (l :: ls, r :: rs) =>
-              (l === r) && equals(ls, rs)
+              Eq[A].equals(l, r) && equals(ls, rs)
           }
       }
   }
@@ -600,6 +600,24 @@ object typeclasses {
   implicit class OrdSyntax[A](val l: A) extends AnyVal {
     def =?= (r: A)(implicit A: Ord[A]): Ordering =
       A.compare(l, r)
+
+    def < (r: A)(implicit A: Ord[A]): Boolean =
+      Eq[Ordering].equals(A.compare(l, r), LT)
+
+    def <= (r: A)(implicit A: Ord[A]): Boolean =
+      (l < r) || (this === r)
+
+    def > (r: A)(implicit A: Ord[A]): Boolean =
+      Eq[Ordering].equals(A.compare(l, r), GT)
+
+    def >= (r: A)(implicit A: Ord[A]): Boolean =
+      (l > r) || (this === r)
+
+    def === (r: A)(implicit A: Ord[A]): Boolean =
+      Eq[Ordering].equals(A.compare(l, r), EQUAL)
+
+    def !== (r: A)(implicit A: Ord[A]): Boolean =
+      !Eq[Ordering].equals(A.compare(l, r), EQUAL)
   }
   case class Person(age: Int, name: String)
   object Person {
