@@ -22,7 +22,7 @@ object algebra {
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
   //
-  case class Permission(/* ??? */)
+  case class Permission(/* */)
   implicit val MonoidPermission: Monoid[Permission] = ???
   val example2 = mzero[Permission] |+| Permission()
 
@@ -33,7 +33,10 @@ object algebra {
   // `B` form semigroups.
   //
   implicit def SemigroupTuple2[A: Semigroup, B: Semigroup]:
-    Semigroup[(A, B)] = ???
+    Semigroup[(A, B)] = new Semigroup[(A, B)] {
+      def append(l: (A, B), r: => (A, B)): (A, B) =
+        (l._1 |+| r._1, l._2 |+| r._2)
+    }
 
   //
   // EXERCISE 4
@@ -71,7 +74,11 @@ object functor {
   // Define an instance of `Functor` for Parser[E, ?].
   //
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
-  implicit def ParserFunctor[E]: Functor[Parser[E, ?]] = ???
+  implicit def ParserFunctor[E]: Functor[Parser[E, ?]] =
+    new Functor[Parser[E, ?]] {
+      def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
+        ???
+    }
 
   //
   // EXERCISE 4
@@ -79,14 +86,18 @@ object functor {
   // Try to define an instance of `Functor` for the following data type.
   //
   case class DataType[A](f: A => A)
-  implicit val DataTypeFunctor: Functor[DataType] = ???
+  implicit val DataTypeFunctor: Functor[DataType] =
+    new Functor[DataType] {
+      def map[A, B](fa: DataType[A])(f: A => B): DataType[B] =
+        ???
+    }
 
   //
   // EXERCISE 5
   //
   // Define an instance of `Functor` for `FunctorProduct`.
   //
-  case class FunctorProduct[F[_], G[_], A](l: F[A], r: F[A])
+  case class FunctorProduct[F[_], G[_], A](l: F[A], r: G[A])
   implicit def FunctorProductFunctor[F[_]: Functor, G[_]: Functor]:
     Functor[FunctorProduct[F, G, ?]] = ???
 
