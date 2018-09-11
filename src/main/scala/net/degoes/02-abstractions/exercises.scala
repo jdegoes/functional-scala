@@ -119,6 +119,38 @@ object functor {
   implicit def FunctorNestFunctor[F[_]: Functor, G[_]: Functor]:
     Functor[FunctorNest[F, G, ?]] = ???
 
+  trait Apply[F[_]] extends Functor[F] {
+    def zip[A, B](l: F[A], r: F[B]): F[(A, B)]
+  }
+  implicit class ApplySyntax[F[_], A](l: F[A]) {
+    def *> [B](r: F[B])(implicit F: Apply[F]): F[B] =
+      F.zip(l, r).map(_._2) // NOT equal to r
+
+    def <* [B](r: F[B])(implicit F: Apply[F]): F[A] =
+      F.zip(l, r).map(_._1) // NOT equal to l
+  }
+
+  def zipOption[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
+    (l, r) match {
+      case (Some(a), Some(b)) => Some((a, b))
+      case _ => None
+    }
+
+  def zipWith[A, B, C](l: Option[A], r: Option[B])(f: ((A, B)) => C): Option[C] =
+    zipOption(l, r).map(f)
+
+  def zipList1[A, B](l: List[A], r: List[B]): List[(A, B)] =
+    (l, r) match {
+      case (a :: as, bs) =>
+        zipList1(as, bs) ++ bs.map(b => (a, b))
+      case (Nil, bs) => Nil
+    }
+  def zipList2[A, B](l: List[A], r: List[B]): List[(A, B)] =
+    (l, r) match {
+      case (a :: as, b :: bs) => ((a, b)) :: zipList2(as, bs)
+      case _ => Nil
+    }
+
   //
   // EXERCISE 8
   //
@@ -137,6 +169,8 @@ object functor {
   //
   // Implement `zip` in terms of the applicative composition using `|@|`.
   //
+  // Bonus: Implement `ap2` in terms of `zip`.
+  //
   val example1 = (Option(3) |@| Option(5))((_, _))
   val example2 = zip(Option(3), Option("foo")) : Option[(Int, String)]
   def zip[F[_]: Applicative, A, B](l: F[A], r: F[B]): F[(A, B)] =
@@ -151,10 +185,12 @@ object functor {
   //
   implicit def ApplicativeParser[E]: Applicative[Parser[E, ?]] =
     new Applicative[Parser[E, ?]] {
-      def point[A](a: => A): Parser[E,A] = ???
+      def point[A](a: => A): Parser[E,A] =
+        ???
 
       def ap[A, B](fa: => Parser[E,A])(
-        f: => Parser[E, A => B]): Parser[E,B] = ???
+        f: => Parser[E, A => B]): Parser[E,B] =
+          ???
     }
 
   //
@@ -162,14 +198,27 @@ object functor {
   //
   // Define an instance of `Monad` for `BTree`.
   //
-  implicit val MonadBTree: Monad[BTree] = ???
+  implicit val MonadBTree: Monad[BTree] =
+    new Monad[BTree] {
+      def point[A](a: => A): BTree[A] =
+        ???
+
+      def bind[A, B](fa: BTree[A])(f: A => BTree[B]): BTree[B] =
+        ???
+    }
 
   //
   // EXERCISE 12
   //
   // Define an instance of `Monad` for `Parser[E, ?]`.
   //
-  implicit def MonadParser[E]: Monad[Parser[E, ?]] = ???
+  implicit def MonadParser[E]: Monad[Parser[E, ?]] =
+    new Monad[Parser[E, ?]] {
+      def point[A](a: => A): Parser[E,A] = ???
+
+      def bind[A, B](fa: Parser[E,A])(f: A => Parser[E,B]): Parser[E,B] =
+        ???
+    }
 }
 
 object foldable {
@@ -181,20 +230,36 @@ object foldable {
   sealed trait BTree[+A]
   case class Leaf[A](a: A) extends BTree[A]
   case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
+  implicit val FoldableBTree: Foldable[BTree] =
+    new Foldable[BTree] {
+      def foldMap[A, B](fa: BTree[A])(f: A => B)(
+          implicit F: Monoid[B]): B =
+        ???
+
+      def foldRight[A, B](fa: BTree[A], z: => B)(
+          f: (A, => B) => B): B =
+        ???
+    }
 
   //
   // EXERCISE 2
   //
   // Try to define an instance of `Foldable` for `A => ?`.
   //
-  implicit def FunctionFoldable[A]: Foldable[A => ?] = ???
+  implicit def FunctionFoldable[A]: Foldable[A => ?] =
+    ???
 
   //
   // EXERCISE 3
   //
   // Define an instance of `Traverse` for `BTree`.
   //
-  implicit val TraverseBTree: Traverse[BTree] = ???
+  implicit val TraverseBTree: Traverse[BTree] =
+    new Traverse[BTree] {
+      def traverseImpl[G[_], A, B](fa: BTree[A])(
+        f: A => G[B])(implicit F: Applicative[G]): G[BTree[B]] =
+          ???
+    }
 
   //
   // EXERCISE 4
@@ -206,5 +271,102 @@ object foldable {
 }
 
 object optics {
+  sealed trait Country
+  object Country {
+    val usa: Prism[Country, Unit] =
+      Prism[Country, Unit]({
+        case USA => Some(())
+        case _ => None
+      }, _ => USA)
+  }
+  case object USA extends Country
+  case object UK extends Country
+  case object Poland extends Country
 
+  case class Org(name: String, address: Address, site: Site)
+  object Org {
+    val site: Lens[Org, Site] =
+      Lens[Org, Site](_.site, l => _.copy(site = l))
+  }
+  case class Address(
+    number: String,
+    street: String,
+    postalCode: String,
+    country: Country)
+  case class Site(
+    manager: Employee,
+    address: Address,
+    employees: Set[Employee])
+  object Site {
+    val manager: Lens[Site, Employee] =
+      Lens[Site, Employee](_.manager, m => _.copy(manager = m))
+  }
+  case class Employee(
+    name: String,
+    dob: java.time.Instant,
+    salary: BigDecimal,
+    address: Address)
+  object Employee {
+    val salary: Lens[Employee, BigDecimal] =
+      Lens[Employee, BigDecimal](_.salary, s => _.copy(salary = s))
+  }
+
+  lazy val org: Org = ???
+
+  lazy val org2 =
+    org.copy(site =
+      org.site.copy(manager = org.site.manager.copy(
+        salary = org.site.manager.salary * 0.95
+      ))
+    )
+
+  //
+  // EXERCISE 1
+  //
+  // Implement the `>>>` method of `Lens`.
+  //
+  final case class Lens[S, A](
+    get: S => A,
+    set: A => (S => S)
+  ) { self =>
+    def >>> [B](that: Lens[A, B]): Lens[S, B] =
+      ???
+
+    final def update(f: A => A): S => S =
+      (s: S) => self.set(f(self.get(s)))(s)
+  }
+
+  //
+  // EXERCISE 2
+  //
+  // Create a version of `org2` that uses lenses to update the salaries.
+  //
+  val org2_lens: Org =
+    (Org.site >>> Site.manager >>> Employee.salary).
+      update(_ * 0.95)(org)
+
+  //
+  // EXERCISE 3
+  //
+  // Implement `>>>` for `Prism`.
+  //
+  final case class Prism[S, A](
+    get: S => Option[A],
+    set: A => S) { self =>
+    def >>> [B](that: Prism[A, B]): Prism[S, B] =
+      ???
+
+    final def select(implicit ev: Unit =:= A): S =
+      set(ev(()))
+  }
+
+  //
+  // EXERCISE 4
+  //
+  // Implement `_Left` and `_Right`.
+  //
+  def _Left[A, B]: Prism[Either[A, B], A] =
+    ???
+  def _Right[A, B]: Prism[Either[A, B], B] =
+    ???
 }
