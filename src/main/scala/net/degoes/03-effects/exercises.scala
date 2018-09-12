@@ -8,18 +8,14 @@ import scala.concurrent.duration._
 
 object zio_background {
   sealed trait Program[A] { self =>
-    import Program.{Chain, Return}
-
-    final def map[B](f: A => B): Program[B] =
-      Chain(self, f.andThen(Return(_)))
+    final def map[B](f: A => B): Program[B] = ???
 
     final def flatMap[B](f: A => Program[B]): Program[B] =
-      Chain(self, f)
+      ???
   }
   object Program {
     final case class ReadLine[A](next: String => Program[A]) extends Program[A]
     final case class WriteLine[A](line: String, next: Program[A]) extends Program[A]
-    final case class Chain[A0, A](previous: Program[A0], next: A0 => Program[A]) extends Program[A]
     final case class Return[A](value: A) extends Program[A]
 
     def readLine: Program[String] = ReadLine(Return(_))

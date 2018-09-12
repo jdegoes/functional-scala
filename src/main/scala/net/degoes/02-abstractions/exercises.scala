@@ -119,17 +119,6 @@ object functor {
   implicit def FunctorNestFunctor[F[_]: Functor, G[_]: Functor]:
     Functor[FunctorNest[F, G, ?]] = ???
 
-  trait Apply[F[_]] extends Functor[F] {
-    def zip[A, B](l: F[A], r: F[B]): F[(A, B)]
-  }
-  implicit class ApplySyntax[F[_], A](l: F[A]) {
-    def *> [B](r: F[B])(implicit F: Apply[F]): F[B] =
-      F.zip(l, r).map(_._2) // NOT equal to r
-
-    def <* [B](r: F[B])(implicit F: Apply[F]): F[A] =
-      F.zip(l, r).map(_._1) // NOT equal to l
-  }
-
   def zipOption[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
     (l, r) match {
       case (Some(a), Some(b)) => Some((a, b))
