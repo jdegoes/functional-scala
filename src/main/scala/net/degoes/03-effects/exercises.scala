@@ -8,19 +8,39 @@ import scala.concurrent.duration._
 
 object zio_background {
   sealed trait Program[A] { self =>
-    final def map[B](f: A => B): Program[B] = ???
+    final def *> [B](that: Program[B]): Program[B] =
+      self.flatMap(_ => that)
+    final def <* [B](that: Program[B]): Program[A] =
+      self.flatMap(a => that.map(_ => a))
+
+    final def map[B](f: A => B): Program[B] =
+      self match {
+        case Program.ReadLine(next) =>
+          Program.ReadLine(input => next(input).map(f))
+        case Program.WriteLine(line, next) =>
+          Program.WriteLine(line, next.map(f))
+        case Program.Return(value) =>
+          Program.Return(() => f(value()))
+      }
 
     final def flatMap[B](f: A => Program[B]): Program[B] =
-      ???
+      self match {
+        case Program.ReadLine(next) =>
+          Program.ReadLine(input => next(input).flatMap(f))
+        case Program.WriteLine(line, next) =>
+          Program.WriteLine(line, next.flatMap(f))
+        case Program.Return(value) =>
+          f(value())
+      }
   }
   object Program {
     final case class ReadLine[A](next: String => Program[A]) extends Program[A]
     final case class WriteLine[A](line: String, next: Program[A]) extends Program[A]
-    final case class Return[A](value: A) extends Program[A]
+    final case class Return[A](value: () => A) extends Program[A]
 
-    def readLine: Program[String] = ReadLine(Return(_))
-    def writeLine(line: String): Program[Unit] = WriteLine(line, Return(()))
-    def point[A](a: A): Program[A] = Return(a)
+    val readLine: Program[String] = ReadLine(point[String](_))
+    def writeLine(line: String): Program[Unit] = WriteLine(line, point(()))
+    def point[A](a: => A): Program[A] = Return(() => a)
   }
 
   import Program.{readLine, writeLine, point}
@@ -49,7 +69,7 @@ object zio_background {
   //
   def yourName3: Program[Unit] = ???
 
-  def getName: Program[String] =
+  val getName: Program[String] =
     writeLine("What is your name?").flatMap(_ => readLine)
 
   //
@@ -66,7 +86,8 @@ object zio_background {
   // Implement the following function, which shows how to write a combinator
   // that operates on programs.
   //
-  def sequence[A](programs: List[Program[A]]): Program[List[A]] = ???
+  def sequence[A](programs: List[Program[A]]): Program[List[A]] =
+    ???
 
   //
   // EXERCISE 5
