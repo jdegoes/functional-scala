@@ -188,6 +188,7 @@ object zio_composition {
   implicit class FixMe[A](a: A) {
     def ?[B] = ???
   }
+
   //
   // EXERCISE 1
   //
@@ -239,8 +240,8 @@ object zio_composition {
   //
   // EXERCISE 6
   //
-  // Rewrite the following ZIO program, which uses conditionals, into its
-  // procedural equivalent.
+  // Rewrite the following procedural program, which uses conditionals, into its
+  // ZIO equivalent.
   //
   def decode1(read: () => Byte): Either[Byte, Int] = {
     val b = read()
@@ -248,8 +249,8 @@ object zio_composition {
     else {
       Right(b.toInt +
       (read().toInt << 8) +
-      (read().toInt << 8) +
-      (read().toInt << 8))
+      (read().toInt << 16) +
+      (read().toInt << 24))
     }
   }
   def decode2[E](read: IO[E, Byte]): IO[E, Either[Byte, Int]] =
@@ -275,11 +276,10 @@ object zio_composition {
   //
   // Translate the following loop into its ZIO equivalent.
   //
-  def sumList1(ints: List[Int], acc: Int): Int = ints match {
-    case Nil => acc
-    case x :: xs => sumList1(xs, acc + x)
-  }
-  def sumList2(ints: IO[Nothing, List[Int]], acc: IO[Nothing, Int]): IO[Nothing, Int] = ???
+  def forever1(action: () => Unit): Unit =
+    while (true) action()
+  def forever2[A](action: IO[Nothing, A]): IO[Nothing, Nothing] =
+    ???
 
   //
   // EXERCISE 9
@@ -292,7 +292,8 @@ object zio_composition {
       action()
       repeatN1(n - 1, action)
     }
-  def repeatN2(n: Int, action: IO[Nothing, Unit]): IO[Nothing, Unit] = ???
+  def repeatN2[E](n: Int, action: IO[E, Unit]): IO[E, Unit] =
+    ???
 
   //
   // EXERCISE 10
@@ -329,7 +330,8 @@ object zio_failure {
   // represents a failure with a string error message, containing a user-
   // readable description of the failure.
   //
-  val stringFailure1: IO[String, Int] = ???
+  val stringFailure1: IO[String, Int] =
+    ???
 
   //
   // EXERCISE 2
@@ -345,7 +347,7 @@ object zio_failure {
   // Transform the error of `intFailure` into its string representation using
   // the `leftMap` method of `IO`.
   //
-  val stringFailure2: IO[String, String] = intFailure ?
+  val stringFailure2: IO[String, String] = ???
 
   //
   // EXERCISE 4
@@ -375,17 +377,19 @@ object zio_failure {
   //
   // Recover from a division by zero error by returning `-1`.
   //
-  val recovered1: IO[Nothing, Int] = divide1(100, 0).attempt.map {
-    case Left(error) => ???
-    case Right(value) => ???
-  }
+  val recovered1: IO[Nothing, Int] =
+    divide1(100, 0).attempt.map {
+      case Left(error) => ???
+      case Right(value) => ???
+    }
 
   //
   // EXERCISE 7
   //
   // Recover from a division by zero error by using `redeem`.
   //
-  val recovered2: IO[Nothing, Int] = divide1(100, 0).redeem(???, ???)
+  val recovered2: IO[Nothing, Int] =
+    divide1(100, 0).redeem(???, ???)
 
   //
   // EXERCISE 8
@@ -534,8 +538,10 @@ object zio_concurrency {
   //
   // Compute all values `workers` in parallel using `IO.parAll`.
   //
-  val workers: List[IO[Nothing, Int]] = (1 to 10).toList.map(fibonacci(_))
-  val workersInParallel: IO[Nothing, List[Int]] = ???
+  val workers: List[IO[Nothing, Int]] =
+    (1 to 10).toList.map(fibonacci(_))
+  val workersInParallel: IO[Nothing, List[Int]] =
+    ???
 
   //
   // EXERCISE 5
@@ -555,7 +561,7 @@ object zio_concurrency {
   val supervisedExample: IO[Nothing, Unit] =
     (for {
       fiber <- fibonacci(10000).fork
-    } yield ()) ?
+    } yield ())
 
   //
   // EXERCISE 7
@@ -641,12 +647,13 @@ object zio_resources {
   def tryCatchFinally[E, A]
     (try0: IO[E, A])
     (catch0: PartialFunction[E, IO[E, A]])
-    (finally0: IO[Nothing, Unit]): IO[E, A] = ???
+    (finally0: IO[Nothing, Unit]): IO[E, A] =
+      ???
 
   //
   // EXERCISE 4
   //
-  // Use the `tryCatchFinally` method to rewrite the following snippet to ZIO.
+  // Use the `bracket` method to rewrite the following snippet to ZIO.
   //
   def readFileTCF1(file: File): List[Byte] = {
     var fis : FileInputStream = null
@@ -674,7 +681,8 @@ object zio_schedule {
   //
   // Using `Schedule.recurs`, create a schedule that recurs 5 times.
   //
-  val fiveTimes: Schedule[Any, Int] = ???
+  val fiveTimes: Schedule[Any, Int] =
+    ???
 
   //
   // EXERCISE 2
@@ -682,7 +690,7 @@ object zio_schedule {
   // Using the `repeat` method of the `IO` object, repeat printing "Hello World"
   // five times to the console.
   //
-  val repeated1 = putStrLn("Hello World") ?
+  val repeated1 = putStrLn("Hello World")
 
   //
   // EXERCISE 3
@@ -690,7 +698,8 @@ object zio_schedule {
   // Using `Schedule.spaced`, create a schedule that recurs forever every 1
   // second.
   //
-  val everySecond: Schedule[Any, Int] = ???
+  val everySecond: Schedule[Any, Int] =
+    ???
 
   //
   // EXERCISE 4
@@ -726,6 +735,17 @@ object zio_schedule {
   //
   val error1 = IO.fail("Uh oh!")
   val retried5 = error1 ?
+
+  //
+  // EXERCISE 8
+  //
+  // Produce a jittered schedule that first does exponential spacing (starting
+  // from 10 milliseconds), but then after the spacing reaches 60 seconds,
+  // switches over to fixed spacing of 60 seconds between recurrences, but will
+  // only do that for up to 100 times, and produce a list of the results.
+  //
+  def mySchedule[A]: Schedule[A, List[A]] =
+    ???
 }
 
 object zio_interop {
