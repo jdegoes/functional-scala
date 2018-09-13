@@ -29,7 +29,6 @@ scalacOptions ++= Seq(
   , "-Xverify"
   , "-feature"
   ,"-Ypartial-unification"
-  ,"-Xfatal-warnings"
   , "-language:_"
 )
 
