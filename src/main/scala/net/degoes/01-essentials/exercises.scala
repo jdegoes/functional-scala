@@ -17,8 +17,7 @@ object types {
   //
   // List all values of the type `Either[Unit, Boolean]`.
   //
-  val EitherUnitBoolValues: List[Either[Unit, Boolean]] =
-    ???
+  val EitherUnitBoolValues: List[Either[Unit, Boolean]] = ???
 
   //
   // EXERCISE 3
@@ -33,8 +32,7 @@ object types {
   //
   // List all values of the type `Either[Either[Unit, Unit], Unit]`.
   //
-  val EitherEitherUnitUnitUnitValues: List[Either[Either[Unit, Unit], Unit]] =
-    ???
+  val EitherEitherUnitUnitUnitValues: List[Either[Either[Unit, Unit], Unit]] = ???
 
   //
   // EXERCISE 5
@@ -56,22 +54,31 @@ object types {
   //
   // EXERCISE 7
   //
+  // Prove that `A * 0` is equivalent to `0` by implementing the following two
+  // functions.
+  //
+  def to2[A](t: (A, Nothing)): Nothing = ???
+  def from2[A](n: Nothing): (A, Nothing) = ???
+
+  //
+  // EXERCISE 8
+  //
   // Create a sum type of `Int` and `String` representing the identifier of
   // a robot (a number) or a person (a name).
   //
   type Identifier = ???
 
   //
-  // EXERCISE 8
+  // EXERCISE 9
   //
   // Prove that `A + 0` is equivalent to `A` by implementing the following two
   // functions.
   //
-  def to2[A](t: Either[A, Nothing]): A = ???
-  def from2[A](a: A): Either[A, Nothing] = ???
+  def to3[A](t: Either[A, Nothing]): A = ???
+  def from3[A](a: A): Either[A, Nothing] = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // credit card, which has a number, an expiration date, and a security code.
@@ -79,7 +86,7 @@ object types {
   type CreditCard = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // payment method, which could be a credit card, bank account, or
@@ -88,15 +95,15 @@ object types {
   type PaymentMethod = ???
 
   //
-  // EXERCISE 11
+  // EXERCISE 12
   //
   // Create either a sum type or a product type (as appropriate) to represent an
-  // employee at a company, which has a title, salary, name, employment date.
+  // employee at a company, which has a title, salary, name, and employment date.
   //
   type Employee = ???
 
   //
-  // EXERCISE 12
+  // EXERCISE 13
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // piece on a chess board, which could be a pawn, rook, bishop, knight,
@@ -105,7 +112,7 @@ object types {
   type ChessPiece = ???
 
   //
-  // EXERCISE 13
+  // EXERCISE 14
   //
   // Create an ADT model of a game world, including a map, a player, non-player
   // characters, different classes of items, and character stats.
@@ -115,6 +122,7 @@ object types {
 
 object functions {
   type ??? = Nothing
+
 
   //
   // EXERCISE 1
@@ -130,7 +138,7 @@ object functions {
   // Convert the following non-function into a function.
   //
   def arrayUpdate1[A](arr: Array[A], i: Int, f: A => A): Unit =
-    arr.updated(i, f(arr(i)))
+    arr.update(i, f(arr(i)))
   def arrayUpdate2[A](arr: Array[A], i: Int, f: A => A): ??? = ???
 
   //
