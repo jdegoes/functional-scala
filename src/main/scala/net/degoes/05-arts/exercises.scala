@@ -78,4 +78,8 @@ object exercises {
         if (error != null) Left(error) else Right(value)
       }
   }
+
+  object hoas {
+    
+  }
 }
