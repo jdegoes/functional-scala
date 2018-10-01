@@ -589,6 +589,11 @@ object zio_concurrency {
       _      <- both.interrupt
     } yield ()
 
+  //
+  // EXERCISE 9
+  //
+  // io.timeout[Option[A]](None)(Some(_))(60.seconds)
+
   def fibonacci(n: Int): IO[Nothing, Int] =
     if (n <= 1) IO.now(n)
     else fibonacci(n - 1).seqWith(fibonacci(n - 2))(_ + _)
@@ -739,6 +744,15 @@ object zio_schedule {
   //
   // EXERCISE 8
   //
+  // Using the `&&` method of the `Schedule` object, the `fiveTimes` schedule,
+  // and the `everySecond` schedule, create a schedule that repeats the minimum
+  // of five times and every second.
+  //
+  val fiveTimesOrEverySecond = ???
+
+  //
+  // EXERCISE 9
+  //
   // Produce a jittered schedule that first does exponential spacing (starting
   // from 10 milliseconds), but then after the spacing reaches 60 seconds,
   // switches over to fixed spacing of 60 seconds between recurrences, but will
@@ -826,10 +840,6 @@ object zio_queue {
 }
 
 object zio_rts {
-
-}
-
-object zio_challenge {
 
 }
 
