@@ -16,6 +16,8 @@ object algebra {
     ???
   val example1 = NotEmpty(1, None) |+| NotEmpty(2, None)
 
+  implicit def OptionMonoid[A: Semigroup]: Monoid[Option[A]] = ???
+
   //
   // EXERCISE 2
   //
@@ -35,7 +37,7 @@ object algebra {
   implicit def SemigroupTuple2[A: Semigroup, B: Semigroup]:
     Semigroup[(A, B)] = new Semigroup[(A, B)] {
       def append(l: (A, B), r: => (A, B)): (A, B) =
-        (l._1 |+| r._1, l._2 |+| r._2)
+        ???
     }
 
   //
