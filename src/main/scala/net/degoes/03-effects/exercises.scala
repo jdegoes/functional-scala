@@ -1009,7 +1009,83 @@ object zio_promise {
 }
 
 object zio_queue {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
 
+  //
+  // EXERCISE 1
+  //
+  // Using the `Queue.bounded`, create a queue for `Int` values with a capacity
+  // of 10.
+  //
+  val makeQueue: IO[Nothing, Queue[Int]] =
+    Queue.bounded(10)
+
+  //
+  // EXERCISE 2
+  //
+  // Using the `offer` method of `Queue`, place an integer value into a queue.
+  //
+  val offered1: IO[Nothing, Unit] =
+    for {
+      queue <- makeQueue
+      _     <- (queue ? : IO[Nothing, Unit])
+    } yield ()
+
+  //
+  // EXERCISE 3
+  //
+  // Using the `take` method of `Queue`, take an integer value from a queue.
+  //
+  val taken1: IO[Nothing, Int] =
+    for {
+      queue <- makeQueue
+      _     <- queue.offer(42)
+      value <- (queue ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 4
+  //
+  // In one fiber, place 2 values into a queue, and in the main fiber, read
+  // 2 values from the queue.
+  //
+  val offeredTaken1: IO[Nothing, (Int, Int)] =
+    for {
+      queue <- makeQueue
+      _     <- (??? : IO[Nothing, Unit]).fork
+      v1    <- (queue ? : IO[Nothing, Int])
+      v2    <- (queue ? : IO[Nothing, Int])
+    } yield (v1, v2)
+
+  //
+  // EXERCISE 5
+  //
+  // In one fiber, read infintely many values out of the queue and write them
+  // to the console. In the main fiber, write 100 values into a queue.
+  //
+  val infiniteReader1: IO[Nothing, List[Int]] =
+    for {
+      queue <- makeQueue
+      _     <- (??? : IO[Nothing, Nothing]).fork
+      vs    <- (queue ? : IO[Nothing, List[Int]])
+    } yield vs
+
+  //
+  // EXERCISE 6
+  //
+  // Using `Queue`, `Ref`, and `Promise`, implement an "actor" like construct
+  // that can atomically update the values of a counter.
+  //
+  val makeCounter: IO[Nothing, Int => IO[Nothing, Int]] =
+    for {
+      counter <- Ref(0)
+      queue   <- Queue.bounded[(Int, Promise[Nothing, Int])](100)
+      _       <- (queue.take ? : IO[Nothing, Fiber[Nothing, Nothing]])
+    } yield { (amount: Int) =>
+      ???
+    }
 }
 
 object zio_rts {
