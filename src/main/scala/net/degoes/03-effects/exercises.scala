@@ -600,7 +600,7 @@ object zio_concurrency {
     for {
       fiber1 <- fibonacci(10).fork
       fiber2 <- fibonacci(20).fork
-      both   <- (??? : IO[Nothing, Fiber[Nothing, Int]])
+      both = fiber1.zipWith(fiber2)(_ + _)
       _      <- both.interrupt
     } yield ()
 
@@ -611,6 +611,15 @@ object zio_concurrency {
   // computation after 60 seconds.
   //
   val timedout: IO[Nothing, Option[Int]] = fibonacci(100) ?
+
+  //
+  // EXERCISE 10
+  //
+  // Use `IO.parTraverse` to compute the fibonacci numbers of the list of
+  // integers in parallel.
+  //
+  val fibsToCompute = List(1, 2, 3, 4, 5, 6, 7)
+  val inParallel: IO[Nothing, List[Int]] = IO.parTraverse(fibsToCompute)(fibonacci(_))
 
   def fibonacci(n: Int): IO[Nothing, Int] =
     if (n <= 1) IO.now(n)
@@ -846,11 +855,157 @@ object zio_interop {
 }
 
 object zio_ref {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
 
+  //
+  // EXERCISE 1
+  //
+  // Using the `Ref.apply` constructor, create a `Ref` that is initially `0`.
+  //
+  val makeZero: IO[Nothing, Ref[Int]] = ???
+
+  //
+  // EXERCISE 2
+  //
+  // Using the `get` and `set` methods of the `Ref` you created, change the
+  // value to be 10 greater than its initial value. Return the new value.
+  //
+  val incrementedBy10: IO[Nothing, Int] =
+    for {
+      ref   <- makeZero
+      value <- (ref ? : IO[Nothing, Int])
+      _     <- (ref ? : IO[Nothing, Unit])
+      value <- (ref ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 3
+  //
+  // Using the `update` method of `Ref`, atomically increment the value by 10.
+  // Return the new value.
+  //
+  val atomicallyIncrementedBy10: IO[Nothing, Int] =
+    for {
+      ref   <- makeZero
+      value <- (ref ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 4
+  //
+  // Using the `modify` method of `Ref` to atomically increment the value by 10,
+  // but return the old value.
+  //
+  val atomicallyIncrementedBy10PlusGet: IO[Nothing, Int] =
+    for {
+      ref   <- makeZero
+      value <- ref.modify(v => (???, v + 10))
+    } yield value
 }
 
 object zio_promise {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
 
+  //
+  // EXERCISE 1
+  //
+  // Using the `make` method of `Promise`, construct a promise that cannot
+  // fail but can be completed with an integer.
+  //
+  val makeIntPromise: IO[Nothing, Promise[Nothing, Int]] = ???
+
+  //
+  // EXERCISE 2
+  //
+  // Using the `complete` method of `Promise`, complete a promise constructed
+  // with `makeIntPromise` with the integer 42.
+  //
+  val completed1: IO[Nothing, Boolean] =
+    for {
+      promise   <- makeIntPromise
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 3
+  //
+  // Using the `error` method of `Promise`, try to complete a promise
+  // constructed with `makeIntPromise`. Explain your findings.
+  //
+  val errored1: IO[Nothing, Boolean] =
+    for {
+      promise   <- makeIntPromise
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 4
+  //
+  // Using the `error` method of `Promise`, complete a new promise that
+  // you construct with `Promise.make` which can fail for any `Error` or
+  // produce a `String`.
+  //
+  val errored2: IO[Nothing, Boolean] =
+    for {
+      promise   <- Promise.make[Error, String]
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 5
+  //
+  // Using the `interrupt` method of `Promise`, complete a new promise that
+  // you construct with `Promise.make` which can fail for any `Error` or
+  // produce a `String`.
+  //
+  val interrupted: IO[Nothing, Boolean] =
+    for {
+      promise   <- Promise.make[Error, String]
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 6
+  //
+  // Using the `get` method of `Promise`, retrieve a value computed from inside
+  // another fiber.
+  //
+  val handoff1: IO[Nothing, Int] =
+    for {
+      promise <- Promise.make[Nothing, Int]
+      _       <- promise.complete(42).delay(10.milliseconds).fork
+      value   <- (promise ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 7
+  //
+  // Using the `get` method of `Promise`, try to retrieve a value from a promise
+  // that was failed in another fiber.
+  //
+  val handoff2: IO[Error, Int] =
+    for {
+      promise <- Promise.make[Error, Int]
+      _       <- promise.error(new Error("Uh oh!")).delay(10.milliseconds).fork
+      value   <- (promise ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 8
+  //
+  // Using the `get` method of `Promise`, try to retrieve a value from a promise
+  // that was interrupted in another fiber.
+  //
+  val handoff3: IO[Error, Int] =
+    for {
+      promise <- Promise.make[Error, Int]
+      _       <- promise.interrupt.delay(10.milliseconds).fork
+      value   <- (promise ? : IO[Nothing, Int])
+    } yield value
 }
 
 object zio_queue {
