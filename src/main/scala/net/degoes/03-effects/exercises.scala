@@ -554,8 +554,7 @@ object zio_concurrency {
   //
   // Compute all values `workers` in parallel using `IO.parAll`.
   //
-  val workers: List[IO[Nothing, Int]] =
-    (1 to 10).toList.map(fibonacci(_))
+  val workers: List[IO[Nothing, Int]] = (1 to 10).toList.map(fibonacci(_))
   val workersInParallel: IO[Nothing, List[Int]] =
     ???
 
@@ -593,7 +592,7 @@ object zio_concurrency {
   //
   // EXERCISE 8
   //
-  // Use the `zipWith` method of the `Fiber` object to combine `fiber1` and
+  // Use the `seqWith` method of the `Fiber` object to combine `fiber1` and
   // `fiber2` into a single fiber (by summing the results), so they can be
   // interrupted together.
   //
@@ -608,7 +607,10 @@ object zio_concurrency {
   //
   // EXERCISE 9
   //
-  // io.timeout[Option[A]](None)(Some(_))(60.seconds)
+  // Use the `timeout` method of `IO` to time out the following long-lived
+  // computation after 60 seconds.
+  //
+  val timedout: IO[Nothing, Option[Int]] = fibonacci(100) ?
 
   def fibonacci(n: Int): IO[Nothing, Int] =
     if (n <= 1) IO.now(n)
