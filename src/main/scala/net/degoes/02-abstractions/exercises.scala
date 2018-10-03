@@ -46,6 +46,17 @@ object algebra {
   // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
   //
   implicit def MonoidNotEmpty[A]: Monoid[NotEmpty[A]] = ???
+
+  class Add(val value: Int) extends AnyVal
+  object Add { def apply(value: Int) = new Add(value) }
+  class Mul(val value: Int) extends AnyVal
+  object Mul { def apply(value: Int) = new Mul(value) }
+
+  implicit val IntSemigroup1: Semigroup[Add] = (l, r) => Add(l.value + r.value)
+  implicit val IntSemigroup2: Semigroup[Mul] = (l, r) => Mul(l.value * r.value)
+
+  Add(1) |+| Add(2)
+  Mul(1) |+| Mul(2)
 }
 
 object functor {
@@ -441,7 +452,7 @@ object foldable {
   //
   // EXERCISE 2
   //
-  // Try to define an instance of `Foldable` for `A => ?`.
+  // Try to define an instance of `Foldable` for `A0 => ?`.
   //
   implicit def FunctionFoldable[A0]: Foldable[A0 => ?] = ???
 

@@ -8,20 +8,18 @@ import scala.concurrent.duration._
 
 object zio_background {
   sealed trait Program[A] { self =>
-    final def *> [B](that: Program[B]): Program[B] =
-      self.flatMap(_ => that)
-    final def <* [B](that: Program[B]): Program[A] =
-      self.flatMap(a => that.map(_ => a))
+    final def *> [B](that: Program[B]): Program[B] = self.zip(that).map(_._2)
+
+    final def <* [B](that: Program[B]): Program[A] = self.zip(that).map(_._1)
 
     final def map[B](f: A => B): Program[B] =
-      self match {
-        case Program.ReadLine(next) =>
-          Program.ReadLine(input => next(input).map(f))
-        case Program.WriteLine(line, next) =>
-          Program.WriteLine(line, next.map(f))
-        case Program.Return(value) =>
-          Program.Return(() => f(value()))
-      }
+      flatMap(f andThen (Program.point(_)))
+
+    final def zip[B](that: Program[B]): Program[(A, B)] =
+      for {
+        a <- self
+        b <- that
+      } yield (a, b)
 
     final def flatMap[B](f: A => Program[B]): Program[B] =
       self match {
@@ -67,7 +65,7 @@ object zio_background {
   // Rewrite `yourName2` using the helper function `getName`, which shows how
   // to create larger programs from smaller programs.
   //
-  def yourName3: Program[Unit] = ???
+  val yourName3: Program[Unit] = ???
 
   val getName: Program[String] =
     writeLine("What is your name?").flatMap(_ => readLine)
@@ -78,7 +76,8 @@ object zio_background {
   // Implement the following effectful procedure, which interprets
   // `Program[A]` into `A`. You can use this procedure to "run" programs.
   //
-  def interpret[A](program: Program[A]): A = ???
+  def interpret[A](program: Program[A]): A =
+    ???
 
   //
   // EXERCISE 4
@@ -111,7 +110,6 @@ object zio_background {
 
         ageExplainer1()
     }
-
   }
   def ageExplainer2: Program[Unit] = ???
 }
@@ -330,8 +328,7 @@ object zio_failure {
   // represents a failure with a string error message, containing a user-
   // readable description of the failure.
   //
-  val stringFailure1: IO[String, Int] =
-    ???
+  val stringFailure1: IO[String, Int] = ???
 
   //
   // EXERCISE 2
@@ -435,7 +432,26 @@ object zio_effects {
   // Using the `IO.syncException` method, wrap Scala's `getLines` method to
   // import it into the world of pure functional programming.
   //
-  def readFile(file: File): IO[Exception, List[String]] =
+  def readFile1(file: File): IO[Exception, List[String]] =
+    Source.fromFile(file).getLines.toList ?
+
+  //
+  // EXERCISE 3.5
+  //
+  // Using the `IO.syncThrowable` method, wrap Scala's `getLines` method to
+  // import it into the world of pure functional programming.
+  //
+  def readFile2(file: File): IO[Throwable, List[String]] =
+    Source.fromFile(file).getLines.toList ?
+
+  //
+  // EXERCISE 3.75
+  //
+  // Using the `IO.syncCatch` method, wrap Scala's `getLines` method to
+  // import it into the world of pure functional programming.
+  //
+  import java.io.IOException
+  def readFile3(file: File): IO[IOException, List[String]] =
     Source.fromFile(file).getLines.toList ?
 
   //
