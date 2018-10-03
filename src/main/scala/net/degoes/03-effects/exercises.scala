@@ -804,7 +804,7 @@ object zio_interop {
   // Use `IO.fromFuture` method to convert the following `Future` into an `IO`.
   //
   val future1 = () => Future.successful("Hello World")
-  val io1 = IO.fromFuture(???)(global)
+  val io1: IO[Throwable, String] = IO.fromFuture(???)(global)
 
   //
   // EXERCISE 2
@@ -1020,7 +1020,7 @@ object zio_queue {
   // of 10.
   //
   val makeQueue: IO[Nothing, Queue[Int]] =
-    Queue.bounded(10)
+    ???
 
   //
   // EXERCISE 2
@@ -1048,7 +1048,7 @@ object zio_queue {
   //
   // EXERCISE 4
   //
-  // In one fiber, place 2 values into a queue, and in the main fiber, read
+  // In a child fiber, place 2 values into a queue, and in the main fiber, read
   // 2 values from the queue.
   //
   val offeredTaken1: IO[Nothing, (Int, Int)] =
@@ -1062,8 +1062,8 @@ object zio_queue {
   //
   // EXERCISE 5
   //
-  // In one fiber, read infintely many values out of the queue and write them
-  // to the console. In the main fiber, write 100 values into a queue.
+  // In a child fiber, read infintely many values out of the queue and write
+  // them to the console. In the main fiber, write 100 values into the queue.
   //
   val infiniteReader1: IO[Nothing, List[Int]] =
     for {
@@ -1086,10 +1086,54 @@ object zio_queue {
     } yield { (amount: Int) =>
       ???
     }
+
+  val counterExample: IO[Nothing, Int] =
+    for {
+      counter <- makeCounter
+      _       <- IO.parAll(List.fill(100)(IO.traverse(0 to 100)(counter)))
+      value   <- counter(0)
+    } yield value
 }
 
 object zio_rts {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
 
+  //
+  // EXERCISE 1
+  //
+  // Create a new runtime system (that extends scalaz.zio.RTS).
+  //
+  val MyRTS: RTS = ???
+
+  //
+  // EXERCISE 2
+  //
+  // Run the following `IO` by using the `unsafeRun` method of `MyRTS`.
+  //
+  (putStrLn("Hello World") ? : Unit)
+
+  //
+  // EXERCISE 3
+  //
+  // Run the following `IO` by using the `unsafeRunSync` method of `MyRTS`.
+  //
+  import java.io.IOException
+  (putStrLn("Hello World") ? : ExitResult[IOException, Unit])
+
+  //
+  // EXERCISE 4
+  //
+  // In this purely functional main program (made possible by `App`), ask the
+  // user for their name and print it out again.
+  //
+  object MyApp extends App {
+    def run(args: List[String]): IO[Nothing, ExitStatus] =
+      (for {
+        _ <- putStrLn("Hello World!")
+      } yield ()).redeemPure(_ => ExitStatus.ExitNow(1), _ => ExitStatus.ExitNow(0))
+  }
 }
 
 object zio_advanced {
