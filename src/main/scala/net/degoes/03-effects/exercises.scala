@@ -722,7 +722,7 @@ object zio_schedule {
   // Using the `repeat` method of the `IO` object, repeat printing "Hello World"
   // five times to the console.
   //
-  val repeated1 = putStrLn("Hello World")
+  val repeated1 = putStrLn("Hello World") ?
 
   //
   // EXERCISE 3
@@ -748,7 +748,7 @@ object zio_schedule {
   // Using the `repeat` method of the `IO` object, repeat the action
   // putStrLn("Hi hi") using `fiveTimesEverySecond`.
   //
-  val repeated2 = ???
+  val repeated2 = putStrLn("Hi hi") ?
 
   //
   // EXERCISE 6
@@ -757,7 +757,8 @@ object zio_schedule {
   // schedule, and the `everySecond` schedule, create a schedule that repeats
   // fives times rapidly, and then repeats every second forever.
   //
-  val fiveTimesThenEverySecond = ???
+  val fiveTimesThenEverySecond =
+    ???
 
   //
   // EXERCISE 7
@@ -771,7 +772,7 @@ object zio_schedule {
   //
   // EXERCISE 8
   //
-  // Using the `&&` method of the `Schedule` object, the `fiveTimes` schedule,
+  // Using the `||` method of the `Schedule` object, the `fiveTimes` schedule,
   // and the `everySecond` schedule, create a schedule that repeats the minimum
   // of five times and every second.
   //
