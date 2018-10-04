@@ -49,6 +49,8 @@ libraryDependencies ++= Seq(
   "org.scalaz"      %% "scalaz-core"        % ScalaZVersion,
   "org.scalaz"      %% "scalaz-zio"         % ZIOVersion,
   "org.scalaz"      %% "scalaz-zio-interop" % ZIOVersion,
+  // URL parsing
+  "io.lemonlabs"    %% "scala-uri"          % "1.3.1",
   // Ammonite
   "com.lihaoyi"     %  "ammonite"           % "1.1.2"   % "test" cross CrossVersion.full
 )

@@ -10,6 +10,20 @@ import scalaz._
 import Scalaz._
 
 object exercises extends App {
+  case class CrawlState[E, A](visited: Set[URL], crawl: Crawl[E, A])
+  object CrawlState {
+    def visited[E: Monoid, A: Monoid](visited: Set[URL]): CrawlState[E, A] =
+      CrawlState(visited, mzero[Crawl[E, A]])
+    def crawled[E, A](crawl: Crawl[E, A]): CrawlState[E, A] =
+      CrawlState(mzero[Set[URL]], crawl)
+
+    implicit def MonoidCrawlState[E: Monoid, A: Monoid]: Monoid[CrawlState[E, A]] =
+      new Monoid[CrawlState[E, A]] {
+        def zero = CrawlState(mzero[Set[URL]], mzero[Crawl[E, A]])
+        def append(l: CrawlState[E, A], r: => CrawlState[E, A]) =
+          CrawlState(l.visited |+| r.visited, l.crawl |+| r.crawl)
+      }
+  }
   //
   // EXERCISE 1
   //
@@ -18,7 +32,28 @@ object exercises extends App {
   def crawlIO[E: Monoid, A: Monoid](
     seeds     : Set[URL],
     router    : URL => Set[URL],
-    processor : (URL, String) => IO[E, A]): IO[Exception, Crawl[E, A]] = ???
+    processor : (URL, String) => IO[E, A]): IO[Nothing, Crawl[E, A]] = {
+      def loop(seeds: Set[URL], ref: Ref[CrawlState[E, A]]): IO[Nothing, Unit] =
+        ref.update(_ |+| CrawlState.visited(seeds)) *>
+        IO.traverse(seeds)(seed =>
+          getURL(seed).redeem(_ => IO.unit,
+            html =>
+              for {
+                acc   <-  ref.get
+                seeds <-  IO.now(extractURLs(seed, html).toSet.flatMap(router) -- acc.visited)
+                crawl <-  processor(seed, html).redeemPure(Crawl(_, mzero[A]), Crawl(mzero[E], _))
+                _     <-  ref.update(_ |+| CrawlState.crawled(crawl))
+                _     <-  loop(seeds, ref)
+              } yield ()
+          )
+        ).void
+
+      for {
+        ref   <- Ref(mzero[CrawlState[E, A]])
+        _     <- loop(seeds, ref)
+        state <- ref.get
+      } yield state.crawl
+    }
 
   //
   // EXERCISE 2
@@ -28,7 +63,7 @@ object exercises extends App {
   def crawlIOPar[E: Monoid, A: Monoid](
     seeds     : Set[URL],
     router    : URL => Set[URL],
-    processor : (URL, String) => IO[E, A]): IO[Exception, Crawl[E, A]] = ???
+    processor : (URL, String) => IO[E, A]): IO[Nothing, Crawl[E, A]] = ???
 
   //
   // EXERCISE 3
@@ -40,7 +75,7 @@ object exercises extends App {
     seeds     : Set[URL],
     router    : URL => Set[URL],
     processor : (URL, String) => IO[E, A],
-    getURL    : URL => IO[Exception, String] = getURL(_)): IO[Exception, Crawl[E, A]] = ???
+    getURL    : URL => IO[Exception, String] = getURL(_)): IO[Nothing, Crawl[E, A]] = ???
 
   final case class Crawl[E, A](error: E, value: A) {
     def leftMap[E2](f: E => E2): Crawl[E2, A] = Crawl(f(error), value)
