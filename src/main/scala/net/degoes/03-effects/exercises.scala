@@ -592,7 +592,7 @@ object zio_concurrency {
   //
   // EXERCISE 8
   //
-  // Use the `seqWith` method of the `Fiber` object to combine `fiber1` and
+  // Use the `zipWith` method of the `Fiber` object to combine `fiber1` and
   // `fiber2` into a single fiber (by summing the results), so they can be
   // interrupted together.
   //
@@ -600,7 +600,7 @@ object zio_concurrency {
     for {
       fiber1 <- fibonacci(10).fork
       fiber2 <- fibonacci(20).fork
-      both = fiber1.zipWith(fiber2)(_ + _)
+      both = (??? : Fiber[Nothing, Int])
       _      <- both.interrupt
     } yield ()
 
