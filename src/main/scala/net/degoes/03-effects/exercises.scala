@@ -1079,20 +1079,22 @@ object zio_queue {
   // Using `Queue`, `Ref`, and `Promise`, implement an "actor" like construct
   // that can atomically update the values of a counter.
   //
-  val makeCounter: IO[Nothing, Int => IO[Nothing, Int]] =
+  sealed trait Message
+  case class Increment(amount: Int) extends Message
+  val makeCounter: IO[Nothing, Message => IO[Nothing, Int]] =
     for {
-      counter <- Ref(0)
-      queue   <- Queue.bounded[(Int, Promise[Nothing, Int])](100)
-      _       <- (queue.take ? : IO[Nothing, Fiber[Nothing, Nothing]])
-    } yield { (amount: Int) =>
+      counter  <- Ref(0)
+      mailbox  <- Queue.bounded[(Message, Promise[Nothing, Int])](100)
+      _        <- (mailbox.take ? : IO[Nothing, Fiber[Nothing, Nothing]])
+    } yield { (message: Message) =>
       ???
     }
 
   val counterExample: IO[Nothing, Int] =
     for {
       counter <- makeCounter
-      _       <- IO.parAll(List.fill(100)(IO.traverse(0 to 100)(counter)))
-      value   <- counter(0)
+      _       <- IO.parAll(List.fill(100)(IO.traverse((0 to 100).map(Increment(_)))(counter)))
+      value   <- counter(Increment(0))
     } yield value
 }
 
