@@ -8,34 +8,48 @@ object types {
   //
   // EXERCISE 1
   //
-  // List all values of the type `Boolean`.
+  // List all values of the type `Unit`.
   //
-  val BoolValues: List[Boolean] = ???
+  val UnitValues: Set[Unit] = ???
 
   //
   // EXERCISE 2
   //
-  // List all values of the type `Either[Unit, Boolean]`.
+  // List all values of the type `Nothing`.
   //
-  val EitherUnitBoolValues: List[Either[Unit, Boolean]] = ???
+  val NothingValues: Set[Nothing] = ???
 
   //
   // EXERCISE 3
   //
-  // List all values of the type `(Boolean, Boolean)`.
+  // List all values of the type `Boolean`.
   //
-  val TupleBoolBoolValues: List[(Boolean, Boolean)] =
-    ???
+  val BoolValues: Set[Boolean] = ???
 
   //
   // EXERCISE 4
   //
-  // List all values of the type `Either[Either[Unit, Unit], Unit]`.
+  // List all values of the type `Either[Unit, Boolean]`.
   //
-  val EitherEitherUnitUnitUnitValues: List[Either[Either[Unit, Unit], Unit]] = ???
+  val EitherUnitBoolValues: Set[Either[Unit, Boolean]] = ???
 
   //
   // EXERCISE 5
+  //
+  // List all values of the type `(Boolean, Boolean)`.
+  //
+  val TupleBoolBoolValues: Set[(Boolean, Boolean)] =
+    ???
+
+  //
+  // EXERCISE 6
+  //
+  // List all values of the type `Either[Either[Unit, Unit], Unit]`.
+  //
+  val EitherEitherUnitUnitUnitValues: Set[Either[Either[Unit, Unit], Unit]] = ???
+
+  //
+  // EXERCISE 7
   //
   // Create a product type of `Int` and `String`, representing the age and
   // name of a person.
@@ -43,7 +57,7 @@ object types {
   type Person = ???
 
   //
-  // EXERCISE 6
+  // EXERCISE 8
   //
   // Prove that `A * 1` is equivalent to `A` by implementing the following two
   // functions.
@@ -52,7 +66,7 @@ object types {
   def from1[A](a: A): (A, Unit) = ???
 
   //
-  // EXERCISE 7
+  // EXERCISE 9
   //
   // Prove that `A * 0` is equivalent to `0` by implementing the following two
   // functions.
@@ -61,7 +75,7 @@ object types {
   def from2[A](n: Nothing): (A, Nothing) = ???
 
   //
-  // EXERCISE 8
+  // EXERCISE 10
   //
   // Create a sum type of `Int` and `String` representing the identifier of
   // a robot (a number) or a person (a name).
@@ -69,7 +83,7 @@ object types {
   type Identifier = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 11
   //
   // Prove that `A + 0` is equivalent to `A` by implementing the following two
   // functions.
@@ -78,7 +92,7 @@ object types {
   def from3[A](a: A): Either[A, Nothing] = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 12
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // credit card, which has a number, an expiration date, and a security code.
@@ -86,7 +100,7 @@ object types {
   type CreditCard = ???
 
   //
-  // EXERCISE 11
+  // EXERCISE 13
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // payment method, which could be a credit card, bank account, or
@@ -95,7 +109,7 @@ object types {
   type PaymentMethod = ???
 
   //
-  // EXERCISE 12
+  // EXERCISE 14
   //
   // Create either a sum type or a product type (as appropriate) to represent an
   // employee at a company, which has a title, salary, name, and employment date.
@@ -103,7 +117,7 @@ object types {
   type Employee = ???
 
   //
-  // EXERCISE 13
+  // EXERCISE 15
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // piece on a chess board, which could be a pawn, rook, bishop, knight,
@@ -112,7 +126,7 @@ object types {
   type ChessPiece = ???
 
   //
-  // EXERCISE 14
+  // EXERCISE 16
   //
   // Create an ADT model of a game world, including a map, a player, non-player
   // characters, different classes of items, and character stats.
@@ -122,7 +136,6 @@ object types {
 
 object functions {
   type ??? = Nothing
-
 
   //
   // EXERCISE 1
@@ -235,7 +248,8 @@ object functions {
     println("For help on a command, type `help <command>`")
     println("To exit the help page, type `exit`.")
   }
-  def printer2[A](println: String => A, combine: (A, A) => A): A = ???
+  def printer2[A](println: String => A, combine: (A, A) => A): A =
+    ???
 
   //
   // EXERCISE 12
@@ -272,65 +286,73 @@ object functions {
     def finish(): List[List[Boolean]] =
       canvas.map(_.toList).toList
   }
+  def draw2(size: Int /* ... */): ??? = ???
 }
 
 object higher_order {
-  case class Parser[+E, +A](
-    run: String => Either[E, (String, A)])
-
-  def fail[E](e: E): Parser[E, Nothing] =
-    Parser(input => Left(e))
-
-  def point[A](a: => A): Parser[Nothing, A] =
-    Parser(input => Right((input, a)))
-
-  def char[E](e: E): Parser[E, Char] =
-    Parser(input =>
-      if (input.length == 0) Left(e)
-      else Right((input.drop(1), input.charAt(0))))
-
   //
   // EXERCISE 1
   //
   // Implement the following higher-order function.
   //
-  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) = ???
+  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) =
+    ???
 
   //
   // EXERCISE 2
   //
   // Implement the following higher-order function.
   //
-  def cross[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) = ???
+  def cross[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) =
+    ???
 
   //
   // EXERCISE 3
   //
   // Implement the following higher-order function.
   //
-  def either[A, B, C](f: A => B, g: C => B): Either[A, C] => B = ???
+  def either[A, B, C](f: A => B, g: C => B): Either[A, C] => B =
+    ???
 
   //
   // EXERCISE 4
   //
   // Implement the following higher-order function.
   //
-  def choice[A, B, C, D](f: A => B, g: C => D): Either[A, C] => Either[B, D] = ???
+  def choice[A, B, C, D](f: A => B, g: C => D): Either[A, C] => Either[B, D] =
+    ???
 
   //
   // EXERCISE 5
   //
   // Implement the following higer-order function.
   //
-  def compose[A, B, C](f: B => C, g: A => B): A => C = ???
+  def compose[A, B, C](f: B => C, g: A => B): A => C =
+    ???
 
   //
   // EXERCISE 6
   //
-  // Implement the following higher-order function.
+  // Implement the following higher-order function. After you implement
+  // the function, interpret its meaning.
   //
-  def alt[E1, E2, A, B](l: Parser[E1, A], r: Parser[E2, B]):
+  def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
     Parser[E2, Either[A, B]] = ???
+
+  case class Parser[+E, +A](
+    run: String => Either[E, (String, A)])
+  object Parser {
+    final def fail[E](e: E): Parser[E, Nothing] =
+      Parser(input => Left(e))
+
+    final def point[A](a: => A): Parser[Nothing, A] =
+      Parser(input => Right((input, a)))
+
+    final def char[E](e: E): Parser[E, Char] =
+      Parser(input =>
+        if (input.length == 0) Left(e)
+        else Right((input.drop(1), input.charAt(0))))
+  }
 }
 
 object poly_functions {
@@ -343,7 +365,7 @@ object poly_functions {
   object snd {
     ???
   }
-  // snd(1, "foo") // "foo"
+  // snd((1, "foo")) // "foo"
 
   //
   // EXERCISE 2
@@ -355,8 +377,8 @@ object poly_functions {
   object repeat {
     ???
   }
-  // repeat[Int](100)(0, _ + 1) // 100
-  // repeat[String](10)("", _ + "*") // "**********"
+  // repeat[   Int](100)( 0, _ +   1) // 100
+  // repeat[String]( 10)("", _ + "*") // "**********"
 
   //
   // EXERCISE 3
@@ -658,171 +680,59 @@ object typeclasses {
   //
   // EXERCISE 2
   //
-  // Create an instance of `Ord` for the type `String`.
+  // Create a data structure and an instance of this data structure for
+  // the `PathLike` type class.
   //
-  implicit val OrdString: Ord[String] = ???
-  //
-  // Scalaz 8 Encoding
-  //
-  sealed abstract class InstanceOfModule {
-    type InstanceOf[T] <: T
-    def instanceOf[T](t: T): InstanceOf[T]
-  }
+  trait PathLike[A] {
+    def child(parent: A, name: String): A
 
-  object InstanceOfModule {
-    val impl: InstanceOfModule = new InstanceOfModule {
-      override type InstanceOf[T] = T
-      override def instanceOf[T](t: T) = t
-    }
-  }
-  import InstanceOfModule.impl._
+    def parent(node: A): Option[A]
 
-  type ???[A] = Nothing
+    def root: A
+  }
+  case class MyPath(/* */)
+  implicit val MyPathPathLike: PathLike[MyPath] = ???
 
-  /**
-   * {{
-   * // Associativity:
-   * (a <> b) <> c === a <> (b <> c)
-   * }}
-   */
-  trait SemigroupClass[A] {
-    def append(l: => A, r: => A): A
-  }
-  type Semigroup[A] = InstanceOf[SemigroupClass[A]]
-  object SemigroupClass {
-    def apply[A](implicit A: Semigroup[A]): Semigroup[A] = A
-
-    implicit val SemigroupString: Semigroup[String] =
-      instanceOf(
-        new SemigroupClass[String] {
-          def append(l: => String, r: => String): String = l + r
-        })
-    implicit def SemigroupList[A]: Semigroup[List[A]] =
-      instanceOf(
-        new SemigroupClass[List[A]] {
-          def append(l: => List[A], r: => List[A]): List[A] = l ++ r
-        })
-  }
-  implicit def AnyToSemigroupSyntax[A](a: => A): SemigroupSyntax[A] =
-    new SemigroupSyntax(() => a)
-  class SemigroupSyntax[A](l: () => A) {
-    def <> (r: => A)(implicit A: Semigroup[A]): A = A.append(l(), r)
-  }
   //
   // EXERCISE 3
   //
-  // Create an instance of the `Semigroup` type class for `java.time.Duration`.
+  // Create an instance of the `PathLike` type class for `java.io.File`.
   //
-  implicit val SemigroupInstant: Semigroup[java.time.Duration] = ???
+  implicit val FilePathLike: PathLike[java.io.File] = ???
 
   //
   // EXERCISE 4
   //
-  // Create an instance of the `Semigroup` type class for `Int`.
+  // Create an instance of the `Filterable` type class for `List`.
   //
-  implicit val SemigroupInt: Semigroup[Int] = ???
+  trait Filterable[F[_]] {
+    def filter[A](fa: F[A], f: A => Boolean): F[A]
+  }
+  implicit val FilterableList: Filterable[List] = ???
 
   //
   // EXERCISE 5
   //
-  // Create an instance of the `Semigroup` type class for `Set[A]`.
+  // Create a syntax class for `Filterable` that lets you call `.filter` on any
+  // type for which there exists a `Filterable` instance.
   //
-  implicit def SemigroupSet[A]: Semigroup[Set[A]] = ???
+  implicit class FilterableSyntax[F[_], A](fa: F[A]) {
+    ???
+  }
 
+  //
   //
   // EXERCISE 6
   //
-  // Create an instance of the `Semigroup` type class for `Map[K, ?]`. Hint:
-  // you will need some constraint applied to the values.
-  //
-  implicit def SemigroupMap[K, V: ???]: Semigroup[Map[K, V]] =
-    ???
-
-  //
-  // EXERCISE 7
-  //
-  // Create a type class `Monoid[A]` that implies `Semigroup[A]` (that is, every
-  // `Monoid[A]` must be a `Semigroup[A]`), which adds a single operation called
-  // `zero`, which satisfies additional laws.
-  //
-  /**
-   * {{
-   * append(zero, a) === a
-   * append(a, zero) === a
-   * }}
-   */
-  trait MonoidClass[A] extends SemigroupClass[A] {
-    /* ??? */
-  }
-  object MonoidClass {
-    def apply[A](implicit A: Monoid[A]): Monoid[A] = ???
-  }
-  type Monoid[A] = InstanceOf[MonoidClass[A]]
-  implicit def MonoidSemigroup[A](implicit M: Monoid[A]): Semigroup[A] =
-    instanceOf(M)
-  def empty[A: Monoid]: A = ???
-
-  //
-  // EXERCISE 8
-  //
-  // Create an instance of the `Monoid` type class for `java.time.Duration`.
-  //
-  implicit val MonoidInstant: Monoid[java.time.Duration] = ???
-
-  //
-  // EXERCISE 9
-  //
-  // Create an instance of the `Monoid` type class for `String`.
-  //
-  implicit val MonoidString: Monoid[String] = ???
-
-  //
-  // EXERCISE 10
-  //
-  // Create an instance of the `Monoid` type class for `List[A]`.
-  //
-  implicit def MonoidList[A]: Monoid[List[A]] = ???
-
-  //
-  // EXERCISE 11
-  //
-  // Create an instance of the `Monoid` type class for `Int`.
-  //
-  implicit val MonoidInt: Monoid[Int] = ???
-
-  //
-  // EXERCISE 12
-  //
-  // Using a newtype, create an instance of the `Monoid` type class for `Int`
-  // representing the additive monoid, with addition as `append`, and 0 as
-  // `zero`.
-  //
-  final case class Sum(run: Int)
-  implicit val MonoidSum: Monoid[Sum] = ???
-
-  //
-  // EXERCISE 13
-  //
-  // Using a newtype, create an instance of the `Monoid` type class for `Int`
-  // representing the multiplicative monoid, with multiplication as `append`,
-  // and 1 as `zero`.
-  //
-  final case class Product(run: Int)
-  implicit val MonoidProduct: Monoid[Product] = ???
-
-  //
-  // EXERCISE 14
-  //
   // Create an instance of the `Collection` type class for `List`.
   //
-  trait CollectionClass[F[_]] {
+  trait Collection[F[_]] {
     def empty[A]: F[A]
     def cons[A](a: A, as: F[A]): F[A]
     def uncons[A](fa: F[A]): Option[(A, F[A])]
   }
-  object CollectionClass {
+  object Collection {
     def apply[F[_]](implicit F: Collection[F]): Collection[F] = F
   }
-  type Collection[F[_]] = InstanceOf[CollectionClass[F]]
   implicit val ListCollection: Collection[List] = ???
 }
