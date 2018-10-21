@@ -682,8 +682,8 @@ object typeclasses {
   //
   // EXERCISE 2
   //
-  // Create a data structure and an instance of this data structure for
-  // the `PathLike` type class.
+  // Create a data structure and an instance of this type class for the data
+  // structure.
   //
   trait PathLike[A] {
     def child(parent: A, name: String): A
@@ -705,6 +705,25 @@ object typeclasses {
   //
   // EXERCISE 4
   //
+  // Create at least one law for the `PathLike` type class.
+  //
+  object path_like_laws {
+    ???
+  }
+
+  //
+  // EXERCISE 5
+  //
+  // Create a syntax class for path-like values with a `/` method that descends
+  // into the given named node.
+  //
+  implicit class PathLikeSyntax[A](a: A) {
+    ???
+  }
+
+  //
+  // EXERCISE 6
+  //
   // Create an instance of the `Filterable` type class for `List`.
   //
   trait Filterable[F[_]] {
@@ -713,7 +732,7 @@ object typeclasses {
   implicit val FilterableList: Filterable[List] = ???
 
   //
-  // EXERCISE 5
+  // EXERCISE 7
   //
   // Create a syntax class for `Filterable` that lets you call `.filter` on any
   // type for which there exists a `Filterable` instance.
@@ -724,7 +743,7 @@ object typeclasses {
 
   //
   //
-  // EXERCISE 6
+  // EXERCISE 8
   //
   // Create an instance of the `Collection` type class for `List`.
   //
