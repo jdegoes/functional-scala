@@ -756,4 +756,6 @@ object typeclasses {
     def apply[F[_]](implicit F: Collection[F]): Collection[F] = F
   }
   implicit val ListCollection: Collection[List] = ???
+
+  val example = Collection[List].cons(1, Collection[List].empty)
 }
