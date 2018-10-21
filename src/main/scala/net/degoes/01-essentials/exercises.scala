@@ -705,7 +705,7 @@ object typeclasses {
   //
   // EXERCISE 4
   //
-  // Create at least one law for the `PathLike` type class.
+  // Create two laws for the `PathLike` type class.
   //
   object path_like_laws {
     ???
