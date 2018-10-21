@@ -692,7 +692,7 @@ object typeclasses {
 
     def root: A
   }
-  case class MyPath(/* */)
+  sealed trait MyPath
   implicit val MyPathPathLike: PathLike[MyPath] = ???
 
   //
