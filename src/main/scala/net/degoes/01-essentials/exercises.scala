@@ -444,23 +444,23 @@ object higher_kinded {
   //
   // EXERCISE 1
   //
-  // Identify a type constructor that takes one type parameter (i.e. has kind
-  // `* => *`), and place your answer inside the square brackets.
+  // Identify a type constructor that takes one type parameter of kind `*`
+  // (i.e. has kind `* => *`), and place your answer inside the square brackets.
   //
   type Answer1 = `* => *`[???]
 
   //
   // EXERCISE 2
   //
-  // Identify a type constructor that takes two type parameters (i.e. has kind
-  // `[*, *] => *`), and place your answer inside the square brackets.
+  // Identify a type constructor that takes two type parameters of kind `*` (i.e.
+  // has kind `[*, *] => *`), and place your answer inside the square brackets.
   //
   type Answer2 = `[*, *] => *`[????]
 
   //
   // EXERCISE 3
   //
-  // Create a trait with kind `*`.
+  // Create a new type called `Answer3` that has kind `*`.
   //
   trait Answer3 /*[]*/
 
@@ -474,7 +474,7 @@ object higher_kinded {
   //
   // EXERCISE 5
   //
-  // Create a new type that has kind `(* -> *) -> *`.
+  // Create a new type that has kind `(* => *) => *`.
   //
   type NewType1 /* ??? */
   type Answer5 = `(* => *) => *`[?????]
@@ -484,7 +484,7 @@ object higher_kinded {
   //
   // Create a trait with kind `[* => *, (* => *) => *] => *`.
   //
-  trait Answer6 /*[]*/
+  trait Answer6[F[_], G[_[_]]] /*[]*/
 
   //
   // EXERCISE 7
@@ -522,7 +522,8 @@ object higher_kinded {
       bind(fa)(f andThen single)
     }
   }
-  val ListCollectionLike: CollectionLike[List] = ???
+  val ListCollectionLike: CollectionLike[List] =
+    ???
 
   //
   // EXERCISE 8
@@ -533,6 +534,7 @@ object higher_kinded {
     // This method will return the number of `A`s inside `fa`.
     def size[A](fa: F[A]): Int
   }
+  val ListSized: Sized[List] = ???
 
   //
   // EXERCISE 9
@@ -540,7 +542,7 @@ object higher_kinded {
   // Implement `Sized` for `Map`, partially applied with its first type
   // parameter to `String`.
   //
-  val MapSized1: Sized[Map[String, ?]] = ???
+  val MapStringSized: Sized[Map[String, ?]] = ???
 
   //
   // EXERCISE 9
