@@ -362,6 +362,21 @@ object functor {
       def bind[A, B](fa: Parser[E, A])(f: A => Parser[E, B]): Parser[E, B] =
         ???
     }
+
+  //
+  // EXERCISE 18
+  //
+  // Define an instance of `Monad` for `Identity`.
+  //
+  case class Identity[A](run: A)
+  implicit val IdentityMonad: Monad[Identity] =
+    new Monad[Identity] {
+      def point[A](a: => A): Identity[A] =
+        ???
+
+      def bind[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] =
+        ???
+    }
 }
 
 object parser {
@@ -489,6 +504,7 @@ object foldable {
       def foldRight[A, B](fa: BTree[A], z: => B)(f: (A, => B) => B): B =
         ???
     }
+  val btree: BTree[String] = Fork(Leaf("foo"), Fork(Leaf("bar"), Leaf("baz")))
 
   //
   // EXERCISE 3
@@ -502,10 +518,11 @@ object foldable {
   //
   // Define an instance of `Traverse` for `BTree`.
   //
-  implicit val TraverseBTree: Traverse[BTree] =
+  implicit lazy val TraverseBTree: Traverse[BTree] =
     new Traverse[BTree] {
       def traverseImpl[G[_]: Applicative, A, B](
-        fa: BTree[A])(f: A => G[B]): G[BTree[B]] = ???
+        fa: BTree[A])(f: A => G[B]): G[BTree[B]] =
+          ???
     }
 
   //
@@ -569,13 +586,19 @@ object optics {
   //
   // EXERCISE 1
   //
-  // Implement the `⋅` method of `Lens`.
+  // Implement the `⋅` method of `Lens` for `Lens`.
   //
   final case class Lens[S, A](
     get: S => A,
     set: A => (S => S)
   ) { self =>
     def ⋅ [B](that: Lens[A, B]): Lens[S, B] = ???
+
+    def ⋅ [B](that: Optional[A, B]): Optional[S, B] = ???
+
+    def ⋅ [B](that: Prism[A, B]): Optional[S, B] = ???
+
+    def ⋅ [B](that: Traversal[A, B]): Traversal[S, B] = ???
 
     final def updated(f: A => A): S => S =
       (s: S) => self.set(f(self.get(s)))(s)
@@ -594,12 +617,16 @@ object optics {
   //
   // EXERCISE 3
   //
-  // Implement `⋅` for `Prism`.
+  // Implement `⋅` for `Prism` for `Prism`.
   //
   final case class Prism[S, A](
     get: S => Option[A],
     set: A => S) { self =>
     def ⋅ [B](that: Prism[A, B]): Prism[S, B] = ???
+
+    def ⋅ [B](that: Lens[A, B]): Optional[S, B] = ???
+
+    def ⋅ [B](that: Traversal[A, B]): Traversal[S, B] = ???
 
     final def select(implicit ev: Unit =:= A): S =
       set(ev(()))
@@ -614,4 +641,38 @@ object optics {
     ???
   def _Right[A, B]: Prism[Either[A, B], B] =
     ???
+
+  //
+  // EXERCISE 5
+  //
+  // Implement `⋅` for `Optional` for `Optional`.
+  //
+  final case class Optional[S, A](
+    getOrModify: S => Either[S, A],
+    set: A => (S => S)) {
+    def ⋅ [B](that: Optional[A, B]): Optional[S, B] = ???
+
+    def ⋅ [B](that: Lens[A, B]): Optional[S, B] = ???
+
+    def ⋅ [B](that: Prism[A, B]): Optional[S, B] = ???
+
+    def ⋅ [B](that: Traversal[A, B]): Traversal[S, B] = ???
+  }
+
+  //
+  // EXERCISE 6
+  //
+  // Implement `⋅` for `Traversal` for `Traversal`.
+  //
+  trait Traversal[S, A] { self =>
+    def modifyF[F[_]: Applicative](f: A => F[A])(s: S): F[S]
+
+    def ⋅ [B](that: Traversal[A, B]): Traversal[S, B] = ???
+
+    def ⋅ [B](that: Optional[A, B]): Traversal[S, B] = ???
+
+    def ⋅ [B](that: Lens[A, B]): Traversal[S, B] = ???
+
+    def ⋅ [B](that: Prism[A, B]): Traversal[S, B] = ???
+  }
 }
