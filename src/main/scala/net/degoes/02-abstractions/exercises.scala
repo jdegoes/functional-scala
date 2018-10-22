@@ -224,6 +224,13 @@ object functor {
   //
   // EXERCISE 8
   //
+  // Define a natural transformation between `List` and `Option`.
+  //
+  val ListToOption: List ~> Option = ???
+
+  //
+  // EXERCISE 9
+  //
   // Define an instance of `Zip` for `Option`.
   //
   trait Zip[F[_]] extends Functor[F] {
@@ -244,7 +251,7 @@ object functor {
   }
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Define an instance of `Zip` for `List`
   //
@@ -257,7 +264,7 @@ object functor {
     }
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Define an instance of `Zip` for `Parser[E, ?]`.
   //
@@ -271,7 +278,7 @@ object functor {
     }
 
   //
-  // EXERCISE 11
+  // EXERCISE 12
   //
   // Define an instance of `Zip` for `Future`.
   //
@@ -287,7 +294,7 @@ object functor {
     }
 
   //
-  // EXERCISE 12
+  // EXERCISE 13
   //
   // Define `Applicative` for `Option`.
   //
@@ -300,7 +307,7 @@ object functor {
     }
 
   //
-  // EXERCISE 13
+  // EXERCISE 14
   //
   // Implement `zip` in terms of the applicative composition using `|@|`.
   //
@@ -314,7 +321,7 @@ object functor {
     ???
 
   //
-  // EXERCISE 14
+  // EXERCISE 15
   //
   // Define an instance of `Applicative` for `Parser[E, ?]`.
   //
@@ -329,7 +336,7 @@ object functor {
     }
 
   //
-  // EXERCISE 15
+  // EXERCISE 16
   //
   // Define an instance of `Monad` for `BTree`.
   //
@@ -343,7 +350,7 @@ object functor {
     }
 
   //
-  // EXERCISE 16
+  // EXERCISE 17
   //
   // Define an instance of `Monad` for `Parser[E, ?]`.
   //
@@ -394,6 +401,11 @@ object parser {
 
     def rep: Parser[E, List[A]] =
       ((self.map(List(_)) | Parser.point[List[A]](Nil)) ~ rep).map(t => t._1 ++ t._2)
+
+    def repsep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, List[A]] =
+      ((self <~ sep).rep ~ (self ?)).map {
+        case (list, opt) => list ++ opt.toList
+      }
 
     def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.point(None)
   }
