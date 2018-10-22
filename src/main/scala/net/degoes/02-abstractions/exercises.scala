@@ -27,10 +27,13 @@ object algebra {
   //
   // EXERCISE 3
   //
-  // Define a semigroup for `Last[A]` that always chooses the right-most value.
+  // Define a `Semigroup` for `Last[A]` that always chooses the right-most value.
   //
   final case class Last[A](value: A)
-  implicit def LastSemigroup[A]: Semigroup[Last[A]] = ???
+  implicit def LastSemigroup[A]: Semigroup[Last[A]] =
+    new Semigroup[Last[A]] {
+      def append(l: Last[A], r: => Last[A]): Last[A] = r
+    }
 
   //
   // EXERCISE 4
@@ -72,6 +75,18 @@ object algebra {
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
   //
+  // Assumptions:
+  //   1. Users have multiple accounts (`AccountID`)
+  //   2. Each account gives different capabilities (`Capability`) to
+  //      different resources (`ResourceID`)
+  //
+  trait AccountID
+  trait ResourceID
+  sealed trait Capability
+  object Capability {
+    final case object Read extends Capability
+    final case object Write extends Capability 
+  }
   case class Permission(/* */)
   implicit val MonoidPermission: Monoid[Permission] = ???
   val example2 = mzero[Permission] |+| Permission()
