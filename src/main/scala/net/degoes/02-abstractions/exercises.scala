@@ -295,7 +295,8 @@ object functor {
     new Applicative[Option] {
       def point[A](a: => A): Option[A] = ???
 
-      def ap[A, B](fa: => Option[A])(f: => Option[A => B]): Option[B] = ???
+      def ap[A, B](fa: => Option[A])(f: => Option[A => B]): Option[B] =
+        ???
     }
 
   //
@@ -319,11 +320,11 @@ object functor {
   //
   def ApplicativeParser[E]: Applicative[Parser[E, ?]] =
     new Applicative[Parser[E, ?]] {
-      def point[A](a: => A): Parser[E,A] =
+      def point[A](a: => A): Parser[E, A] =
         ???
 
-      def ap[A, B](fa: => Parser[E,A])(
-        f: => Parser[E, A => B]): Parser[E,B] =
+      def ap[A, B](fa: => Parser[E, A])(
+        f: => Parser[E, A => B]): Parser[E, B] =
           ???
     }
 
@@ -348,9 +349,10 @@ object functor {
   //
   implicit def MonadParser[E]: Monad[Parser[E, ?]] =
     new Monad[Parser[E, ?]] {
-      def point[A](a: => A): Parser[E,A] = ???
+      def point[A](a: => A): Parser[E, A] =
+        ???
 
-      def bind[A, B](fa: Parser[E,A])(f: A => Parser[E,B]): Parser[E,B] =
+      def bind[A, B](fa: Parser[E, A])(f: A => Parser[E, B]): Parser[E, B] =
         ???
     }
 }
@@ -375,20 +377,10 @@ object parser {
       flatMap(f.andThen(Parser.point[B](_)))
 
     def flatMap[E1 >: E, B](f: A => Parser[E1, B]): Parser[E1, B] =
-      Parser[E1, B](input =>
-        self.run(input) match {
-          case Left(e) => Left(e)
-          case Right((input, a)) => f(a).run(input)
-        })
+      ???
 
-    def orElse[E1 >: E, B](that: => Parser[E1, B]): Parser[E1, Either[A, B]] = {
-      val self1 = self.map(Left(_))
-      val that1 = that.map(Right(_))
-
-      type Return = Either[E1, (String, Either[A, B])]
-
-      Parser(i => self1.run(i).fold[Return](_ => that1.run(i), Right(_)))
-    }
+    def orElse[E2, B](that: => Parser[E2, B]): Parser[E2, Either[A, B]] =
+      ???
 
     def filter[E1 >: E](e0: E1)(f: A => Boolean): Parser[E1, A] =
       Parser(input =>
@@ -397,25 +389,23 @@ object parser {
           case Right((input, a)) => if (f(a)) Right((input, a)) else Left(e0)
         })
 
-    def | [E1 >: E, A1 >: A](that: => Parser[E1, A1]): Parser[E1, A1] =
+    def | [E2, A1 >: A](that: => Parser[E2, A1]): Parser[E2, A1] =
       (self orElse (that)).map(_.merge)
 
     def rep: Parser[E, List[A]] =
       ((self.map(List(_)) | Parser.point[List[A]](Nil)) ~ rep).map(t => t._1 ++ t._2)
 
-    def ? : Parser[E, Option[A]] = self.map(Some(_)) | Parser.point(None)
+    def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.point(None)
   }
   object Parser {
     def fail[E](e: E): Parser[E, Nothing] =
       Parser(input => Left(e))
 
     def point[A](a: => A): Parser[Nothing, A] =
-      Parser(input => Right((input, a)))
+      ???
 
     def maybeChar: Parser[Nothing, Option[Char]] =
-      Parser(input =>
-        if (input.length == 0) Right((input, None))
-        else Right((input.drop(1), Some(input.charAt(0)))))
+      char(()) ?
 
     def char[E](e: E): Parser[E, Char] =
       Parser(input =>
