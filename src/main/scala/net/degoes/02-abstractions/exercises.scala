@@ -252,7 +252,8 @@ object functor {
     new Zip[List] {
       def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
 
-      def zip[A, B](l: List[A], r: List[B]): List[(A, B)] = ???
+      def zip[A, B](l: List[A], r: List[B]): List[(A, B)] =
+        ???
     }
 
   //
@@ -265,7 +266,8 @@ object functor {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
         Parser.ParserFunctor.map(fa)(f)
 
-      def zip[A, B](l: Parser[E, A], r: Parser[E, B]): Parser[E, (A, B)] = ???
+      def zip[A, B](l: Parser[E, A], r: Parser[E, B]): Parser[E, (A, B)] =
+        ???
     }
 
   //
@@ -273,7 +275,16 @@ object functor {
   //
   // Define an instance of `Zip` for `Future`.
   //
-  val ZipFuture: Zip[scala.concurrent.Future] = ???
+  val ZipFuture: Zip[scala.concurrent.Future] =
+    new Zip[scala.concurrent.Future] {
+      import scala.concurrent.Future
+      import scala.concurrent.ExecutionContext.Implicits.global
+
+      def map[A, B](fa: Future[A])(f: A => B): Future[B] = fa.map(f)
+
+      def zip[A, B](l: Future[A], r: Future[B]): Future[(A, B)] =
+        ???
+    }
 
   //
   // EXERCISE 12
