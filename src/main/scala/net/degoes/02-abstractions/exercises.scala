@@ -467,16 +467,10 @@ object foldable {
   //
   implicit val FoldableList: Foldable[List] = new Foldable[List] {
     def foldMap[A, B: Monoid](fa: List[A])(f: A => B): B =
-      fa match {
-        case Nil => mzero[B]
-        case a :: as => f(a) |+| foldMap(as)(f)
-      }
+      ???
 
     def foldRight[A, B](fa: List[A], z: => B)(f: (A, => B) => B): B =
-      fa match {
-        case Nil => z
-        case a :: as => f(a, foldRight(as, z)(f))
-      }
+      ???
   }
 
   //
