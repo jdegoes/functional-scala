@@ -72,6 +72,7 @@ object functor {
   val Expected = List( 2,   3, 1,      6)
   val g : Int => String = (i: Int) => i.toString
   val f : String => Int = (s: String) => s.length
+  Numbers.map(identity)    == Numbers
   Numbers.map(g andThen f) == Numbers.map(g).map(f)
 
   //
@@ -120,57 +121,6 @@ object functor {
       }
   }
 
-  trait Zip[F[_]] extends Functor[F] {
-    def zip[A, B](l: F[A], r: F[B]): F[(A, B)]
-  }
-  implicit class ZipSyntax[F[_], A](left: F[A]) {
-    def zip[B](right: F[B])(implicit F: Zip[F]): F[(A, B)] =
-      F.zip(left, right)
-  }
-
-  sealed trait BankTransaction[+A]
-  case class Return[A](value: A) extends BankTransaction[A]
-  case class Deposit[A](amount: BigDecimal, next: BigDecimal => BankTransaction[A]) extends BankTransaction[A]
-  case class Withdraw[A](amount: BigDecimal, next: BigDecimal => BankTransaction[A]) extends BankTransaction[A]
-  object BankTransaction {
-    implicit val FunctorBankTransaction: Functor[BankTransaction] with Zip[BankTransaction] =
-      new Functor[BankTransaction] with Zip[BankTransaction] {
-        def map[A, B](fa: BankTransaction[A])(f: A => B): BankTransaction[B] =
-          fa match {
-            case Return(value) => Return(f(value))
-            case Deposit(amount, next) => Deposit(amount, (b: BigDecimal) => next(b).map(f))
-            case Withdraw(amount, next) => Withdraw(amount, (b: BigDecimal) => next(b).map(f))
-          }
-
-        def zip[A, B](l: BankTransaction[A], r: BankTransaction[B]): BankTransaction[(A, B)] = {
-          val nested: BankTransaction[BankTransaction[(A, B)]] = l.map(a => r.map(b => (a, b)))
-
-          def flatten[C](v: BankTransaction[BankTransaction[C]]): BankTransaction[C] =
-            v match {
-              case Return(t) => t
-              case Deposit(amount, next) => Deposit(amount, (b: BigDecimal) => flatten(next(b)))
-              case Withdraw(amount, next) => Withdraw(amount, (b: BigDecimal) => flatten(next(b)))
-            }
-
-          flatten(nested)
-        }
-      }
-  }
-  val t1 : BankTransaction[BigDecimal] = ???
-  val t2 : BankTransaction[String] = t1.map(d => d.toString)
-
-  val supplier1 : BankTransaction[BigDecimal] = ???
-  val supplier2 : BankTransaction[BigDecimal] = ???
-  val allSuppliers : BankTransaction[(BigDecimal, BigDecimal)] =
-    supplier1.zip(supplier2)
-
-  trait HttpHeader
-  val Headers : Parser[Exception, List[HttpHeader]] = ???
-  val Body    : Parser[Exception, String] = ???
-  val Content : Parser[Exception, (List[HttpHeader], String)] = ???
-
-  def zip[E, A, B](l: Parser[E, A], r: Parser[E, B]): Parser[E, (A, B)] = ???
-
   //
   // EXERCISE 4
   //
@@ -212,31 +162,43 @@ object functor {
   implicit def FunctorNestFunctor[F[_]: Functor, G[_]: Functor]:
     Functor[FunctorNest[F, G, ?]] = ???
 
-
-
-  def zipOption[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
-    (l, r) match {
-      case (Some(a), Some(b)) => Some((a, b))
-      case _ => None
-    }
-
-  def zipWith[A, B, C](l: Option[A], r: Option[B])(f: ((A, B)) => C): Option[C] =
-    zipOption(l, r).map(f)
-
-  def zipList1[A, B](l: List[A], r: List[B]): List[(A, B)] =
-    (l, r) match {
-      case (a :: as, bs) =>
-        zipList1(as, bs) ++ bs.map(b => (a, b))
-      case (Nil, bs) => Nil
-    }
-  def zipList2[A, B](l: List[A], r: List[B]): List[(A, B)] =
-    (l, r) match {
-      case (a :: as, b :: bs) => ((a, b)) :: zipList2(as, bs)
-      case _ => Nil
-    }
-
   //
   // EXERCISE 8
+  //
+  // Define an instance of `Zip` for `Option`.
+  //
+  trait Zip[F[_]] extends Functor[F] {
+    def zip[A, B](l: F[A], r: F[B]): F[(A, B)]
+  }
+  implicit class ZipSyntax[F[_], A](left: F[A]) {
+    def zip[B](right: F[B])(implicit F: Zip[F]): F[(A, B)] =
+      F.zip(left, right)
+  }
+  implicit val ZipOption: Zip[Option] = ???
+
+  //
+  // EXERCISE 9
+  //
+  // Define an instance of `Zip` for `List`
+  //
+  implicit val ZipList: Zip[List] = ???
+
+  //
+  // EXERCISE 10
+  //
+  // Define an instance of `Zip` for `Parser[E, ?]`.
+  //
+  implicit def ZipParser[E]: Zip[Parser[E, ?]] = ???
+
+  //
+  // EXERCISE 11
+  //
+  // Define an instance of `Zip` for `Future`.
+  //
+  implicit val ZipFuture: Zip[scala.concurrent.Future] = ???
+
+  //
+  // EXERCISE 12
   //
   // Define `Applicative` for `Option`.
   //
@@ -248,7 +210,7 @@ object functor {
     }
 
   //
-  // EXERCISE 9
+  // EXERCISE 13
   //
   // Implement `zip` in terms of the applicative composition using `|@|`.
   //
@@ -262,7 +224,7 @@ object functor {
     ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 14
   //
   // Define an instance of `Applicative` for `Parser[E, ?]`.
   //
@@ -276,19 +238,8 @@ object functor {
           ???
     }
 
-  // implicit def ApplicativeList: Applicative[List] =
-  //   new Applicative[List] {
-  //     def point[A](a: => A): List[A] = List(a)
   //
-  //     def ap[A, B](fa: => List[A])(f: => List[A => B]): List[B] =
-  //       for {
-  //         a <- fa
-  //         f <- f
-  //       } yield f(a)
-  //   }
-
-  //
-  // EXERCISE 11
+  // EXERCISE 15
   //
   // Define an instance of `Monad` for `BTree`.
   //
@@ -302,7 +253,7 @@ object functor {
     }
 
   //
-  // EXERCISE 12
+  // EXERCISE 16
   //
   // Define an instance of `Monad` for `Parser[E, ?]`.
   //
