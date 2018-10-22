@@ -402,10 +402,15 @@ object parser {
     def rep: Parser[E, List[A]] =
       ((self.map(List(_)) | Parser.point[List[A]](Nil)) ~ rep).map(t => t._1 ++ t._2)
 
+    def rep1: Parser[E, (A, List[A])] = self ~ rep
+
     def repsep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, List[A]] =
       ((self <~ sep).rep ~ (self ?)).map {
         case (list, opt) => list ++ opt.toList
       }
+
+    def rep1sep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, (A, List[A])] =
+      (self <~ sep) ~ repsep(sep)
 
     def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.point(None)
   }
@@ -441,7 +446,7 @@ object parser {
       Parser(input => Right((input.dropWhile(_ == ' '), ())))
   }
 
-  // [1,2,3,]
+  // [1,2,3]
   sealed trait Error
   case class ExpectedLit(char: Char) extends Error
   case object ExpectedDigit extends Error
