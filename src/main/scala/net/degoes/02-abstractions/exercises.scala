@@ -164,7 +164,7 @@ object functor {
     implicit def ParserFunctor[E]: Functor[Parser[E, ?]] =
       new Functor[Parser[E, ?]] {
         def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
-          ???
+           ???
       }
   }
 
@@ -187,7 +187,11 @@ object functor {
   //
   case class FunctorProduct[F[_], G[_], A](l: F[A], r: G[A])
   implicit def FunctorProductFunctor[F[_]: Functor, G[_]: Functor]:
-    Functor[FunctorProduct[F, G, ?]] = ???
+    Functor[FunctorProduct[F, G, ?]] =
+      new Functor[FunctorProduct[F, G, ?]] {
+        def map[A, B](fa: FunctorProduct[F, G, A])(f: A => B): FunctorProduct[F, G, B] =
+          ???
+      }
 
   //
   // EXERCISE 6
@@ -196,7 +200,11 @@ object functor {
   //
   case class FunctorSum[F[_], G[_], A](run: Either[F[A], G[A]])
   implicit def FunctorSumFunctor[F[_]: Functor, G[_]: Functor]:
-    Functor[FunctorSum[F, G, ?]] = ???
+    Functor[FunctorSum[F, G, ?]] =
+      new Functor[FunctorSum[F, G, ?]] {
+        def map[A, B](fa: FunctorSum[F, G, A])(f: A => B): FunctorSum[F, G, B] =
+          ???
+      }
 
   //
   // EXERCISE 7
@@ -207,7 +215,11 @@ object functor {
   //
   case class FunctorNest[F[_], G[_], A](run: F[G[A]])
   implicit def FunctorNestFunctor[F[_]: Functor, G[_]: Functor]:
-    Functor[FunctorNest[F, G, ?]] = ???
+    Functor[FunctorNest[F, G, ?]] =
+      new Functor[FunctorNest[F, G, ?]] {
+        def map[A, B](fa: FunctorNest[F, G, A])(f: A => B): FunctorNest[F, G, B] =
+          ???
+      }
 
   //
   // EXERCISE 8
@@ -217,39 +229,58 @@ object functor {
   trait Zip[F[_]] extends Functor[F] {
     def zip[A, B](l: F[A], r: F[B]): F[(A, B)]
   }
+  object Zip {
+    implicit val ZipOption: Zip[Option] =
+      new Zip[Option] {
+        def map[A, B](fa: Option[A])(f: A => B) = fa.map(f)
+
+        def zip[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
+          ???
+      }
+  }
   implicit class ZipSyntax[F[_], A](left: F[A]) {
     def zip[B](right: F[B])(implicit F: Zip[F]): F[(A, B)] =
       F.zip(left, right)
   }
-  implicit val ZipOption: Zip[Option] = ???
 
   //
   // EXERCISE 9
   //
   // Define an instance of `Zip` for `List`
   //
-  implicit val ZipList: Zip[List] = ???
+  val ZipList: Zip[List] =
+    new Zip[List] {
+      def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
+
+      def zip[A, B](l: List[A], r: List[B]): List[(A, B)] = ???
+    }
 
   //
   // EXERCISE 10
   //
   // Define an instance of `Zip` for `Parser[E, ?]`.
   //
-  implicit def ZipParser[E]: Zip[Parser[E, ?]] = ???
+  def ZipParser[E]: Zip[Parser[E, ?]] =
+    new Zip[Parser[E, ?]] {
+      def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
+        Parser.ParserFunctor.map(fa)(f)
+
+      def zip[A, B](l: Parser[E, A], r: Parser[E, B]): Parser[E, (A, B)] = ???
+    }
 
   //
   // EXERCISE 11
   //
   // Define an instance of `Zip` for `Future`.
   //
-  implicit val ZipFuture: Zip[scala.concurrent.Future] = ???
+  val ZipFuture: Zip[scala.concurrent.Future] = ???
 
   //
   // EXERCISE 12
   //
   // Define `Applicative` for `Option`.
   //
-  implicit val OptionApplicative: Applicative[Option] =
+  val OptionApplicative: Applicative[Option] =
     new Applicative[Option] {
       def point[A](a: => A): Option[A] = ???
 
@@ -275,7 +306,7 @@ object functor {
   //
   // Define an instance of `Applicative` for `Parser[E, ?]`.
   //
-  implicit def ApplicativeParser[E]: Applicative[Parser[E, ?]] =
+  def ApplicativeParser[E]: Applicative[Parser[E, ?]] =
     new Applicative[Parser[E, ?]] {
       def point[A](a: => A): Parser[E,A] =
         ???
