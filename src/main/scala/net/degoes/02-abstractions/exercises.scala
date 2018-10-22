@@ -16,8 +16,6 @@ object algebra {
     ???
   val example1 = NotEmpty(1, None) |+| NotEmpty(2, None)
 
-  implicit def OptionMonoid[A: Semigroup]: Monoid[Option[A]] = ???
-
   //
   // EXERCISE 2
   //
@@ -37,23 +35,12 @@ object algebra {
   //
   // EXERCISE 4
   //
-  // Define a monoid for boolean conjunction (`&&`).
+  // Define a `Semigroup` for `Option[A]` whenever `A` forms a `Semigroup`.
   //
-  final case class Conj(value: Boolean)
-  implicit val ConjMonoid: Monoid[Conj] = ???
+  implicit def OptionSemigroup[A: Semigroup]: Semigroup[Option[A]] = ???
 
   //
   // EXERCISE 5
-  //
-  // Design a permission system for securing some resource, together with a
-  // monoid for the permission data structure.
-  //
-  case class Permission(/* */)
-  implicit val MonoidPermission: Monoid[Permission] = ???
-  val example2 = mzero[Permission] |+| Permission()
-
-  //
-  // EXERCISE 6
   //
   // Define an instance of `Semigroup` for `(A, B)` when both `A` and
   // `B` form semigroups.
@@ -65,7 +52,32 @@ object algebra {
     }
 
   //
+  // EXERCISE 6
+  //
+  // Define a monoid for boolean conjunction (`&&`).
+  //
+  final case class Conj(value: Boolean)
+  implicit val ConjMonoid: Monoid[Conj] = ???
+
+  //
   // EXERCISE 7
+  //
+  // Define a `Monoid` for `Option[A]` whenever `A` forms a `Semigroup`.
+  //
+  def OptionMonoid[A: Semigroup]: Monoid[Option[A]] = ???
+
+  //
+  // EXERCISE 8
+  //
+  // Design a permission system for securing some resource, together with a
+  // monoid for the permission data structure.
+  //
+  case class Permission(/* */)
+  implicit val MonoidPermission: Monoid[Permission] = ???
+  val example2 = mzero[Permission] |+| Permission()
+
+  //
+  // EXERCISE 9
   //
   // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
   //
