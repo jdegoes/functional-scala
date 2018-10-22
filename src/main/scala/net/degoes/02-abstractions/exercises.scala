@@ -80,12 +80,12 @@ object algebra {
   //   2. Each account gives different capabilities (`Capability`) to
   //      different resources (`ResourceID`)
   //
-  trait AccountID
-  trait ResourceID
+  type AccountID = String
+  type ResourceID = String
   sealed trait Capability
   object Capability {
     final case object Read extends Capability
-    final case object Write extends Capability 
+    final case object Write extends Capability
   }
   case class Permission(/* */)
   implicit val MonoidPermission: Monoid[Permission] = ???
