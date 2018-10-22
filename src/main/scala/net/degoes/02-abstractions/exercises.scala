@@ -461,7 +461,7 @@ object parser {
 
 object foldable {
   //
-  // EXERCISE 0
+  // EXERCISE 1
   //
   // Define an instance of `Foldable` for `List`
   //
@@ -474,7 +474,7 @@ object foldable {
   }
 
   //
-  // EXERCISE 1
+  // EXERCISE 2
   //
   // Define an instance of `Foldable` for `BTree`.
   //
@@ -483,7 +483,7 @@ object foldable {
   case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
   implicit val FoldableBTree: Foldable[BTree] =
     new Foldable[BTree] {
-      def foldMap[A, B](fa: BTree[A])(f: A => B)(implicit F: Monoid[B]): B =
+      def foldMap[A, B: Monoid](fa: BTree[A])(f: A => B): B =
         ???
 
       def foldRight[A, B](fa: BTree[A], z: => B)(f: (A, => B) => B): B =
@@ -491,14 +491,14 @@ object foldable {
     }
 
   //
-  // EXERCISE 2
+  // EXERCISE 3
   //
   // Try to define an instance of `Foldable` for `A0 => ?`.
   //
   implicit def FunctionFoldable[A0]: Foldable[A0 => ?] = ???
 
   //
-  // EXERCISE 3
+  // EXERCISE 4
   //
   // Define an instance of `Traverse` for `BTree`.
   //
@@ -509,7 +509,7 @@ object foldable {
     }
 
   //
-  // EXERCISE 4
+  // EXERCISE 5
   //
   // Try to define an instance of `Traverse` for `Parser[E, ?]`.
   //
