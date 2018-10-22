@@ -72,6 +72,13 @@ object algebra {
   //
   // EXERCISE 8
   //
+  // Write the `Monoid` instance for `Map`.
+  //
+  def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] = ???
+
+  //
+  // EXERCISE 9
+  //
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
   //
@@ -87,27 +94,16 @@ object algebra {
     final case object Read extends Capability
     final case object Write extends Capability
   }
-  case class Permission(/* */)
-  implicit val MonoidPermission: Monoid[Permission] = ???
-  val example2 = mzero[Permission] |+| Permission()
+  case class UserPermission(/* */)
+  implicit val MonoidUserPermission: Monoid[UserPermission] = ???
+  val example2 = mzero[UserPermission] |+| UserPermission(/* */)
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
   //
   implicit def MonoidNotEmpty[A]: Monoid[NotEmpty[A]] = ???
-
-  class Add(val value: Int) extends AnyVal
-  object Add { def apply(value: Int) = new Add(value) }
-  class Mul(val value: Int) extends AnyVal
-  object Mul { def apply(value: Int) = new Mul(value) }
-
-  implicit val IntSemigroup1: Semigroup[Add] = (l, r) => Add(l.value + r.value)
-  implicit val IntSemigroup2: Semigroup[Mul] = (l, r) => Mul(l.value * r.value)
-
-  Add(1) |+| Add(2)
-  Mul(1) |+| Mul(2)
 }
 
 object functor {
