@@ -21,6 +21,30 @@ object algebra {
   //
   // EXERCISE 2
   //
+  // Define a semigroup for `Max` that chooses the maximum of two values.
+  //
+  final case class Max(value: Int)
+  implicit val MaxSemigroup: Semigroup[Max] = ???
+
+  //
+  // EXERCISE 3
+  //
+  // Define a semigroup for `Last[A]` that always chooses the right-most value.
+  //
+  final case class Last[A](value: A)
+  implicit def LastSemigroup[A]: Semigroup[Last[A]] = ???
+
+  //
+  // EXERCISE 4
+  //
+  // Define a monoid for boolean conjunction (`&&`).
+  //
+  final case class Conj(value: Boolean)
+  implicit val ConjMonoid: Monoid[Conj] = ???
+
+  //
+  // EXERCISE 5
+  //
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
   //
@@ -29,7 +53,7 @@ object algebra {
   val example2 = mzero[Permission] |+| Permission()
 
   //
-  // EXERCISE 3
+  // EXERCISE 6
   //
   // Define an instance of `Semigroup` for `(A, B)` when both `A` and
   // `B` form semigroups.
@@ -41,7 +65,7 @@ object algebra {
     }
 
   //
-  // EXERCISE 4
+  // EXERCISE 7
   //
   // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
   //
