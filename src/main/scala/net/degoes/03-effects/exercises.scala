@@ -494,11 +494,10 @@ object zio_effects {
   // choose the correct error type.
   //
   val scheduledExecutor = Executors.newScheduledThreadPool(1)
-  def sleep(l: Long, u: TimeUnit): IO[???, Unit] =
+  def sleep(l: Long, u: TimeUnit): IO[Nothing, Unit] =
     scheduledExecutor.schedule(new Runnable {
       def run(): Unit = ???
     }, l, u) ?
-
 
   //
   // EXERCISE 8
@@ -507,9 +506,7 @@ object zio_effects {
   //
   def readChunk(success: Array[Byte] => Unit, failure: Throwable => Unit): Unit = ???
   val readChunkIO: IO[Throwable, Array[Byte]] =
-    IO.async[Throwable, Array[Byte]](k =>
-      readChunk(k.compose(ExitResult.Completed(_)), k.compose(ExitResult.Failed(_)))
-    )
+    ???
 
   //
   // EXERCISE 9
@@ -529,7 +526,7 @@ object zio_effects {
         println("You guessed wrong! The number was " + number)
     }
   }
-  def playGame2: IO[Exception, Unit] = ???
+  val playGame2: IO[Exception, Unit] = ???
 }
 
 object zio_concurrency {
@@ -547,7 +544,8 @@ object zio_concurrency {
   //
   val leftContestent1 = IO.never
   val rightContestent1 = putStrLn("Hello World")
-  val raced1 = ???
+  val raced1: IO[java.io.IOException, Unit] =
+    ???
 
   //
   // EXERCISE 2
@@ -568,6 +566,7 @@ object zio_concurrency {
   val leftWork1: IO[Nothing, Int] = fibonacci(10)
   val rightWork1: IO[Nothing, Int] = fibonacci(10)
   val par1: ??? = ???
+
 
   //
   // EXERCISE 4
@@ -630,7 +629,8 @@ object zio_concurrency {
   // Use the `timeout` method of `IO` to time out the following long-lived
   // computation after 60 seconds.
   //
-  val timedout: IO[Nothing, Option[Int]] = fibonacci(100) ?
+  val timedout: IO[Nothing, Option[Int]] =
+    fibonacci(100) ?
 
   //
   // EXERCISE 10
@@ -639,11 +639,16 @@ object zio_concurrency {
   // integers in parallel.
   //
   val fibsToCompute = List(1, 2, 3, 4, 5, 6, 7)
-  val inParallel: IO[Nothing, List[Int]] = IO.parTraverse(fibsToCompute)(fibonacci(_))
+  val inParallel: IO[Nothing, List[Int]] =
+    ???
 
   def fibonacci(n: Int): IO[Nothing, Int] =
     if (n <= 1) IO.now(n)
     else fibonacci(n - 1).seqWith(fibonacci(n - 2))(_ + _)
+
+  def fibonacciPar(n: Int): IO[Nothing, Int] =
+    if (n <= 1) IO.now(n)
+    else fibonacci(n - 1).parWith(fibonacci(n - 2))(_ + _)
 }
 
 object zio_resources {
@@ -663,7 +668,7 @@ object zio_resources {
   // EXERCISE 1
   //
   // Rewrite the following procedural program to ZIO, using `IO.fail` and the
-  // `bracket` method of the `IO` object.
+  // `ensuring` method of the `IO` object.
   //
   def tryCatch1(): Unit =
     try throw new Exception("Uh oh")
@@ -687,6 +692,7 @@ object zio_resources {
     for {
       stream <- InputStream.openFile(file)
       bytes  <- readAll(stream, Nil)
+      _      <- stream.close
     } yield bytes
   }
   def readFile2(file: File): IO[Exception, List[Byte]] = ???
@@ -694,7 +700,7 @@ object zio_resources {
   //
   // EXERCISE 3
   //
-  // Implement the `tryCatchFinally` method using `bracket`.
+  // Implement the `tryCatchFinally` method using `bracket` or `ensuring`.
   //
   def tryCatchFinally[E, A]
     (try0: IO[E, A])
@@ -760,7 +766,8 @@ object zio_schedule {
   // and the `everySecond` schedule, create a schedule that repeats fives times,
   // every second.
   //
-  val fiveTimesEverySecond = ???
+  val fiveTimesEverySecond =
+    ???
 
   //
   // EXERCISE 5
@@ -885,7 +892,8 @@ object zio_ref {
   //
   // Using the `Ref.apply` constructor, create a `Ref` that is initially `0`.
   //
-  val makeZero: IO[Nothing, Ref[Int]] = ???
+  val makeZero: IO[Nothing, Ref[Int]] =
+    ???
 
   //
   // EXERCISE 2
@@ -937,7 +945,8 @@ object zio_promise {
   // Using the `make` method of `Promise`, construct a promise that cannot
   // fail but can be completed with an integer.
   //
-  val makeIntPromise: IO[Nothing, Promise[Nothing, Int]] = ???
+  val makeIntPromise: IO[Nothing, Promise[Nothing, Int]] =
+    ???
 
   //
   // EXERCISE 2
@@ -998,7 +1007,7 @@ object zio_promise {
   val handoff1: IO[Nothing, Int] =
     for {
       promise <- Promise.make[Nothing, Int]
-      _       <- promise.complete(42).delay(10.milliseconds).fork
+      _       <- (IO.sleep(10.millis) *> promise.complete(42)).fork
       value   <- (promise ? : IO[Nothing, Int])
     } yield value
 
