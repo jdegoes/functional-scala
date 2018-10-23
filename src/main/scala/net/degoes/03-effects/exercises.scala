@@ -142,7 +142,7 @@ object zio_type {
   //
   // Write the type of `IO` values that cannot fail, but may produce an `A.`
   //
-  type Infallible[A] = IO[???, ???]
+  type NonFailing[A] = IO[???, ???]
 
   //
   // EXERCISE 4
@@ -150,14 +150,14 @@ object zio_type {
   // Write the type of `IO` values that cannot produce a value, but may fail
   // with an `E`.
   //
-  type Unproductive[E] = IO[???, ???]
+  type NonReturning[E] = IO[???, ???]
 
   //
   // EXERCISE 5
   //
   // Write the type of `IO` values that cannot fail or produce a value.
   //
-  type Unending = IO[???, ???]
+  type NonTerminating = IO[???, ???]
 }
 
 object zio_values {
@@ -183,7 +183,8 @@ object zio_values {
   // Using the `IO.fail` method to lift the string "Bad Input" into a failed
   // `IO`.
   //
-  val failedInput: IO[String, Nothing] = ???
+  val failedInput: IO[String, Nothing] =
+    ???
 }
 
 object zio_composition {
@@ -225,7 +226,8 @@ object zio_composition {
   // Using the `flatMap` method of `IO`, implement `ifThenElse`.
   //
   def ifThenElse[E, A](bool: IO[E, Boolean])(
-    ifTrue: IO[E, A], ifFalse: IO[E, A]): IO[E, A] = ???
+    ifTrue: IO[E, A], ifFalse: IO[E, A]): IO[E, A] =
+      ???
   val exampleIf = ifThenElse(IO.point(true))(IO.point("It's true!"), IO.point("It's false!"))
 
   //
@@ -332,7 +334,8 @@ object zio_failure {
   // represents a failure with a string error message, containing a user-
   // readable description of the failure.
   //
-  val stringFailure1: IO[String, Int] = ???
+  val stringFailure1: IO[String, Int] =
+    ???
 
   //
   // EXERCISE 2
@@ -472,7 +475,8 @@ object zio_effects {
   // Identify the correct method, error, and value type to import `System.exit`
   // safely into the world of pure functional programming.
   //
-  def sysExit(code: Int): IO[???, ???] = System.exit(code) ?
+  def sysExit(code: Int): IO[???, ???] =
+    System.exit(code) ?
 
   //
   // EXERCISE 6
@@ -497,7 +501,7 @@ object zio_effects {
 
 
   //
-  // EXERCISE 7.5
+  // EXERCISE 8
   //
   // Wrap the following Java-esque callback API into an `IO` using `IO.async`.
   //
@@ -508,7 +512,7 @@ object zio_effects {
     )
 
   //
-  // EXERCISE 8
+  // EXERCISE 9
   //
   // Translate the following procedural program into ZIO.
   //
