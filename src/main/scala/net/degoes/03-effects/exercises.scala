@@ -1099,7 +1099,7 @@ object zio_queue {
     for {
       queue <- makeQueue
       _     <- (??? : IO[Nothing, Nothing]).fork
-      vs    <- (queue ? : IO[Nothing, List[Int]])
+      vs    <- (queue ? : IO[Nothing, Int])
     } yield vs
 
   //
