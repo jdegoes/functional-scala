@@ -541,15 +541,24 @@ object foldable {
 object optics {
   sealed trait Country
   object Country {
-    val usa: Prism[Country, Unit] = ???
+    val usa: Prism[Country, Unit] =
+      Prism[Country, Unit](
+        _ match { case USA => Some(()); case _ => None },
+        _ => USA)
+
+    val uk: Prism[Country, UKRegion] = ???
+
+    val poland: Prism[Country, Unit] = ???
   }
-  case object USA    extends Country
-  case object UK     extends Country
-  case object Poland extends Country
+  case object USA                  extends Country
+  case class  UK(region: UKRegion) extends Country
+  case object Poland               extends Country
+  sealed trait UKRegion
 
   case class Org(name: String, address: Address, site: Site)
   object Org {
-    val site: Lens[Org, Site] = ???
+    val site: Lens[Org, Site] =
+      Lens[Org, Site](_.site, s => _.copy(site = s))
   }
 
   case class Address(
@@ -557,13 +566,20 @@ object optics {
     street: String,
     postalCode: String,
     country: Country)
+  object Address {
+    val country: Lens[Address, Country] =
+      Lens[Address, Country](_.country, c => _.copy(country = c))
+  }
 
   case class Site(
     manager: Employee,
     address: Address,
     employees: Set[Employee])
   object Site {
-    val manager: Lens[Site, Employee] = ???
+    val address: Lens[Site, Address] =
+      Lens[Site, Address](_.address, a => _.copy(address = a))
+    val manager: Lens[Site, Employee] =
+      Lens[Site, Employee](_.manager, m => _.copy(manager = m))
   }
   case class Employee(
     name: String,
@@ -571,17 +587,11 @@ object optics {
     salary: BigDecimal,
     address: Address)
   object Employee {
-    val salary: Lens[Employee, BigDecimal] = ???
+    val salary: Lens[Employee, BigDecimal] =
+      Lens[Employee, BigDecimal](_.salary, s => _.copy(salary = s))
   }
 
   lazy val org: Org = ???
-
-  lazy val org2 =
-    org.copy(site =
-      org.site.copy(manager = org.site.manager.copy(
-        salary = org.site.manager.salary * 0.95
-      ))
-    )
 
   //
   // EXERCISE 1
@@ -592,7 +602,8 @@ object optics {
     get: S => A,
     set: A => (S => S)
   ) { self =>
-    def ⋅ [B](that: Lens[A, B]): Lens[S, B] = ???
+    def ⋅ [B](that: Lens[A, B]): Lens[S, B] =
+      ???
 
     def ⋅ [B](that: Optional[A, B]): Optional[S, B] = ???
 
@@ -609,6 +620,12 @@ object optics {
   //
   // Create a version of `org2` that uses lenses to update the salaries.
   //
+  lazy val org2 =
+    org.copy(site =
+      org.site.copy(manager = org.site.manager.copy(
+        salary = org.site.manager.salary * 0.95
+      ))
+    )
   import Org.site
   import Site.manager
   import Employee.salary
@@ -622,7 +639,8 @@ object optics {
   final case class Prism[S, A](
     get: S => Option[A],
     set: A => S) { self =>
-    def ⋅ [B](that: Prism[A, B]): Prism[S, B] = ???
+    def ⋅ [B](that: Prism[A, B]): Prism[S, B] =
+      ???
 
     def ⋅ [B](that: Lens[A, B]): Optional[S, B] = ???
 
@@ -657,6 +675,8 @@ object optics {
     def ⋅ [B](that: Prism[A, B]): Optional[S, B] = ???
 
     def ⋅ [B](that: Traversal[A, B]): Traversal[S, B] = ???
+
+    final def get(s: S): Option[A] = getOrModify(s).right.toOption
   }
 
   //
@@ -675,4 +695,15 @@ object optics {
 
     def ⋅ [B](that: Prism[A, B]): Traversal[S, B] = ???
   }
+
+  //
+  // EXERCISE 7
+  //
+  // Modify the country of `org` using a `Prism`.
+  //
+  (Org.site ⋅ Site.address ⋅ Address.country ⋅ Country.usa).set(())(org)
+  (Org.site ⋅ Site.address ⋅ Address.country).updated {
+    case UK(_) => USA
+    case x => x
+  }(org)
 }

@@ -8,14 +8,14 @@ import scala.concurrent.duration._
 
 object zio_background {
   sealed trait Program[A] { self =>
-    final def *> [B](that: Program[B]): Program[B] = self.zip(that).map(_._2)
+    final def *> [B](that: Program[B]): Program[B] = self.seq(that).map(_._2)
 
-    final def <* [B](that: Program[B]): Program[A] = self.zip(that).map(_._1)
+    final def <* [B](that: Program[B]): Program[A] = self.seq(that).map(_._1)
 
     final def map[B](f: A => B): Program[B] =
       flatMap(f andThen (Program.point(_)))
 
-    final def zip[B](that: Program[B]): Program[(A, B)] =
+    final def seq[B](that: Program[B]): Program[(A, B)] =
       for {
         a <- self
         b <- that
@@ -46,16 +46,19 @@ object zio_background {
   val yourName1: Program[Unit] =
     writeLine("What is your name?").flatMap(_ =>
       readLine.flatMap(name =>
-        writeLine("Hello, " + name + ", good to meet you!").flatMap(_ =>
-          point(())
+        writeLine("Hello, " + name + ", good to meet you!").map(_ =>
+          ()
         )
       )
     )
 
+  // Ignore me
+  point(())
+
   //
   // EXERCISE 1
   //
-  // Rewrite `program1` to use a for comprehension.
+  // Rewrite `yourName1` to use a for comprehension.
   //
   val yourName2: Program[Unit] = ???
 
@@ -111,7 +114,8 @@ object zio_background {
         ageExplainer1()
     }
   }
-  def ageExplainer2: Program[Unit] = ???
+  def ageExplainer2: Program[Unit] =
+    ???
 }
 
 object zio_type {
