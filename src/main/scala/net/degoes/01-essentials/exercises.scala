@@ -590,6 +590,66 @@ object higher_kinded {
   def Tuple3Sized[C, B]: ?? = ???
 }
 
+object tc_motivating {
+  /*
+  A type class is a tuple of three things:
+
+  1. A set of types and / or type constructors.
+  2. A set of operations on values of those types.
+  3. A set of laws governing the operations.
+
+  A type class instance is an instance of a type class for a given
+  set of types.
+
+  */
+  /**
+   * All implementations are required to satisfy the transitivityLaw.
+   *
+   * Transitivity Law:
+   * forall a b c.
+   *   lt(a, b) && lt(b, c) ==
+   *     lt(a, c) || (!lt(a, b) || !lt(b, c))
+   */
+  trait LessThan[A] {
+    def lt(l: A, r: A): Boolean
+
+    final def transitivityLaw(a: A, b: A, c: A): Boolean =
+      (lt(a, b) && lt(b, c) == lt(a, c)) ||
+      (!lt(a, b) || !lt(b, c))
+  }
+  implicit class LessThanSyntax[A](l: A) {
+    def < (r: A)(implicit A: LessThan[A]): Boolean = A.lt(l, r)
+    def >= (r: A)(implicit A: LessThan[A]): Boolean = !A.lt(l, r)
+  }
+  object LessThan {
+    def apply[A](implicit A: LessThan[A]): LessThan[A] = A
+
+    implicit val LessThanInt: LessThan[Int] = new LessThan[Int] {
+      def lt(l: Int, r: Int): Boolean = l < r
+    }
+    implicit def LessThanList[A: LessThan]: LessThan[List[A]] = new LessThan[List[A]] {
+      def lt(l: List[A], r: List[A]): Boolean =
+        (l, r) match {
+          case (Nil, Nil) => false
+          case (Nil, _) => true
+          case (_, Nil) => false
+          case (l :: ls, r :: rs) => l < r && lt(ls, rs)
+        }
+    }
+  }
+
+  def sort[A: LessThan](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case x :: xs =>
+      val (lessThan, notLessThan) = xs.partition(_ < x)
+
+      sort(lessThan) ++ List(x) ++ sort(notLessThan)
+  }
+
+  sort(List(1, 2, 3))
+  sort(List(List(1, 2, 3), List(9, 2, 1), List(1, 2, 9)))
+}
+
 object typeclasses {
   /**
    * {{
@@ -763,7 +823,7 @@ object typeclasses {
     def filter[A](fa: F[A], f: A => Boolean): F[A]
   }
   object Filterable {
-    def apply[F[_]](implicit F: Filterable[F]): Filterable[F] = F 
+    def apply[F[_]](implicit F: Filterable[F]): Filterable[F] = F
   }
   implicit val FilterableList: Filterable[List] = ???
 
