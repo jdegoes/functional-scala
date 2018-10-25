@@ -762,6 +762,9 @@ object typeclasses {
   trait Filterable[F[_]] {
     def filter[A](fa: F[A], f: A => Boolean): F[A]
   }
+  object Filterable {
+    def apply[F[_]](implicit F: Filterable[F]): Filterable[F] = F 
+  }
   implicit val FilterableList: Filterable[List] = ???
 
   //
