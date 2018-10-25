@@ -113,7 +113,7 @@ object exercises extends App {
   case class State(name: String, guesses: Set[Char], word: String) {
     def failures: Int = (guesses -- word.toSet).size
 
-    def playerLost: Boolean = guesses.size > (word.length * 2)
+    def playerLost: Boolean = failures > 10
 
     def playerWon: Boolean = (word.toSet -- guesses).size == 0
   }
