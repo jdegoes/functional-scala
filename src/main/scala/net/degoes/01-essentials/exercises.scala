@@ -236,7 +236,7 @@ object functions {
     processor.charge(account, coffee.price)
     coffee
   }
-  final case class Charge(/* ??? */)
+  final case class Charge(account: Account, amount: Double)
   def buyCoffee2(account: Account): (Coffee, Charge) = ???
 
   //
@@ -361,7 +361,8 @@ object higher_order {
   // the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
-    Parser[E2, Either[A, B]] = ???
+    Parser[E2, Either[A, B]] =
+      ???
 
   case class Parser[+E, +A](
     run: String => Either[E, (String, A)])
@@ -387,9 +388,10 @@ object poly_functions {
   // `snd` that returns the second element out of any pair of `A` and `B`.
   //
   object snd {
-    ???
+    def apply[A, B](t: (A, B)): B = ???
   }
-  // snd((1, "foo")) // "foo"
+  snd((1, "foo")) // "foo"
+  snd((true, List(1, 2, 3))) // List(1, 2, 3)
 
   //
   // EXERCISE 2
@@ -399,10 +401,11 @@ object poly_functions {
   // `A` the specified number of times.
   //
   object repeat {
-    ???
+    def apply[A](n: Int)(a: A, f: A => A): A =
+      ???
   }
-  // repeat[   Int](100)( 0, _ +   1) // 100
-  // repeat[String]( 10)("", _ + "*") // "**********"
+  repeat[   Int](100)( 0, _ +   1) // 100
+  repeat[String]( 10)("", _ + "*") // "**********"
 
   //
   // EXERCISE 3
@@ -417,13 +420,14 @@ object poly_functions {
   //
   // Count the number of unique implementations of the following method.
   //
-  def countExample2[A, B](f: A => B, g: A => B, a: A): B = ???
+  def countExample2[A, B](f: A => B, g: A => B, a: A): B =
+    ???
   val countExample2Answer = ???
 
   //
   // EXERCISE 5
   //
-  // Implement the function `groupBy`.
+  // Implement the function `groupBy1`.
   //
   val Data =
     "poweroutage;2018-09-20;level=20" :: Nil
@@ -441,7 +445,8 @@ object poly_functions {
     l: List[String],
     by: String => String)(
       reducer: (String, List[String]) => String):
-      Map[String, String] = ???
+      Map[String, String] =
+        ???
   // groupBy1(Data, By)(Reducer) == Expected
 
   //
@@ -508,7 +513,7 @@ object higher_kinded {
   //
   // Create a trait with kind `[* => *, (* => *) => *] => *`.
   //
-  trait Answer6[F[_], G[_[_]]] /*[]*/
+  trait Answer6 /*[]*/
 
   //
   // EXERCISE 7
