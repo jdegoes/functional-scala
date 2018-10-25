@@ -1095,7 +1095,7 @@ object zio_queue {
   // In a child fiber, read infintely many values out of the queue and write
   // them to the console. In the main fiber, write 100 values into the queue.
   //
-  val infiniteReader1: IO[Nothing, List[Int]] =
+  val infiniteReader1: IO[Nothing, Int] =
     for {
       queue <- makeQueue
       _     <- (??? : IO[Nothing, Nothing]).fork
