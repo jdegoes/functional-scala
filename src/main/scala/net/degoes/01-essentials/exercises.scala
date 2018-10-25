@@ -587,7 +587,7 @@ object higher_kinded {
   //
   // Implement `Sized` for `Tuple3`.
   //
-  def Tuple3Sized: ?? = ???
+  def Tuple3Sized[C, B]: ?? = ???
 }
 
 object typeclasses {
@@ -721,6 +721,9 @@ object typeclasses {
     def parent(node: A): Option[A]
 
     def root: A
+  }
+  object PathLike {
+    def apply[A](implicit A: PathLike[A]): PathLike[A] = A
   }
   sealed trait MyPath
   implicit val MyPathPathLike: PathLike[MyPath] = ???
