@@ -551,8 +551,7 @@ object higher_kinded {
       bind(fa)(f andThen single)
     }
   }
-  val ListCollectionLike: CollectionLike[List] =
-    ???
+  val ListCollectionLike: CollectionLike[List] = ???
 
   //
   // EXERCISE 8
@@ -571,18 +570,20 @@ object higher_kinded {
   // Implement `Sized` for `Map`, partially applied with its first type
   // parameter to `String`.
   //
-  val MapStringSized: Sized[Map[String, ?]] = ???
+  val MapStringSized: Sized[Map[String, ?]] =
+    ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Implement `Sized` for `Map`, partially applied with its first type
   // parameter to a user-defined type parameter.
   //
-  def MapSized2[K]: Sized[Map[K, ?]] = ???
+  def MapSized2[K]: Sized[Map[K, ?]] =
+    ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Implement `Sized` for `Tuple3`.
   //
