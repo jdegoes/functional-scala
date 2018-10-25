@@ -51,13 +51,36 @@ object types {
   //
   // EXERCISE 7
   //
-  // Create a product type of `Int` and `String`, representing the age and
-  // name of a person.
+  // Given:
+  // A = { true, false }
+  // B = { "red", "green", "blue" }
   //
-  type Person = ???
+  // List all the elements in `A * B`.
+  //
+  val AProductB: Set[(Boolean, String)] = ???
 
   //
   // EXERCISE 8
+  //
+  // Given:
+  // A = { true, false }
+  // B = { "red", "green", "blue" }
+  //
+  // List all the elements in `A + B`.
+  //
+  val ASumB: Set[Either[Boolean, String]] = ???
+
+  //
+  // EXERCISE 9
+  //
+  // Create a product type of `Int` and `String`, representing the age and
+  // name of a person.
+  //
+  type Person1 = ???
+  case class Person2(/*  */)
+
+  //
+  // EXERCISE 10
   //
   // Prove that `A * 1` is equivalent to `A` by implementing the following two
   // functions.
@@ -66,7 +89,7 @@ object types {
   def from1[A](a: A): (A, Unit) = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 11
   //
   // Prove that `A * 0` is equivalent to `0` by implementing the following two
   // functions.
@@ -75,15 +98,16 @@ object types {
   def from2[A](n: Nothing): (A, Nothing) = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 12
   //
   // Create a sum type of `Int` and `String` representing the identifier of
-  // a robot (a number) or a person (a name).
+  // a robot (a number) or the identifier of a person (a name).
   //
-  type Identifier = ???
+  type Identifier1 = Either[Int, String]
+  sealed trait Identifier2
 
   //
-  // EXERCISE 11
+  // EXERCISE 13
   //
   // Prove that `A + 0` is equivalent to `A` by implementing the following two
   // functions.
@@ -92,7 +116,7 @@ object types {
   def from3[A](a: A): Either[A, Nothing] = ???
 
   //
-  // EXERCISE 12
+  // EXERCISE 14
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // credit card, which has a number, an expiration date, and a security code.
@@ -100,7 +124,7 @@ object types {
   type CreditCard = ???
 
   //
-  // EXERCISE 13
+  // EXERCISE 15
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // payment method, which could be a credit card, bank account, or
@@ -109,7 +133,7 @@ object types {
   type PaymentMethod = ???
 
   //
-  // EXERCISE 14
+  // EXERCISE 16
   //
   // Create either a sum type or a product type (as appropriate) to represent an
   // employee at a company, which has a title, salary, name, and employment date.
@@ -117,7 +141,7 @@ object types {
   type Employee = ???
 
   //
-  // EXERCISE 15
+  // EXERCISE 17
   //
   // Create either a sum type or a product type (as appropriate) to represent a
   // piece on a chess board, which could be a pawn, rook, bishop, knight,
@@ -126,7 +150,7 @@ object types {
   type ChessPiece = ???
 
   //
-  // EXERCISE 16
+  // EXERCISE 18
   //
   // Create an ADT model of a game world, including a map, a player, non-player
   // characters, different classes of items, and character stats.
