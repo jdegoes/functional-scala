@@ -322,7 +322,7 @@ object functor {
   }
   object Zip {
     def apply[F[_]](implicit F: Zip[F]): Zip[F] = F
-    
+
     implicit val ZipOption: Zip[Option] =
       new Zip[Option] {
         def map[A, B](fa: Option[A])(f: A => B) = fa.map(f)
@@ -346,7 +346,7 @@ object functor {
       def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
 
       def zip[A, B](l: List[A], r: List[B]): List[(A, B)] =
-        ???
+        l.flatMap(a => r.map(b => (a, b)))
     }
 
   //
@@ -388,8 +388,10 @@ object functor {
     new Applicative[Option] {
       def point[A](a: => A): Option[A] = ???
 
+      def zip[A, B](fa: Option[A], fb: Option[B]): Option[(A, B)] = ???
+
       def ap[A, B](fa: => Option[A])(f: => Option[A => B]): Option[B] =
-        ???
+        zip(f, fa).map(t => t._1(t._2))
     }
 
   //
