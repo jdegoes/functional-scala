@@ -219,6 +219,11 @@ object functor {
   //
   // Define an instance of `Functor` for Parser[E, ?].
   //
+  def ParserFunctor[E]: Functor[Parser[E, ?]] =
+    new Functor[Parser[E, ?]] {
+      def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
+         ???
+    }
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
     def fail[E](e: E): Parser[E, Nothing] =
@@ -231,12 +236,6 @@ object functor {
       Parser(input =>
         if (input.length == 0) Left(e)
         else Right((input.drop(1), input.charAt(0))))
-
-    implicit def ParserFunctor[E]: Functor[Parser[E, ?]] =
-      new Functor[Parser[E, ?]] {
-        def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
-           ???
-      }
   }
 
   //
@@ -342,7 +341,7 @@ object functor {
   def ZipParser[E]: Zip[Parser[E, ?]] =
     new Zip[Parser[E, ?]] {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
-        Parser.ParserFunctor.map(fa)(f)
+        ParserFunctor.map(fa)(f)
 
       def zip[A, B](l: Parser[E, A], r: Parser[E, B]): Parser[E, (A, B)] =
         ???
