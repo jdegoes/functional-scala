@@ -94,19 +94,31 @@ object algebra {
   //
   // EXERCISE 8
   //
+  // Define a monoid for boolean disjunction (`||`).
+  //
+  final case class Disj(value: Boolean)
+  implicit val DisjMonoid: Monoid[Disj] =
+    new Monoid[Disj] {
+      def zero: Disj = ???
+      def append(l: Disj, r: => Disj): Disj = ???
+    }
+
+  //
+  // EXERCISE 9
+  //
   // Define a `Monoid` for `Try[A]` whenever `A` forms a `Semigroup`.
   //
   def TryMonoid[A: Semigroup]: Monoid[scala.util.Try[A]] = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Write the `Semigroup` instance for `Map` when the values form a semigroup.
   //
   def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
@@ -128,7 +140,7 @@ object algebra {
   val example2 = mzero[UserPermission] |+| UserPermission(/* */)
 
   //
-  // EXERCISE 11
+  // EXERCISE 12
   //
   // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
   //
