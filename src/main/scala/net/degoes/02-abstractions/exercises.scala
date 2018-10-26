@@ -188,8 +188,8 @@ object functor {
 
   val Numbers  = List(12, 123, 0, 123981)
   val Expected = List( 2,   3, 1,      6)
-  val g : Int => String = (i: Int) => i.toString
-  val f : String => Int = (s: String) => s.length
+  val g : Int    => String = (i:    Int) => i.toString
+  val f : String =>    Int = (s: String) => s.length
   Numbers.map(identity)    == Numbers
   Numbers.map(g andThen f) == Numbers.map(g).map(f)
 
@@ -199,8 +199,8 @@ object functor {
   // Define an instance of `Functor` for `BTree`.
   //
   sealed trait BTree[+A]
-  case class Leaf[A](a: A) extends BTree[A]
-  case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
+  final case class Leaf[A](a: A) extends BTree[A]
+  final case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
   implicit val BTreeFunctor: Functor[BTree] =
     new Functor[BTree] {
       def map[A, B](fa: BTree[A])(f: A => B): BTree[B] =
