@@ -803,7 +803,12 @@ object typeclasses {
     def apply[A](implicit A: PathLike[A]): PathLike[A] = A
   }
   sealed trait MyPath
-  implicit val MyPathPathLike: PathLike[MyPath] = ???
+  implicit val MyPathPathLike: PathLike[MyPath] =
+    new PathLike[MyPath] {
+      def child(parent: MyPath, name: String): MyPath = ???
+      def parent(node: MyPath): Option[MyPath] = ???
+      def root: MyPath = ???
+    }
 
   //
   // EXERCISE 3
@@ -817,8 +822,11 @@ object typeclasses {
   //
   // Create two laws for the `PathLike` type class.
   //
-  object path_like_laws {
-    ???
+  trait PathLikeLaws[A] extends PathLike[A] {
+    def law1: Boolean = ???
+
+    def law2(node: A, name: String, assertEquals: (A, A) => Boolean): Boolean =
+      ???
   }
 
   //
@@ -828,8 +836,13 @@ object typeclasses {
   // into the given named node.
   //
   implicit class PathLikeSyntax[A](a: A) {
-    ???
+    def / (name: String)(implicit A: PathLike[A]): A = ???
+
+    def parent(implicit A: PathLike[A]): Option[A] = ???
   }
+  def root[A: PathLike]: A = PathLike[A].root
+  //  root[MyPath] / "foo" / "bar" / "baz" // MyPath
+  // (root[MyPath] / "foo").parent        // Option[MyPath]
 
   //
   // EXERCISE 6
@@ -847,7 +860,7 @@ object typeclasses {
   //
   // EXERCISE 7
   //
-  // Create a syntax class for `Filterable` that lets you call `.filter` on any
+  // Create a syntax class for `Filterable` that lets you call `.filterWith` on any
   // type for which there exists a `Filterable` instance.
   //
   implicit class FilterableSyntax[F[_], A](fa: F[A]) {
