@@ -364,11 +364,10 @@ object higher_order {
     Parser[E2, Either[A, B]] =
       ???
 
-  case class Parser[+E, +A](
-    run: String => Either[E, (String, A)])
+  case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
     final def fail[E](e: E): Parser[E, Nothing] =
-      Parser(input => Left(e))
+      Parser(_ => Left(e))
 
     final def point[A](a: => A): Parser[Nothing, A] =
       Parser(input => Right((input, a)))
@@ -708,6 +707,24 @@ object typeclasses {
 
   trait Ord[A] {
     def compare(l: A, r: A): Ordering
+
+    final def eq(l: A, r: A): Boolean = compare(l, r) == EQUAL
+    final def lt(l: A, r: A): Boolean = compare(l, r) == LT
+    final def lte(l: A, r: A): Boolean = lt(l, r) || eq(l, r)
+    final def gt(l: A, r: A): Boolean = compare(l, r) == GT
+    final def gte(l: A, r: A): Boolean = gt(l, r) || eq(l, r)
+
+    final def transitivityLaw1(a: A, b: A, c: A): Boolean =
+      (lt(a, b) && lt(b, c) == lt(a, c)) ||
+      (!lt(a, b) || !lt(b, c))
+
+    final def transitivityLaw2(a: A, b: A, c: A): Boolean =
+      (gt(a, b) && gt(b, c) == gt(a, c)) ||
+      (!gt(a, b) || !gt(b, c))
+
+    final def equalityLaw(a: A, b: A): Boolean =
+      (lt(a, b) && gt(a, b) == eq(a, b)) ||
+      (!lt(a, b) || !gt(a, b))
   }
   object Ord {
     def apply[A](implicit A: Ord[A]): Ord[A] = A
@@ -757,8 +774,8 @@ object typeclasses {
   // EXERCISE 1
   //
   // Write a version of `sort1` called `sort2` that uses the polymorphic `List`
-  // type constructor, and which uses the `Ord` type class, including the
-  // compare syntax operator `=?=` to compare elements.
+  // type, and which uses the `Ord` type class, including the compare syntax
+  // operator `=?=` to compare elements.
   //
   def sort1(l: List[Int]): List[Int] = l match {
     case Nil => Nil
