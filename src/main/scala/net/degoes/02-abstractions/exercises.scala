@@ -390,7 +390,7 @@ object functor {
 
       def zip[A, B](fa: Option[A], fb: Option[B]): Option[(A, B)] = ???
 
-      def ap[A, B](fa: => Option[A])(f: => Option[A => B]): Option[B] =
+      final def ap[A, B](fa: => Option[A])(f: => Option[A => B]): Option[B] =
         zip(f, fa).map(t => t._1(t._2))
     }
 
@@ -418,9 +418,11 @@ object functor {
       def point[A](a: => A): Parser[E, A] =
         ???
 
-      def ap[A, B](fa: => Parser[E, A])(
-        f: => Parser[E, A => B]): Parser[E, B] =
-          ???
+      def zip[A, B](fa: Parser[E, A], fb: Parser[E, B]): Parser[E, (A, B)] =
+        ZipParser.zip(fa, fb)
+
+      final def ap[A, B](fa: => Parser[E, A])(f: => Parser[E, A => B]): Parser[E, B] =
+        zip(f, fa).map(t => t._1(t._2))
     }
 
   //
