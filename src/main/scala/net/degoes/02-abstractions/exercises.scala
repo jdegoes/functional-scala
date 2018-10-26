@@ -224,17 +224,17 @@ object functor {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
          ???
     }
-  case class Parser[+E, +A](run: String => Either[E, (String, A)])
+  final case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
-    def fail[E](e: E): Parser[E, Nothing] =
+    final def fail[E](e: E): Parser[E, Nothing] =
       Parser(input => Left(e))
 
-    def point[A](a: => A): Parser[Nothing, A] =
+    final def point[A](a: => A): Parser[Nothing, A] =
       Parser(input => Right((input, a)))
 
-    def char[E](e: E): Parser[E, Char] =
+    final val char: Parser[Unit, Char] =
       Parser(input =>
-        if (input.length == 0) Left(e)
+        if (input.length == 0) Left(())
         else Right((input.drop(1), input.charAt(0))))
   }
 
@@ -297,9 +297,23 @@ object functor {
   // Define a natural transformation between `List` and `Option`.
   //
   val ListToOption: List ~> Option = ???
+  ListToOption(List(1, 2, 3))
+  ListToOption(List("foo", "bar", "baz"))
 
   //
   // EXERCISE 9
+  //
+  // Define a natural transformation between `Either[Throwable, ?]` and
+  // `Future`.
+  //
+  val EitherToFuture: Either[Throwable, ?] ~> scala.concurrent.Future =
+    new NaturalTransformation[Either[Throwable, ?], scala.concurrent.Future] {
+      def apply[A](fa: Either[Throwable, A]): scala.concurrent.Future[A] =
+        ???
+    }
+
+  //
+  // EXERCISE 10
   //
   // Define an instance of `Zip` for `Option`.
   //
@@ -307,6 +321,8 @@ object functor {
     def zip[A, B](l: F[A], r: F[B]): F[(A, B)]
   }
   object Zip {
+    def apply[F[_]](implicit F: Zip[F]): Zip[F] = F
+    
     implicit val ZipOption: Zip[Option] =
       new Zip[Option] {
         def map[A, B](fa: Option[A])(f: A => B) = fa.map(f)
@@ -321,7 +337,7 @@ object functor {
   }
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Define an instance of `Zip` for `List`
   //
@@ -334,7 +350,7 @@ object functor {
     }
 
   //
-  // EXERCISE 11
+  // EXERCISE 12
   //
   // Define an instance of `Zip` for `Parser[E, ?]`.
   //
@@ -348,7 +364,7 @@ object functor {
     }
 
   //
-  // EXERCISE 12
+  // EXERCISE 13
   //
   // Define an instance of `Zip` for `Future`.
   //
@@ -364,7 +380,7 @@ object functor {
     }
 
   //
-  // EXERCISE 13
+  // EXERCISE 14
   //
   // Define `Applicative` for `Option`.
   //
@@ -377,7 +393,7 @@ object functor {
     }
 
   //
-  // EXERCISE 14
+  // EXERCISE 15
   //
   // Implement `zip` in terms of the applicative composition using `|@|`.
   //
@@ -391,7 +407,7 @@ object functor {
     ???
 
   //
-  // EXERCISE 15
+  // EXERCISE 16
   //
   // Define an instance of `Applicative` for `Parser[E, ?]`.
   //
@@ -406,7 +422,7 @@ object functor {
     }
 
   //
-  // EXERCISE 16
+  // EXERCISE 17
   //
   // Define an instance of `Monad` for `BTree`.
   //
@@ -420,7 +436,7 @@ object functor {
     }
 
   //
-  // EXERCISE 17
+  // EXERCISE 18
   //
   // Define an instance of `Monad` for `Parser[E, ?]`.
   //
@@ -434,7 +450,7 @@ object functor {
     }
 
   //
-  // EXERCISE 18
+  // EXERCISE 19
   //
   // Define an instance of `Monad` for `Identity`.
   //
