@@ -6,6 +6,8 @@ import scalaz._
 import Scalaz._
 
 object algebra {
+  type ??? = Nothing
+
   //
   // EXERCISE 1
   //
@@ -149,21 +151,23 @@ object algebra {
     final case object Read extends Capability
     final case object Write extends Capability
   }
-  case class UserPermission(/* */) {
+  case class UserPermission(value: ???) {
     def allResources: Set[ResourceID] = ???
 
-    def capabilitiesFor(resourceID: ResourceID): Set[Capability] = ???
+    def capabilitiesFor(resourceID: ResourceID): Set[Capability] =
+      ???
 
-    def audit(resourceID: ResourceID, capability: Capability): Set[AccountID] = ???
+    def audit(resourceID: ResourceID, capability: Capability): Set[AccountID] =
+      ???
   }
   implicit val MonoidUserPermission: Monoid[UserPermission] =
     new Monoid[UserPermission] {
       def zero: UserPermission = ???
 
-      def append(l: UserPermission, r: => UserPermission): UserPermission = 
+      def append(l: UserPermission, r: => UserPermission): UserPermission =
         ???
     }
-  val example2 = mzero[UserPermission] |+| UserPermission(/* */)
+  val example2 = mzero[UserPermission] |+| UserPermission(???)
 
   //
   // EXERCISE 12
