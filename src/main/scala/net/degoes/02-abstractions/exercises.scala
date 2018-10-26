@@ -156,7 +156,13 @@ object algebra {
 
     def audit(resourceID: ResourceID, capability: Capability): Set[AccountID] = ???
   }
-  implicit val MonoidUserPermission: Monoid[UserPermission] = ???
+  implicit val MonoidUserPermission: Monoid[UserPermission] =
+    new Monoid[UserPermission] {
+      def zero: UserPermission = ???
+
+      def append(l: UserPermission, r: => UserPermission): UserPermission = 
+        ???
+    }
   val example2 = mzero[UserPermission] |+| UserPermission(/* */)
 
   //
