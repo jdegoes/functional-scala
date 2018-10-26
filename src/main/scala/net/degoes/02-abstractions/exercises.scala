@@ -108,14 +108,27 @@ object algebra {
   //
   // Define a `Monoid` for `Try[A]` whenever `A` forms a `Semigroup`.
   //
-  def TryMonoid[A: Semigroup]: Monoid[scala.util.Try[A]] = ???
+  case object ZeroThrowable extends Throwable
+  def TryMonoid[A: Semigroup]: Monoid[scala.util.Try[A]] =
+    new Monoid[scala.util.Try[A]] {
+      import scala.util.Try
+
+      def zero: Try[A] = ???
+
+      def append(l: Try[A], r: => Try[A]): Try[A] =
+        ???
+    }
 
   //
   // EXERCISE 10
   //
   // Write the `Semigroup` instance for `Map` when the values form a semigroup.
   //
-  def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] = ???
+  def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] =
+    new Semigroup[Map[K, V]] {
+      def append(l: Map[K, V], r: => Map[K, V]): Map[K, V] =
+        ???
+    }
 
   //
   // EXERCISE 11
@@ -135,7 +148,9 @@ object algebra {
     final case object Read extends Capability
     final case object Write extends Capability
   }
-  case class UserPermission(/* */)
+  case class UserPermission(/* */) {
+    def permissionsFor(resourceID: ResourceID): Set[Capability] = ???
+  }
   implicit val MonoidUserPermission: Monoid[UserPermission] = ???
   val example2 = mzero[UserPermission] |+| UserPermission(/* */)
 
