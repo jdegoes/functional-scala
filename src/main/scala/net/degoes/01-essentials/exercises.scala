@@ -866,8 +866,8 @@ object typeclasses {
   implicit class FilterableSyntax[F[_], A](fa: F[A]) {
     ???
   }
+  // List(1, 2, 3).filterWith(_ == 2)
 
-  //
   //
   // EXERCISE 8
   //
@@ -884,4 +884,22 @@ object typeclasses {
   implicit val ListCollection: Collection[List] = ???
 
   val example = Collection[List].cons(1, Collection[List].empty)
+
+  //
+  // EXERCISE 9
+  //
+  // Create laws for the `Collection` type class.
+  //
+  trait CollectionLaws[F[_]] extends Collection[F] {
+
+  }
+
+  //
+  // EXERCISE 10
+  //
+  // Create syntax for values of any type that has `Collection` instances.
+  //
+  implicit class CollectionSyntax[F[_], A](fa: F[A]) {
+    ???
+  }
 }
