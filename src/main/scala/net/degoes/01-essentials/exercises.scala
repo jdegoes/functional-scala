@@ -902,6 +902,9 @@ object typeclasses {
   //
   implicit class CollectionSyntax[F[_], A](fa: F[A]) {
     ???
+
+    def cons(a: A)(implicit F: Collection[F]): F[A] = F.cons(a, fa)
   }
-  // List(1, 2, 3).uncons // Option[(Int, List[Int])]
+  def empty[F[_]: Collection, A]: F[A] = Collection[F].empty[A]
+  // List(1, 2, 3).uncons // Some((1, List(2, 3)))
 }

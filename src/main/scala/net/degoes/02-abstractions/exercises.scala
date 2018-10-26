@@ -9,11 +9,14 @@ object algebra {
   //
   // EXERCISE 1
   //
-  // Define a semigroup for `NotEmpty` below.
+  // Define a semigroup instance for the `NotEmpty` data type below.
   //
   case class NotEmpty[+A](head: A, tail: Option[NotEmpty[A]])
   implicit def NotEmptySemigroup[A]: Semigroup[NotEmpty[A]] =
-    ???
+    new Semigroup[NotEmpty[A]] {
+      def append(l: NotEmpty[A], r: => NotEmpty[A]): NotEmpty[A] =
+        ???
+    }
   val example1 = NotEmpty(1, None) |+| NotEmpty(2, None)
 
   //
@@ -22,7 +25,10 @@ object algebra {
   // Define a semigroup for `Max` that chooses the maximum of two values.
   //
   final case class Max(value: Int)
-  implicit val MaxSemigroup: Semigroup[Max] = ???
+  implicit val MaxSemigroup: Semigroup[Max] =
+    new Semigroup[Max] {
+      def append(l: Max, r: => Max): Max = ???
+    }
 
   //
   // EXERCISE 3
@@ -32,7 +38,7 @@ object algebra {
   final case class Last[A](value: A)
   implicit def LastSemigroup[A]: Semigroup[Last[A]] =
     new Semigroup[Last[A]] {
-      def append(l: Last[A], r: => Last[A]): Last[A] = r
+      def append(l: Last[A], r: => Last[A]): Last[A] = ???
     }
 
   //
@@ -40,7 +46,16 @@ object algebra {
   //
   // Define a `Semigroup` for `Option[A]` whenever `A` forms a `Semigroup`.
   //
-  implicit def OptionSemigroup[A: Semigroup]: Semigroup[Option[A]] = ???
+  implicit def OptionSemigroup[A: Semigroup]: Semigroup[Option[A]] =
+    new Semigroup[Option[A]] {
+      def append(l: Option[A], r: => Option[A]): Option[A] =
+        (l, r) match {
+          case (   None,    None) => ???
+          case (Some(l),    None) => ???
+          case (   None, Some(r)) => ???
+          case (Some(l), Some(r)) => ???
+        }
+    }
 
   //
   // EXERCISE 5
