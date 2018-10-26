@@ -94,14 +94,14 @@ object algebra {
   //
   // EXERCISE 8
   //
-  // Define a `Monoid` for `Option[A]` whenever `A` forms a `Semigroup`.
+  // Define a `Monoid` for `Try[A]` whenever `A` forms a `Semigroup`.
   //
-  def OptionMonoid[A: Semigroup]: Monoid[Option[A]] = ???
+  def TryMonoid[A: Semigroup]: Monoid[scala.util.Try[A]] = ???
 
   //
   // EXERCISE 9
   //
-  // Write the `Monoid` instance for `Map`.
+  // Write the `Semigroup` instance for `Map` when the values form a semigroup.
   //
   def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] = ???
 
