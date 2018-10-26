@@ -133,8 +133,9 @@ object algebra {
   //
   // EXERCISE 11
   //
-  // Design a permission system for securing some resource, together with a
-  // monoid for the permission data structure.
+  // Design a permission system for securing some resource. Design the core
+  // permissions data type, implement a monoid for the instance, and implement
+  // the missing methods for the data type.
   //
   // Assumptions:
   //   1. Users have multiple accounts (`AccountID`)
@@ -149,7 +150,11 @@ object algebra {
     final case object Write extends Capability
   }
   case class UserPermission(/* */) {
+    def allResources: Set[ResourceID] = ???
+
     def permissionsFor(resourceID: ResourceID): Set[Capability] = ???
+
+    def audit(resourceID: ResourceID, capability: Capability): Set[AccountID] = ???
   }
   implicit val MonoidUserPermission: Monoid[UserPermission] = ???
   val example2 = mzero[UserPermission] |+| UserPermission(/* */)
