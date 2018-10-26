@@ -9,6 +9,16 @@ object algebra {
   //
   // EXERCISE 1
   //
+  // Define a semigroup instance for `String`.
+  //
+  implicit val StringSemigroup: Semigroup[String] =
+    new Semigroup[String] {
+      def append(l: String, r: => String): String = ???
+    }
+
+  //
+  // EXERCISE 2
+  //
   // Define a semigroup instance for the `NotEmpty` data type below.
   //
   case class NotEmpty[+A](head: A, tail: Option[NotEmpty[A]])
@@ -20,7 +30,7 @@ object algebra {
   val example1 = NotEmpty(1, None) |+| NotEmpty(2, None)
 
   //
-  // EXERCISE 2
+  // EXERCISE 3
   //
   // Define a semigroup for `Max` that chooses the maximum of two values.
   //
@@ -31,7 +41,7 @@ object algebra {
     }
 
   //
-  // EXERCISE 3
+  // EXERCISE 4
   //
   // Define a `Semigroup` for `Last[A]` that always chooses the right-most value.
   //
@@ -42,7 +52,7 @@ object algebra {
     }
 
   //
-  // EXERCISE 4
+  // EXERCISE 5
   //
   // Define a `Semigroup` for `Option[A]` whenever `A` forms a `Semigroup`.
   //
@@ -58,7 +68,7 @@ object algebra {
     }
 
   //
-  // EXERCISE 5
+  // EXERCISE 6
   //
   // Define an instance of `Semigroup` for `(A, B)` when both `A` and
   // `B` form semigroups.
@@ -70,29 +80,33 @@ object algebra {
     }
 
   //
-  // EXERCISE 6
+  // EXERCISE 7
   //
   // Define a monoid for boolean conjunction (`&&`).
   //
   final case class Conj(value: Boolean)
-  implicit val ConjMonoid: Monoid[Conj] = ???
+  implicit val ConjMonoid: Monoid[Conj] =
+    new Monoid[Conj] {
+      def zero: Conj = ???
+      def append(l: Conj, r: => Conj): Conj = ???
+    }
 
   //
-  // EXERCISE 7
+  // EXERCISE 8
   //
   // Define a `Monoid` for `Option[A]` whenever `A` forms a `Semigroup`.
   //
   def OptionMonoid[A: Semigroup]: Monoid[Option[A]] = ???
 
   //
-  // EXERCISE 8
+  // EXERCISE 9
   //
   // Write the `Monoid` instance for `Map`.
   //
   def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] = ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 10
   //
   // Design a permission system for securing some resource, together with a
   // monoid for the permission data structure.
@@ -114,7 +128,7 @@ object algebra {
   val example2 = mzero[UserPermission] |+| UserPermission(/* */)
 
   //
-  // EXERCISE 10
+  // EXERCISE 11
   //
   // Try to define an instance of `Monoid` for `NotEmpty` for any type `A`.
   //
