@@ -152,7 +152,7 @@ object algebra {
   case class UserPermission(/* */) {
     def allResources: Set[ResourceID] = ???
 
-    def permissionsFor(resourceID: ResourceID): Set[Capability] = ???
+    def capabilitiesFor(resourceID: ResourceID): Set[Capability] = ???
 
     def audit(resourceID: ResourceID, capability: Capability): Set[AccountID] = ???
   }
