@@ -898,8 +898,10 @@ object typeclasses {
   // EXERCISE 10
   //
   // Create syntax for values of any type that has `Collection` instances.
+  // Specifically, add an `uncons` method to such types.
   //
   implicit class CollectionSyntax[F[_], A](fa: F[A]) {
     ???
   }
+  // List(1, 2, 3).uncons // Option[(Int, List[Int])]
 }
