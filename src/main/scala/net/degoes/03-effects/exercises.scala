@@ -494,7 +494,7 @@ object zio_effects {
   // Identify the correct method, error, and value type to import `System.exit`
   // safely into the world of pure functional programming.
   //
-  def sysExit(code: Int): IO[???, ???] =
+  def sysExit(code: Int): IO[SecurityException, Nothing] =
     System.exit(code) ?
 
   //
@@ -545,7 +545,8 @@ object zio_effects {
         println("You guessed wrong! The number was " + number)
     }
   }
-  val playGame2: IO[Exception, Unit] = ???
+  val playGame2: IO[Exception, Unit] =
+    ???
 }
 
 object zio_concurrency {
@@ -683,6 +684,34 @@ object zio_resources {
       IO.syncException(new InputStream(new FileInputStream(file)))
   }
 
+  object classic {
+    trait Handle
+    def openFile(file: String): Handle = ???
+    def closeFile(handle: Handle): Unit = ???
+    def readFile(handle: Handle): Array[Byte] = ???
+
+    // Classic paradigm for safe resource handling using
+    // try / finally:
+    def safeResource(file: String): Unit = {
+      var handle: Handle = null.asInstanceOf[Handle]
+
+      try {
+        handle = openFile(file)
+
+        readFile(handle)
+      } finally if (handle != null) closeFile(handle)
+    }
+
+    def finallyPuzzler(): Unit = {
+      try {
+        try throw new Error("e1")
+        finally throw new Error("e2")
+      } catch {
+        case e : Error => println(e)
+      }
+    }
+  }
+
   //
   // EXERCISE 1
   //
@@ -746,6 +775,255 @@ object zio_resources {
   }
   def readFileTCF2(file: File): IO[Exception, List[Byte]] =
     ???
+}
+
+object zio_ref {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
+
+  //
+  // EXERCISE 1
+  //
+  // Using the `Ref.apply` constructor, create a `Ref` that is initially `0`.
+  //
+  val makeZero: IO[Nothing, Ref[Int]] =
+    ???
+
+  //
+  // EXERCISE 2
+  //
+  // Using the `get` and `set` methods of the `Ref` you created, change the
+  // value to be 10 greater than its initial value. Return the new value.
+  //
+  val incrementedBy10: IO[Nothing, Int] =
+    for {
+      ref   <- makeZero
+      value <- (ref ? : IO[Nothing, Int])
+      _     <- (ref ? : IO[Nothing, Unit])
+      value <- (ref ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 3
+  //
+  // Using the `update` method of `Ref`, atomically increment the value by 10.
+  // Return the new value.
+  //
+  val atomicallyIncrementedBy10: IO[Nothing, Int] =
+    for {
+      ref   <- makeZero
+      value <- (ref ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 4
+  //
+  // Using the `modify` method of `Ref` to atomically increment the value by 10,
+  // but return the old value.
+  //
+  val atomicallyIncrementedBy10PlusGet: IO[Nothing, Int] =
+    for {
+      ref   <- makeZero
+      value <- ref.modify(v => (???, v + 10))
+    } yield value
+}
+
+object zio_promise {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
+
+  //
+  // EXERCISE 1
+  //
+  // Using the `make` method of `Promise`, construct a promise that cannot
+  // fail but can be completed with an integer.
+  //
+  val makeIntPromise: IO[Nothing, Promise[Nothing, Int]] =
+    ???
+
+  //
+  // EXERCISE 2
+  //
+  // Using the `complete` method of `Promise`, complete a promise constructed
+  // with `makeIntPromise` with the integer 42.
+  //
+  val completed1: IO[Nothing, Boolean] =
+    for {
+      promise   <- makeIntPromise
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 3
+  //
+  // Using the `error` method of `Promise`, try to complete a promise
+  // constructed with `makeIntPromise`. Explain your findings.
+  //
+  val errored1: IO[Nothing, Boolean] =
+    for {
+      promise   <- makeIntPromise
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 4
+  //
+  // Using the `error` method of `Promise`, complete a new promise that
+  // you construct with `Promise.make` which can fail for any `Error` or
+  // produce a `String`.
+  //
+  val errored2: IO[Nothing, Boolean] =
+    for {
+      promise   <- Promise.make[Error, String]
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 5
+  //
+  // Using the `interrupt` method of `Promise`, complete a new promise that
+  // you construct with `Promise.make` which can fail for any `Error` or
+  // produce a `String`.
+  //
+  val interrupted: IO[Nothing, Boolean] =
+    for {
+      promise   <- Promise.make[Error, String]
+      completed <- (promise ? : IO[Nothing, Boolean])
+    } yield completed
+
+  //
+  // EXERCISE 6
+  //
+  // Using the `get` method of `Promise`, retrieve a value computed from inside
+  // another fiber.
+  //
+  val handoff1: IO[Nothing, Int] =
+    for {
+      promise <- Promise.make[Nothing, Int]
+      _       <- (IO.sleep(10.seconds) *> promise.complete(42)).fork
+      _       <- putStrLn("Waiting for promise to be completed...").attempt.void
+      value   <- (promise ? : IO[Nothing, Int])
+      _       <- putStrLn("Got: " + value).attempt.void
+    } yield value
+
+  //
+  // EXERCISE 7
+  //
+  // Using the `get` method of `Promise`, try to retrieve a value from a promise
+  // that was failed in another fiber.
+  //
+  val handoff2: IO[Error, Int] =
+    for {
+      promise <- Promise.make[Error, Int]
+      _       <- (IO.sleep(10.seconds) *> promise.error(new Error("Uh oh!"))).fork
+      _       <- putStrLn("Waiting for promise to be completed...").attempt.void
+      value   <- (promise ? : IO[Error, Int])
+      _       <- putStrLn("This line will NEVER be executed").attempt.void
+    } yield value
+
+  //
+  // EXERCISE 8
+  //
+  // Using the `get` method of `Promise`, try to retrieve a value from a promise
+  // that was interrupted in another fiber.
+  //
+  val handoff3: IO[Error, Int] =
+    for {
+      promise <- Promise.make[Error, Int]
+      _       <- promise.interrupt.delay(10.milliseconds).fork
+      value   <- (promise ? : IO[Error, Int])
+    } yield value
+}
+
+object zio_queue {
+  implicit class FixMe[A](a: A) {
+    def ? = ???
+  }
+
+  //
+  // EXERCISE 1
+  //
+  // Using the `Queue.bounded`, create a queue for `Int` values with a capacity
+  // of 10.
+  //
+  val makeQueue: IO[Nothing, Queue[Int]] =
+    ???
+
+  //
+  // EXERCISE 2
+  //
+  // Using the `offer` method of `Queue`, place an integer value into a queue.
+  //
+  val offered1: IO[Nothing, Unit] =
+    for {
+      queue <- makeQueue
+      _     <- (queue ? : IO[Nothing, Unit])
+    } yield ()
+
+  //
+  // EXERCISE 3
+  //
+  // Using the `take` method of `Queue`, take an integer value from a queue.
+  //
+  val taken1: IO[Nothing, Int] =
+    for {
+      queue <- makeQueue
+      _     <- queue.offer(42)
+      value <- (queue ? : IO[Nothing, Int])
+    } yield value
+
+  //
+  // EXERCISE 4
+  //
+  // In a child fiber, place 2 values into a queue, and in the main fiber, read
+  // 2 values from the queue.
+  //
+  val offeredTaken1: IO[Nothing, (Int, Int)] =
+    for {
+      queue <- makeQueue
+      _     <- (??? : IO[Nothing, Unit]).fork
+      v1    <- (queue ? : IO[Nothing, Int])
+      v2    <- (queue ? : IO[Nothing, Int])
+    } yield (v1, v2)
+
+  //
+  // EXERCISE 5
+  //
+  // In a child fiber, read infintely many values out of the queue and write
+  // them to the console. In the main fiber, write 100 values into the queue.
+  //
+  val infiniteReader1: IO[Nothing, Int] =
+    for {
+      queue <- makeQueue
+      _     <- (??? : IO[Nothing, Nothing]).fork
+      vs    <- (queue ? : IO[Nothing, Int])
+    } yield vs
+
+  //
+  // EXERCISE 6
+  //
+  // Using `Queue`, `Ref`, and `Promise`, implement an "actor" like construct
+  // that can atomically update the values of a counter.
+  //
+  sealed trait Message
+  case class Increment(amount: Int) extends Message
+  val makeCounter: IO[Nothing, Message => IO[Nothing, Int]] =
+    for {
+      counter  <- Ref(0)
+      mailbox  <- Queue.bounded[(Message, Promise[Nothing, Int])](100)
+      _        <- (mailbox.take ? : IO[Nothing, Fiber[Nothing, Nothing]])
+    } yield { (message: Message) =>
+      ???
+    }
+
+  val counterExample: IO[Nothing, Int] =
+    for {
+      counter <- makeCounter
+      _       <- IO.parAll(List.fill(100)(IO.traverse((0 to 100).map(Increment(_)))(counter)))
+      value   <- counter(Increment(0))
+    } yield value
 }
 
 object zio_schedule {
@@ -899,251 +1177,6 @@ object zio_interop {
       f   <- IO.forkAll(List(w1.work, w2.work, w3.work))
       _   <- f.join
     } yield ()
-}
-
-object zio_ref {
-  implicit class FixMe[A](a: A) {
-    def ? = ???
-  }
-
-  //
-  // EXERCISE 1
-  //
-  // Using the `Ref.apply` constructor, create a `Ref` that is initially `0`.
-  //
-  val makeZero: IO[Nothing, Ref[Int]] =
-    ???
-
-  //
-  // EXERCISE 2
-  //
-  // Using the `get` and `set` methods of the `Ref` you created, change the
-  // value to be 10 greater than its initial value. Return the new value.
-  //
-  val incrementedBy10: IO[Nothing, Int] =
-    for {
-      ref   <- makeZero
-      value <- (ref ? : IO[Nothing, Int])
-      _     <- (ref ? : IO[Nothing, Unit])
-      value <- (ref ? : IO[Nothing, Int])
-    } yield value
-
-  //
-  // EXERCISE 3
-  //
-  // Using the `update` method of `Ref`, atomically increment the value by 10.
-  // Return the new value.
-  //
-  val atomicallyIncrementedBy10: IO[Nothing, Int] =
-    for {
-      ref   <- makeZero
-      value <- (ref ? : IO[Nothing, Int])
-    } yield value
-
-  //
-  // EXERCISE 4
-  //
-  // Using the `modify` method of `Ref` to atomically increment the value by 10,
-  // but return the old value.
-  //
-  val atomicallyIncrementedBy10PlusGet: IO[Nothing, Int] =
-    for {
-      ref   <- makeZero
-      value <- ref.modify(v => (???, v + 10))
-    } yield value
-}
-
-object zio_promise {
-  implicit class FixMe[A](a: A) {
-    def ? = ???
-  }
-
-  //
-  // EXERCISE 1
-  //
-  // Using the `make` method of `Promise`, construct a promise that cannot
-  // fail but can be completed with an integer.
-  //
-  val makeIntPromise: IO[Nothing, Promise[Nothing, Int]] =
-    ???
-
-  //
-  // EXERCISE 2
-  //
-  // Using the `complete` method of `Promise`, complete a promise constructed
-  // with `makeIntPromise` with the integer 42.
-  //
-  val completed1: IO[Nothing, Boolean] =
-    for {
-      promise   <- makeIntPromise
-      completed <- (promise ? : IO[Nothing, Boolean])
-    } yield completed
-
-  //
-  // EXERCISE 3
-  //
-  // Using the `error` method of `Promise`, try to complete a promise
-  // constructed with `makeIntPromise`. Explain your findings.
-  //
-  val errored1: IO[Nothing, Boolean] =
-    for {
-      promise   <- makeIntPromise
-      completed <- (promise ? : IO[Nothing, Boolean])
-    } yield completed
-
-  //
-  // EXERCISE 4
-  //
-  // Using the `error` method of `Promise`, complete a new promise that
-  // you construct with `Promise.make` which can fail for any `Error` or
-  // produce a `String`.
-  //
-  val errored2: IO[Nothing, Boolean] =
-    for {
-      promise   <- Promise.make[Error, String]
-      completed <- (promise ? : IO[Nothing, Boolean])
-    } yield completed
-
-  //
-  // EXERCISE 5
-  //
-  // Using the `interrupt` method of `Promise`, complete a new promise that
-  // you construct with `Promise.make` which can fail for any `Error` or
-  // produce a `String`.
-  //
-  val interrupted: IO[Nothing, Boolean] =
-    for {
-      promise   <- Promise.make[Error, String]
-      completed <- (promise ? : IO[Nothing, Boolean])
-    } yield completed
-
-  //
-  // EXERCISE 6
-  //
-  // Using the `get` method of `Promise`, retrieve a value computed from inside
-  // another fiber.
-  //
-  val handoff1: IO[Nothing, Int] =
-    for {
-      promise <- Promise.make[Nothing, Int]
-      _       <- (IO.sleep(10.millis) *> promise.complete(42)).fork
-      value   <- (promise ? : IO[Nothing, Int])
-    } yield value
-
-  //
-  // EXERCISE 7
-  //
-  // Using the `get` method of `Promise`, try to retrieve a value from a promise
-  // that was failed in another fiber.
-  //
-  val handoff2: IO[Error, Int] =
-    for {
-      promise <- Promise.make[Error, Int]
-      _       <- promise.error(new Error("Uh oh!")).delay(10.milliseconds).fork
-      value   <- (promise ? : IO[Nothing, Int])
-    } yield value
-
-  //
-  // EXERCISE 8
-  //
-  // Using the `get` method of `Promise`, try to retrieve a value from a promise
-  // that was interrupted in another fiber.
-  //
-  val handoff3: IO[Error, Int] =
-    for {
-      promise <- Promise.make[Error, Int]
-      _       <- promise.interrupt.delay(10.milliseconds).fork
-      value   <- (promise ? : IO[Nothing, Int])
-    } yield value
-}
-
-object zio_queue {
-  implicit class FixMe[A](a: A) {
-    def ? = ???
-  }
-
-  //
-  // EXERCISE 1
-  //
-  // Using the `Queue.bounded`, create a queue for `Int` values with a capacity
-  // of 10.
-  //
-  val makeQueue: IO[Nothing, Queue[Int]] =
-    ???
-
-  //
-  // EXERCISE 2
-  //
-  // Using the `offer` method of `Queue`, place an integer value into a queue.
-  //
-  val offered1: IO[Nothing, Unit] =
-    for {
-      queue <- makeQueue
-      _     <- (queue ? : IO[Nothing, Unit])
-    } yield ()
-
-  //
-  // EXERCISE 3
-  //
-  // Using the `take` method of `Queue`, take an integer value from a queue.
-  //
-  val taken1: IO[Nothing, Int] =
-    for {
-      queue <- makeQueue
-      _     <- queue.offer(42)
-      value <- (queue ? : IO[Nothing, Int])
-    } yield value
-
-  //
-  // EXERCISE 4
-  //
-  // In a child fiber, place 2 values into a queue, and in the main fiber, read
-  // 2 values from the queue.
-  //
-  val offeredTaken1: IO[Nothing, (Int, Int)] =
-    for {
-      queue <- makeQueue
-      _     <- (??? : IO[Nothing, Unit]).fork
-      v1    <- (queue ? : IO[Nothing, Int])
-      v2    <- (queue ? : IO[Nothing, Int])
-    } yield (v1, v2)
-
-  //
-  // EXERCISE 5
-  //
-  // In a child fiber, read infintely many values out of the queue and write
-  // them to the console. In the main fiber, write 100 values into the queue.
-  //
-  val infiniteReader1: IO[Nothing, Int] =
-    for {
-      queue <- makeQueue
-      _     <- (??? : IO[Nothing, Nothing]).fork
-      vs    <- (queue ? : IO[Nothing, Int])
-    } yield vs
-
-  //
-  // EXERCISE 6
-  //
-  // Using `Queue`, `Ref`, and `Promise`, implement an "actor" like construct
-  // that can atomically update the values of a counter.
-  //
-  sealed trait Message
-  case class Increment(amount: Int) extends Message
-  val makeCounter: IO[Nothing, Message => IO[Nothing, Int]] =
-    for {
-      counter  <- Ref(0)
-      mailbox  <- Queue.bounded[(Message, Promise[Nothing, Int])](100)
-      _        <- (mailbox.take ? : IO[Nothing, Fiber[Nothing, Nothing]])
-    } yield { (message: Message) =>
-      ???
-    }
-
-  val counterExample: IO[Nothing, Int] =
-    for {
-      counter <- makeCounter
-      _       <- IO.parAll(List.fill(100)(IO.traverse((0 to 100).map(Increment(_)))(counter)))
-      value   <- counter(Increment(0))
-    } yield value
 }
 
 object zio_rts {
