@@ -1131,6 +1131,30 @@ object zio_schedule {
   //
   // EXERCISE 12
   //
+  // Using `Schedule.identity`, produce a schedule that recurs forever,
+  // returning its inputs.
+  //
+  def inputs[A]: Schedule[A, A] = ???
+
+  //
+  // EXERCISE 13
+  //
+  // Using the `collect` method of `Schedule`, produce a schedule that recurs
+  // forever, collecting its inputs into a list.
+  //
+  def collectedInputs[A]: Schedule[A, List[A]] = inputs[A] ?
+
+  //
+  // EXERCISE 14
+  //
+  // Using `*>`, combine `fiveTimes` and `everySecond` but return the output
+  // of `everySecond`.
+  //
+  val fiveTimesEverySecondR: Schedule[Any, Int] = fiveTimes *> everySecond
+
+  //
+  // EXERCISE 15
+  //
   // Produce a jittered schedule that first does exponential spacing (starting
   // from 10 milliseconds), but then after the spacing reaches 60 seconds,
   // switches over to fixed spacing of 60 seconds between recurrences, but will
