@@ -52,6 +52,11 @@ object algebra {
     new Semigroup[Last[A]] {
       def append(l: Last[A], r: => Last[A]): Last[A] = ???
     }
+  final case class First[A](value: A)
+  implicit def FirstSemigroup[A]: Semigroup[First[A]] =
+    new Semigroup[First[A]] {
+      def append(l: First[A], r: => First[A]): First[A] = l
+    }
 
   //
   // EXERCISE 5
@@ -462,11 +467,32 @@ object functor {
   implicit val IdentityMonad: Monad[Identity] =
     new Monad[Identity] {
       def point[A](a: => A): Identity[A] =
-        ???
+        Identity(a)
 
       def bind[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] =
-        ???
+        f(fa.run)
     }
+
+  for {
+    x <- Identity(2)
+    y <- Identity(x * x)
+    z <- Identity(y + x * y + 100)
+    z <- Identity(z + z)
+  } yield z
+
+  //
+  // EXERCISE 20
+  //
+  // Use the list monad to find pairs of numbers separated by 2 away from
+  // each other.
+  //
+  val integers = List(1, 9, 2, 7, 4, 8, 2, 0, 10)
+  val solution =
+    for {
+      v1 <- integers
+      v2 <- integers
+      p  <- if ((v2 - v1).abs == 2) List(v1 -> v2) else Nil
+    } yield p
 }
 
 object parser {

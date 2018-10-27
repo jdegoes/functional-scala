@@ -60,7 +60,7 @@ object zio_background {
   //
   // Rewrite `yourName1` to use a for comprehension.
   //
-  val yourName2: Program[Unit] = ???
+  lazy val yourName2: Program[Unit] = ???
 
   //
   // EXERCISE 2
@@ -68,7 +68,7 @@ object zio_background {
   // Rewrite `yourName2` using the helper function `getName`, which shows how
   // to create larger programs from smaller programs.
   //
-  val yourName3: Program[Unit] = ???
+  lazy val yourName3: Program[Unit] = ???
 
   val getName: Program[String] =
     writeLine("What is your name?").flatMap(_ => readLine)
@@ -89,10 +89,23 @@ object zio_background {
   // that operates on programs.
   //
   def sequence[A](programs: List[Program[A]]): Program[List[A]] =
-    ???
+    programs match {
+      case Nil => Program.point(Nil)
+      case p :: ps =>
+        p.seq(sequence(ps)).map { case (a, as) => a :: as }
+    }
 
   //
   // EXERCISE 5
+  //
+  // Implement the following function, which can be thought of as an effectful
+  // "for loop" that collects the result of each iteration.
+  //
+  def forEach[A, B](values: List[A])(body: A => Program[B]): Program[List[B]] =
+    ???
+
+  //
+  // EXERCISE 6
   //
   // Translate the following procedural program into a purely functional program
   // using `Program` and a for comprehension.
