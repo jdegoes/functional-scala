@@ -462,7 +462,7 @@ object zio_effects {
     Source.fromFile(file).getLines.toList ?
 
   //
-  // EXERCISE 3.5
+  // EXERCISE 4
   //
   // Using the `IO.syncThrowable` method, wrap Scala's `getLines` method to
   // import it into the world of pure functional programming.
@@ -471,7 +471,7 @@ object zio_effects {
     Source.fromFile(file).getLines.toList ?
 
   //
-  // EXERCISE 3.75
+  // EXERCISE 5
   //
   // Using the `IO.syncCatch` method, wrap Scala's `getLines` method to
   // import it into the world of pure functional programming.
@@ -481,15 +481,15 @@ object zio_effects {
     Source.fromFile(file).getLines.toList ?
 
   //
-  // EXERCISE 4
+  // EXERCISE 6
   //
   // Identify the correct method and error type to import `System.nanoTime`
   // safely into the world of pure functional programming.
   //
-  def nanoTime: IO[???, Long] = System.nanoTime() ?
+  val nanoTime: IO[???, Long] = System.nanoTime() ?
 
   //
-  // EXERCISE 5
+  // EXERCISE 7
   //
   // Identify the correct method, error, and value type to import `System.exit`
   // safely into the world of pure functional programming.
@@ -498,7 +498,7 @@ object zio_effects {
     System.exit(code) ?
 
   //
-  // EXERCISE 6
+  // EXERCISE 8
   //
   // Identify the correct method, error, and value type to import
   // `Array.update` safely into the world of pure functional programming.
@@ -507,7 +507,7 @@ object zio_effects {
     a.update(i, f(a(i))) ?
 
   //
-  // EXERCISE 7
+  // EXERCISE 9
   //
   // Use the `IO.async` method to implement the following `sleep` method, and
   // choose the correct error type.
@@ -519,7 +519,7 @@ object zio_effects {
     }, l, u) ?
 
   //
-  // EXERCISE 8
+  // EXERCISE 10
   //
   // Wrap the following Java-esque callback API into an `IO` using `IO.async`.
   //
@@ -528,7 +528,7 @@ object zio_effects {
     ???
 
   //
-  // EXERCISE 9
+  // EXERCISE 11
   //
   // Translate the following procedural program into ZIO.
   //
