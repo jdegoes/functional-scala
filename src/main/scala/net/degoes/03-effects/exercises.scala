@@ -103,6 +103,12 @@ object zio_background {
   //
   def forEach[A, B](values: List[A])(body: A => Program[B]): Program[List[B]] =
     ???
+  def forEach[A, B](as: A*)(body: A => Program[B]): Program[List[B]] =
+    forEach(as.toList)(body)
+  val example: Program[List[Unit]] =
+    forEach("Hello", "World", "Each", "On", "Its", "Own", "Line")(text =>
+      writeLine(text)
+    )
 
   //
   // EXERCISE 6
@@ -138,7 +144,7 @@ object zio_type {
   // EXERCISE 1
   //
   // Write the type of `IO` values that can fail with an `Exception`, or
-  // may produce an `A`.
+  // may return an `A`.
   //
   type Exceptional[A] = IO[???, ???]
 
@@ -146,21 +152,21 @@ object zio_type {
   // EXERCISE 2
   //
   // Write the type of `IO` values that can fail with a `Throwable`, or
-  // may produce an `A`.
+  // may return an `A`.
   //
   type Task[A] = IO[???, ???]
 
   //
   // EXERCISE 3
   //
-  // Write the type of `IO` values that cannot fail, but may produce an `A.`
+  // Write the type of `IO` values that cannot fail, but may return an `A.`
   //
   type NonFailing[A] = IO[???, ???]
 
   //
   // EXERCISE 4
   //
-  // Write the type of `IO` values that cannot produce a value, but may fail
+  // Write the type of `IO` values that cannot return a value, but may fail
   // with an `E`.
   //
   type NonReturning[E] = IO[???, ???]
@@ -168,7 +174,7 @@ object zio_type {
   //
   // EXERCISE 5
   //
-  // Write the type of `IO` values that cannot fail or produce a value.
+  // Write the type of `IO` values that cannot fail or return a value.
   //
   type NonTerminating = IO[???, ???]
 }
@@ -286,7 +292,9 @@ object zio_composition {
       case _ => None
     }
   }
-  def getName2[E](print: String => IO[E, String], read: IO[E, String]): IO[E, Option[String]] = ???
+  def getName2[E](print: String => IO[E, String], read: IO[E, String]): IO[E, Option[String]] =
+    ???
+
 
   //
   // EXERCISE 8
@@ -382,10 +390,8 @@ object zio_failure {
   //
   // Translate the following ZIO program into its exception-throwing equivalent.
   //
-  trait DenomIsZero
-  object DenomIsZero extends DenomIsZero {}
-  def divide1(n: Int, d: Int): IO[DenomIsZero, Int] =
-    if (d == 0) IO.fail(DenomIsZero)
+  def divide1(n: Int, d: Int): IO[ArithmeticException, Int] =
+    if (d == 0) IO.fail(new ArithmeticException)
     else IO.now(n / d)
   def divide2(n: Int, d: Int): Int = ???
 
@@ -414,7 +420,7 @@ object zio_failure {
   // Use the `orElse` method of `IO` to try `firstChoice`, and fallback to
   // `secondChoice` only if `firstChoice` fails.
   //
-  val firstChoice: IO[DenomIsZero, Int] = divide1(100, 0)
+  val firstChoice: IO[ArithmeticException, Int] = divide1(100, 0)
   val secondChoice: IO[Nothing, Int] = IO.now(400)
   val combined: IO[Nothing, Int] = ???
 }
