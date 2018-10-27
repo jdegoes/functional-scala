@@ -992,13 +992,14 @@ object zio_queue {
   // EXERCISE 5
   //
   // In a child fiber, read infintely many values out of the queue and write
-  // them to the console. In the main fiber, write 100 values into the queue.
+  // them to the console. In the main fiber, write 100 values into the queue,
+  // using `IO.sequence` on a `List` containing `queue.offer` programs.
   //
-  val infiniteReader1: IO[Nothing, Int] =
+  val infiniteReader1: IO[Nothing, List[Unit]] =
     for {
       queue <- makeQueue
-      _     <- (??? : IO[Nothing, Nothing]).fork
-      vs    <- (queue ? : IO[Nothing, Int])
+      _     <- (??? : IO[Exception, Nothing]).fork
+      vs    <- (??? : IO[Nothing, List[Unit]])
     } yield vs
 
   //
@@ -1100,10 +1101,35 @@ object zio_schedule {
   // and the `everySecond` schedule, create a schedule that repeats the minimum
   // of five times and every second.
   //
-  val fiveTimesOrEverySecond = ???
+  val fiveTimesOrEverySecond =
+    ???
 
   //
   // EXERCISE 9
+  //
+  // Using `Schedule.exponential`, create an exponential schedule that starts from
+  // 10 milliseconds.
+  //
+  val exponentialSchedule: Schedule[Any, Int] = ???
+
+  //
+  // EXERCISE 10
+  //
+  // Using the `jittered` method on `Schedule` objects, produced a jittered version of
+  // `exponentialSchedule`.
+  //
+  val jitteredExponential = exponentialSchedule ?
+
+  //
+  // EXERCISE 11
+  //
+  // Using the `whileOutput` method on `Schedule`, produce a filtered schedule from
+  // `Schedule.forever` that will halt when the number of recurrences exceeds 100.
+  //
+  val oneHundred = Schedule.forever.whileOutput(???)
+
+  //
+  // EXERCISE 12
   //
   // Produce a jittered schedule that first does exponential spacing (starting
   // from 10 milliseconds), but then after the spacing reaches 60 seconds,
