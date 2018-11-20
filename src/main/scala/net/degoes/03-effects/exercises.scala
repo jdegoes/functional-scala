@@ -129,6 +129,7 @@ object zio_background {
         ageExplainer1()
     }
   }
+
   def ageExplainer2: Program[Unit] =
     ???
 }
@@ -243,7 +244,9 @@ object zio_composition {
   def ifThenElse[E, A](bool: IO[E, Boolean])(
     ifTrue: IO[E, A], ifFalse: IO[E, A]): IO[E, A] =
       ???
-  val exampleIf = ifThenElse(IO.point(true))(IO.point("It's true!"), IO.point("It's false!"))
+  val exampleIf = ifThenElse(IO.point(true))(
+    ifTrue  = IO.point("It's true!"),
+    ifFalse = IO.point("It's false!"))
 
   //
   // EXERCISE 5
@@ -288,7 +291,7 @@ object zio_composition {
       case _ => None
     }
   }
-  def getName2[E](print: String => IO[E, String], read: IO[E, String]): IO[E, Option[String]] =
+  def getName2[E](print: String => IO[E, Unit], read: IO[E, String]): IO[E, Option[String]] =
     ???
 
 
