@@ -39,7 +39,8 @@ object algebra {
   final case class Max(value: Int)
   implicit val MaxSemigroup: Semigroup[Max] =
     new Semigroup[Max] {
-      def append(l: Max, r: => Max): Max = ???
+      def append(l: Max, r: => Max): Max =
+        ???
     }
 
   //
@@ -118,21 +119,22 @@ object algebra {
   case object ZeroThrowable extends Throwable
   def TryMonoid[A: Semigroup]: Monoid[scala.util.Try[A]] =
     new Monoid[scala.util.Try[A]] {
-      import scala.util.Try
+      import scala.util._
 
       def zero: Try[A] = ???
 
-      def append(l: Try[A], r: => Try[A]): Try[A] =
-        ???
+      def append(l: Try[A], r: => Try[A]): Try[A] = ???
     }
 
   //
   // EXERCISE 10
   //
-  // Write the `Semigroup` instance for `Map` when the values form a semigroup.
+  // Write the `Monoid` instance for `Map` when the values form a semigroup.
   //
-  def SemigroupMap[K, V: Semigroup]: Semigroup[Map[K, V]] =
-    new Semigroup[Map[K, V]] {
+  def MonoidMap[K, V: Semigroup]: Monoid[Map[K, V]] =
+    new Monoid[Map[K, V]] {
+      def zero: Map[K, V] = ???
+
       def append(l: Map[K, V], r: => Map[K, V]): Map[K, V] =
         ???
     }
@@ -227,7 +229,7 @@ object functor {
   def ParserFunctor[E]: Functor[Parser[E, ?]] =
     new Functor[Parser[E, ?]] {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
-         ???
+        ???
     }
   final case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
@@ -348,10 +350,11 @@ object functor {
   //
   val ZipList: Zip[List] =
     new Zip[List] {
-      def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
+      def map[A, B](fa: List[A])(f: A => B): List[B] =
+        ???
 
       def zip[A, B](l: List[A], r: List[B]): List[(A, B)] =
-        l.flatMap(a => r.map(b => (a, b)))
+        ???
     }
 
   //
@@ -452,7 +455,7 @@ object functor {
   implicit def MonadParser[E]: Monad[Parser[E, ?]] =
     new Monad[Parser[E, ?]] {
       def point[A](a: => A): Parser[E, A] =
-        ???
+        Parser[E, A]((input: String) => Right((input, a)))
 
       def bind[A, B](fa: Parser[E, A])(f: A => Parser[E, B]): Parser[E, B] =
         ???
@@ -466,11 +469,10 @@ object functor {
   case class Identity[A](run: A)
   implicit val IdentityMonad: Monad[Identity] =
     new Monad[Identity] {
-      def point[A](a: => A): Identity[A] =
-        Identity(a)
+      def point[A](a: => A): Identity[A] = ???
 
       def bind[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] =
-        f(fa.run)
+        ???
     }
 
   for {
@@ -483,16 +485,11 @@ object functor {
   //
   // EXERCISE 20
   //
-  // Use the list monad to find pairs of numbers separated by 2 away from
-  // each other.
+  // Use the list monad to find pairs of numbers separated by 2 integers away
+  // from each other.
   //
   val integers = List(1, 9, 2, 7, 4, 8, 2, 0, 10)
-  val solution =
-    for {
-      v1 <- integers
-      v2 <- integers
-      p  <- if ((v2 - v1).abs == 2) List(v1 -> v2) else Nil
-    } yield p
+  val solution = ???
 }
 
 object parser {
@@ -541,7 +538,7 @@ object parser {
       }
 
     def rep1sep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, (A, List[A])] =
-      (self <~ sep) ~ repsep(sep)
+      (self <~ (sep ?)) ~ repsep(sep)
 
     def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.point(None)
   }

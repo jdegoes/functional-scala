@@ -19,6 +19,7 @@ object types {
   //
   val NothingValues: Set[Nothing] = ???
 
+
   //
   // EXERCISE 3
   //
@@ -174,8 +175,7 @@ object functions {
   //
   // Convert the following non-function into a function.
   //
-  def arrayUpdate1[A](arr: Array[A], i: Int, f: A => A): Unit =
-    arr.update(i, f(arr(i)))
+  def arrayUpdate1[A](arr: Array[A], i: Int, f: A => A): Unit = ???
   def arrayUpdate2[A](arr: Array[A], i: Int, f: A => A): ??? = ???
 
   //
@@ -361,8 +361,7 @@ object higher_order {
   // the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
-    Parser[E2, Either[A, B]] =
-      ???
+    Parser[(E1, E2), Either[A, B]] = ???
 
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
@@ -372,9 +371,9 @@ object higher_order {
     final def point[A](a: => A): Parser[Nothing, A] =
       Parser(input => Right((input, a)))
 
-    final def char[E](e: E): Parser[E, Char] =
+    final def char: Parser[Unit, Char] =
       Parser(input =>
-        if (input.length == 0) Left(e)
+        if (input.length == 0) Left(())
         else Right((input.drop(1), input.charAt(0))))
   }
 }
@@ -446,7 +445,7 @@ object poly_functions {
       reducer: (String, List[String]) => String):
       Map[String, String] =
         ???
-  // groupBy1(Data, By)(Reducer) == Expected
+  groupBy1(Data, By)(Reducer) == Expected
 
   //
   // EXERCISE 6
@@ -455,8 +454,9 @@ object poly_functions {
   // the polymorphic function. Compare to the original.
   //
   object groupBy2 {
-    ???
+
   }
+  // groupBy2(Data, By)(Reducer) == Expected
 }
 
 object higher_kinded {
@@ -649,6 +649,69 @@ object tc_motivating {
   sort(List(List(1, 2, 3), List(9, 2, 1), List(1, 2, 9)))
 }
 
+object hashmap {
+  trait Eq[A] {
+    def eq(l: A, r: A): Boolean
+  }
+  object Eq {
+    def apply[A](implicit A: Eq[A]): Eq[A] = A
+
+    implicit val EqInt: Eq[Int] =
+      new Eq[Int] {
+        def eq(l: Int, r: Int): Boolean = l == r
+      }
+  }
+  implicit class EqSyntax[A](l: A) {
+    def === (r: A)(implicit A: Eq[A]): Boolean = A.eq(l, r)
+  }
+
+  trait Hash[A] extends Eq[A] {
+    def hash(a: A): Int
+
+    final def hashConsistencyLaw(a1: A, a2: A): Boolean =
+      eq(a1, a2) == ((hash(a1) === hash(a2)) || !eq(a1, a2))
+  }
+  object Hash {
+    def apply[A](implicit A: Hash[A]): Hash[A] = A
+
+    implicit val HashInt: Hash[Int] =
+      new Hash[Int] {
+        def hash(a: Int): Int = a
+
+        def eq(l: Int, r: Int): Boolean = l == r
+      }
+  }
+  implicit class HashSyntax[A](val a: A) extends AnyVal {
+    def hash(implicit A: Hash[A]): Int = A.hash(a)
+  }
+
+  case class Person(age: Int, name: String)
+  object Person {
+    implicit val HashPerson: Hash[Person] = ???
+  }
+
+  class HashMap[K, V] {
+    def size: Int = ???
+
+    def insert(k: K, v: V)(implicit K: Hash[K]): HashMap[K, V] = ???
+  }
+  object HashMap {
+    def empty[K, V]: HashMap[K, V] = ???
+  }
+
+  Hash[Int].hash(3)
+
+  trait Hashable {
+    def hash: Int
+  }
+
+  class HashMapOOP[K <: Hashable, V] {
+    def size: Int = ???
+
+    def insert(k: K, v: V): HashMap[K, V] = ???
+  }
+}
+
 object typeclasses {
   /**
    * {{
@@ -695,13 +758,7 @@ object typeclasses {
   case object GT extends Ordering
   object Ordering {
     implicit val OrderingEq: Eq[Ordering] = new Eq[Ordering] {
-      def equals(l: Ordering, r: Ordering): Boolean =
-        (l, r) match {
-          case (EQUAL, EQUAL) => true
-          case (LT, LT) => true
-          case (GT, GT) => true
-          case _ => false
-        }
+      def equals(l: Ordering, r: Ordering): Boolean = l == r
     }
   }
 
@@ -775,7 +832,7 @@ object typeclasses {
   //
   // Write a version of `sort1` called `sort2` that uses the polymorphic `List`
   // type, and which uses the `Ord` type class, including the compare syntax
-  // operator `=?=` to compare elements.
+  // operator `<` to compare elements.
   //
   def sort1(l: List[Int]): List[Int] = l match {
     case Nil => Nil
@@ -836,13 +893,16 @@ object typeclasses {
   // into the given named node.
   //
   implicit class PathLikeSyntax[A](a: A) {
-    def / (name: String)(implicit A: PathLike[A]): A = ???
+    def / (name: String)(implicit A : PathLike[A]): A =
+      ???
 
-    def parent(implicit A: PathLike[A]): Option[A] = ???
+    def parent(implicit A : PathLike[A]): Option[A] =
+      ???
   }
   def root[A: PathLike]: A = PathLike[A].root
-  //  root[MyPath] / "foo" / "bar" / "baz" // MyPath
-  // (root[MyPath] / "foo").parent        // Option[MyPath]
+
+  root[MyPath] / "foo" / "bar" / "baz" // MyPath
+  (root[MyPath] / "foo").parent        // Option[MyPath]
 
   //
   // EXERCISE 6
