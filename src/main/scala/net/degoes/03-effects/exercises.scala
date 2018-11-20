@@ -8,14 +8,14 @@ import scala.concurrent.duration._
 
 object zio_background {
   sealed trait Program[A] { self =>
-    final def *> [B](that: Program[B]): Program[B] = self.seq(that).map(_._2)
+    final def *> [B](that: Program[B]): Program[B] = self.zip(that).map(_._2)
 
-    final def <* [B](that: Program[B]): Program[A] = self.seq(that).map(_._1)
+    final def <* [B](that: Program[B]): Program[A] = self.zip(that).map(_._1)
 
     final def map[B](f: A => B): Program[B] =
       flatMap(f andThen (Program.point(_)))
 
-    final def seq[B](that: Program[B]): Program[(A, B)] =
+    final def zip[B](that: Program[B]): Program[(A, B)] =
       for {
         a <- self
         b <- that
@@ -89,11 +89,7 @@ object zio_background {
   // that operates on programs.
   //
   def sequence[A](programs: List[Program[A]]): Program[List[A]] =
-    programs match {
-      case Nil => Program.point(Nil)
-      case p :: ps =>
-        p.seq(sequence(ps)).map { case (a, as) => a :: as }
-    }
+    ???
 
   //
   // EXERCISE 5
