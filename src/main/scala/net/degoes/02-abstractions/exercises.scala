@@ -814,9 +814,5 @@ object optics {
   //
   // Modify the country of `org` using a `Prism`.
   //
-  (Org.site ⋅ Site.address ⋅ Address.country ⋅ Country.usa).set(())(org)
-  (Org.site ⋅ Site.address ⋅ Address.country).updated {
-    case UK(_) => USA
-    case x => x
-  }(org)
+  (Org.site ⋅ Site.address ⋅ Address.country ⋅ Country.usa)
 }
