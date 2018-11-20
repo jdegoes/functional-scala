@@ -294,7 +294,6 @@ object zio_composition {
   def getName2[E](print: String => IO[E, Unit], read: IO[E, String]): IO[E, Option[String]] =
     ???
 
-
   //
   // EXERCISE 8
   //
@@ -391,7 +390,7 @@ object zio_failure {
   //
   def divide1(n: Int, d: Int): IO[ArithmeticException, Int] =
     if (d == 0) IO.fail(new ArithmeticException)
-    else IO.now(n / d)
+    else IO.point(n / d)
   def divide2(n: Int, d: Int): Int = ???
 
   //
@@ -441,7 +440,7 @@ object zio_effects {
   // Using the `IO.sync` method, wrap Scala's `println` method to import it into
   // the world of pure functional programming.
   //
-  def putStrLn(line: String): IO[Nothing, Unit] = println ?
+  def putStrLn(line: String): IO[Nothing, Unit] = println(line) ?
 
   //
   // EXERCISE 2
@@ -493,7 +492,7 @@ object zio_effects {
   // Identify the correct method, error, and value type to import `System.exit`
   // safely into the world of pure functional programming.
   //
-  def sysExit(code: Int): IO[SecurityException, Nothing] =
+  def sysExit(code: Int): IO[???, ???] =
     System.exit(code) ?
 
   //
