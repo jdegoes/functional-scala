@@ -511,7 +511,7 @@ object zio_effects {
   // choose the correct error type.
   //
   val scheduledExecutor = Executors.newScheduledThreadPool(1)
-  def sleep(l: Long, u: TimeUnit): IO[Nothing, Unit] =
+  def sleep(l: Long, u: TimeUnit): IO[???, ???] =
     scheduledExecutor.schedule(new Runnable {
       def run(): Unit = ???
     }, l, u) ?
