@@ -543,8 +543,7 @@ object zio_effects {
         println("You guessed wrong! The number was " + number)
     }
   }
-  val playGame2: IO[Exception, Unit] =
-    ???
+  val playGame2: IO[Exception, Unit] = ???
 }
 
 object zio_concurrency {
@@ -786,7 +785,7 @@ object zio_ref {
   // Using the `Ref.apply` constructor, create a `Ref` that is initially `0`.
   //
   val makeZero: IO[Nothing, Ref[Int]] =
-    ???
+    Ref(0)
 
   //
   // EXERCISE 2
@@ -1108,7 +1107,8 @@ object zio_schedule {
   // Using `Schedule.exponential`, create an exponential schedule that starts from
   // 10 milliseconds.
   //
-  val exponentialSchedule: Schedule[Any, Int] = ???
+  val exponentialSchedule: Schedule[Any, Duration] =
+    ???
 
   //
   // EXERCISE 10
@@ -1140,7 +1140,8 @@ object zio_schedule {
   // Using the `collect` method of `Schedule`, produce a schedule that recurs
   // forever, collecting its inputs into a list.
   //
-  def collectedInputs[A]: Schedule[A, List[A]] = inputs[A] ?
+  def collectedInputs[A]: Schedule[A, List[A]] =
+    Schedule.identity[A].collect ?
 
   //
   // EXERCISE 14
@@ -1148,7 +1149,7 @@ object zio_schedule {
   // Using `*>`, combine `fiveTimes` and `everySecond` but return the output
   // of `everySecond`.
   //
-  val fiveTimesEverySecondR: Schedule[Any, Int] = fiveTimes *> everySecond
+  val fiveTimesEverySecondR: Schedule[Any, Int] = ???
 
   //
   // EXERCISE 15
