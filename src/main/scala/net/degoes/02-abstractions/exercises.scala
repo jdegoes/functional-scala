@@ -587,12 +587,12 @@ object parser {
   }
 
   // [1,2,3]
-
+  import Parser.{ digit, literal }
   val parser: Parser[Unit, List[Int]] =
     for {
-      _       <- Parser.literal('[')
-      digits  <- Parser.digit.repsep(Parser.literal(','))
-      _       <- Parser.literal(']')
+      _       <- literal('[')
+      digits  <- digit.repsep(literal(','))
+      _       <- literal(']')
     } yield digits
 }
 
