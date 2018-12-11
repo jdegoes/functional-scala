@@ -49,15 +49,19 @@ object algebra {
   // Define a `Semigroup` for `Last[A]` that always chooses the right-most value.
   //
   final case class Last[A](value: A)
-  implicit def LastSemigroup[A]: Semigroup[Last[A]] =
-    new Semigroup[Last[A]] {
-      def append(l: Last[A], r: => Last[A]): Last[A] = ???
-    }
+  object Last {
+    implicit def LastSemigroup[A]: Semigroup[Last[A]] =
+      new Semigroup[Last[A]] {
+        def append(l: Last[A], r: => Last[A]): Last[A] = ???
+      }
+  }
   final case class First[A](value: A)
-  implicit def FirstSemigroup[A]: Semigroup[First[A]] =
-    new Semigroup[First[A]] {
-      def append(l: First[A], r: => First[A]): First[A] = l
-    }
+  object First {
+    implicit def FirstSemigroup[A]: Semigroup[First[A]] =
+      new Semigroup[First[A]] {
+        def append(l: First[A], r: => First[A]): First[A] = l
+      }
+  }
 
   //
   // EXERCISE 5
@@ -93,11 +97,13 @@ object algebra {
   // Define a monoid for boolean conjunction (`&&`).
   //
   final case class Conj(value: Boolean)
-  implicit val ConjMonoid: Monoid[Conj] =
-    new Monoid[Conj] {
-      def zero: Conj = ???
-      def append(l: Conj, r: => Conj): Conj = ???
-    }
+  object Conj {
+    implicit val ConjMonoid: Monoid[Conj] =
+      new Monoid[Conj] {
+        def zero: Conj = ???
+        def append(l: Conj, r: => Conj): Conj = ???
+      }
+  }
 
   //
   // EXERCISE 8
@@ -105,11 +111,13 @@ object algebra {
   // Define a monoid for boolean disjunction (`||`).
   //
   final case class Disj(value: Boolean)
-  implicit val DisjMonoid: Monoid[Disj] =
-    new Monoid[Disj] {
-      def zero: Disj = ???
-      def append(l: Disj, r: => Disj): Disj = ???
-    }
+  object Disj {
+    implicit val DisjMonoid: Monoid[Disj] =
+      new Monoid[Disj] {
+        def zero: Disj = ???
+        def append(l: Disj, r: => Disj): Disj = ???
+      }
+  }
 
   //
   // EXERCISE 9
@@ -123,7 +131,8 @@ object algebra {
 
       def zero: Try[A] = ???
 
-      def append(l: Try[A], r: => Try[A]): Try[A] = ???
+      def append(l: Try[A], r: => Try[A]): Try[A] =
+        ???
     }
 
   //
@@ -185,6 +194,10 @@ object algebra {
 }
 
 object functor {
+  trait Functor[F[_]] {
+    def map[A, B](fa: F[A])(f: A => B): F[B]
+  }
+
   /**
    * Identity Law
    *   map(fa, identity) == fa
@@ -229,7 +242,7 @@ object functor {
   def ParserFunctor[E]: Functor[Parser[E, ?]] =
     new Functor[Parser[E, ?]] {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
-        ???
+         ???
     }
   final case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
@@ -549,25 +562,24 @@ object parser {
     def point[A](a: => A): Parser[Nothing, A] =
       ???
 
-    def maybeChar: Parser[Nothing, Option[Char]] =
-      char(()) ?
+    def maybeChar: Parser[Nothing, Option[Char]] = char ?
 
-    def char[E](e: E): Parser[E, Char] =
+    def char: Parser[Unit, Char] =
       Parser(input =>
-        if (input.length == 0) Left(e)
+        if (input.length == 0) Left(())
         else Right((input.drop(1), input.charAt(0))))
 
-    def digit[E](e: E): Parser[E, Int] =
+    def digit: Parser[Unit, Int] =
       for {
-        c <- char(e)
+        c <- char
         option = scala.util.Try(c.toString.toInt).toOption
-        d <- option.fold[Parser[E, Int]](Parser.fail(e))(point(_))
+        d <- option.fold[Parser[Unit, Int]](Parser.fail(()))(point(_))
       } yield d
 
-    def literal[E](f: Char => E)(c0: Char): Parser[E, Char] =
+    def literal(c0: Char): Parser[Unit, Char] =
       for {
-        c <- char(f(c0))
-        _ <- if (c != c0) Parser.point(f(0)) else Parser.point(())
+        c <- char
+        _ <- if (c != c0) Parser.point(c) else Parser.fail(())
       } yield c
 
     def whitespace: Parser[Nothing, Unit] =
@@ -575,15 +587,12 @@ object parser {
   }
 
   // [1,2,3]
-  sealed trait Error
-  case class ExpectedLit(char: Char) extends Error
-  case object ExpectedDigit extends Error
 
-  val parser: Parser[Error, List[Int]] =
+  val parser: Parser[Unit, List[Int]] =
     for {
-      _       <- Parser.literal(ExpectedLit)('[')
-      digits  <- (Parser.digit(ExpectedDigit) <~ Parser.literal(ExpectedLit)(',')).rep
-      _       <- Parser.literal(ExpectedLit)(']')
+      _       <- Parser.literal('[')
+      digits  <- Parser.digit.repsep(Parser.literal(','))
+      _       <- Parser.literal(']')
     } yield digits
 }
 

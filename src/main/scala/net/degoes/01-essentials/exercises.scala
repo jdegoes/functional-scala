@@ -19,7 +19,6 @@ object types {
   //
   val NothingValues: Set[Nothing] = ???
 
-
   //
   // EXERCISE 3
   //
@@ -104,7 +103,7 @@ object types {
   // Create a sum type of `Int` and `String` representing the identifier of
   // a robot (a number) or the identifier of a person (a name).
   //
-  type Identifier1 = Either[Int, String]
+  type Identifier1 = ???
   sealed trait Identifier2
 
   //
@@ -175,7 +174,8 @@ object functions {
   //
   // Convert the following non-function into a function.
   //
-  def arrayUpdate1[A](arr: Array[A], i: Int, f: A => A): Unit = ???
+  def arrayUpdate1[A](arr: Array[A], i: Int, f: A => A): Unit =
+    arr.update(i, f(arr(i)))
   def arrayUpdate2[A](arr: Array[A], i: Int, f: A => A): ??? = ???
 
   //
@@ -251,7 +251,7 @@ object functions {
   //
   // Implement the following function under the Scalazzi subset of Scala.
   //
-  def readLine: String = ???
+  def readLine: String = "foo"
 
   //
   // EXERCISE 10
@@ -349,7 +349,7 @@ object higher_order {
   //
   // EXERCISE 5
   //
-  // Implement the following higer-order function.
+  // Implement the following higher-order function.
   //
   def compose[A, B, C](f: B => C, g: A => B): A => C =
     ???
@@ -361,7 +361,8 @@ object higher_order {
   // the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
-    Parser[(E1, E2), Either[A, B]] = ???
+    Parser[(E1, E2), Either[A, B]] =
+      ???
 
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
@@ -645,6 +646,17 @@ object tc_motivating {
       sort(lessThan) ++ List(x) ++ sort(notLessThan)
   }
 
+  object oop {
+    trait Comparable[A] {
+      def lessThan(a: A): Boolean
+    }
+    def sortOOP[A <: Comparable[A]](l: List[A]): List[A] =
+      ???
+    case class Person(name: String, age: Int) extends Comparable[Person] {
+      def lessThan(a: Person): Boolean = ???
+    }
+  }
+
   sort(List(1, 2, 3))
   sort(List(List(1, 2, 3), List(9, 2, 1), List(1, 2, 9)))
 }
@@ -688,6 +700,11 @@ object hashmap {
   case class Person(age: Int, name: String)
   object Person {
     implicit val HashPerson: Hash[Person] = ???
+  }
+
+  class HashPerson(val value: Person) extends AnyVal
+  object HashPerson {
+    implicit val HashHashPerson: Hash[HashPerson] = ???
   }
 
   class HashMap[K, V] {
@@ -860,11 +877,13 @@ object typeclasses {
     def apply[A](implicit A: PathLike[A]): PathLike[A] = A
   }
   sealed trait MyPath
-  implicit val MyPathPathLike: PathLike[MyPath] =
-    new PathLike[MyPath] {
-      def child(parent: MyPath, name: String): MyPath = ???
-      def parent(node: MyPath): Option[MyPath] = ???
-      def root: MyPath = ???
+  object MyPath {
+    implicit val MyPathPathLike: PathLike[MyPath] =
+      new PathLike[MyPath] {
+        def child(parent: MyPath, name: String): MyPath = ???
+        def parent(node: MyPath): Option[MyPath] = ???
+        def root: MyPath = ???
+      }
     }
 
   //
