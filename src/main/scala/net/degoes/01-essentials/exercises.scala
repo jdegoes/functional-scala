@@ -1,4 +1,4 @@
-// Copyright(C) 2018 - John A. De Goes. All rights reserved.
+// Copyright(C) 2018-2019 John A. De Goes. All rights reserved.
 
 package net.degoes.essentials
 

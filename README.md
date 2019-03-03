@@ -4,17 +4,16 @@
 
 Welcome to the official repository for _Functional Scala_, a workshop taught by John A. De Goes, which introduces attendees to functional programming in Scala.
 
-Depending on which workshop you are in, you will work through one or more segments of the following chapters:
+The workshop will cover material in the following sections:
 
  * **Functional Essentials**
  * **Functional Abstractions**
- * **Functional Effects**
- * **Functional Applications**
- * **Functional Arts**
 
-# Usage
+In addition, three-day versions of the workshop will cover select topics from [ZIO Workshop](https://github.com/jdegoes/zio-workshop).
 
-## From the UI
+# Preparation
+
+## From the Github UI
 
 1. Download the repository as a [zip archive](https://github.com/jdegoes/functional-scala/archive/master.zip).
 2. Unzip the archive, usually by double-clicking on the file.
@@ -51,4 +50,4 @@ Depending on which workshop you are in, you will work through one or more segmen
 
 # Legal
 
-Copyright&copy; 2018 John A. De Goes. All rights reserved.
+Copyright&copy; 2018-2019 John A. De Goes. All rights reserved.
