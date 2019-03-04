@@ -276,7 +276,7 @@ object functions {
   //
   // Implement the following function under the Scalazzi subset of Scala.
   //
-  def readLine: String = "foo"
+  def readLine: String = ???
 
   //
   // EXERCISE 10
