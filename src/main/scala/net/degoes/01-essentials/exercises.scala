@@ -77,7 +77,7 @@ object types {
   // name of a person.
   //
   type Person1 = ???
-  case class Person2(/*  */)
+  final case class Person2(/*  */)
 
   //
   // EXERCISE 10
@@ -151,6 +151,31 @@ object types {
 
   //
   // EXERCISE 18
+  //
+  // Create a "smart constructor" for `Programmer` that only permits levels
+  // that are non-negative.
+  //
+  final case class Programmer private (level: Int) 
+  object Programmer {
+    def apply(level: Int): Option[Programmer] = 
+      ???
+  }
+
+  //
+  // EXERCISE 19
+  // 
+  // Using algebraic data types and smart constructors, make it impossible to
+  // construct a `BankAccount` with an illegal (undefined) state in the 
+  // business domain. Note any limitations in your solution.
+  //
+  case class BankAccount(
+    ownerId: String, 
+    balance: BigDecimal,
+    accountType: String, 
+    openedDate: Long)
+
+  //
+  // EXERCISE 20 
   //
   // Create an ADT model of a game world, including a map, a player, non-player
   // characters, different classes of items, and character stats.
