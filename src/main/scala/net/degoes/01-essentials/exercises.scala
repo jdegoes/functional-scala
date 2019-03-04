@@ -339,6 +339,7 @@ object functions {
 }
 
 object higher_order {
+
   //
   // EXERCISE 1
   //
@@ -386,15 +387,14 @@ object higher_order {
   // the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
-    Parser[(E1, E2), Either[A, B]] =
-      ???
+    Parser[(E1, E2), Either[A, B]] = ???
 
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
     final def fail[E](e: E): Parser[E, Nothing] =
       Parser(_ => Left(e))
 
-    final def point[A](a: => A): Parser[Nothing, A] =
+    final def succeed[A](a: => A): Parser[Nothing, A] =
       Parser(input => Right((input, a)))
 
     final def char: Parser[Unit, Char] =
@@ -428,8 +428,9 @@ object poly_functions {
     def apply[A](n: Int)(a: A, f: A => A): A =
       ???
   }
-  repeat[   Int](100)( 0, _ +   1) // 100
-  repeat[String]( 10)("", _ + "*") // "**********"
+  repeat[       Int](100)(       0, _ +   1) // 100
+  repeat[    String]( 10)(      "", _ + "*") // "**********"
+  repeat[Int => Int](100)(identity, _ andThen (_ + 1)) // (_ + 100)
 
   //
   // EXERCISE 3
@@ -453,25 +454,25 @@ object poly_functions {
   //
   // Implement the function `groupBy1`.
   //
-  val Data =
+  val TestData =
     "poweroutage;2018-09-20;level=20" :: Nil
-  val By: String => String =
+  val ByDate: String => String =
     (data: String) => data.split(";")(1)
   val Reducer: (String, List[String]) => String =
     (date, events) =>
       "On date " +
         date + ", there were " +
         events.length + " power outages"
-  val Expected =
+  val ExpectedResults =
     Map("2018-09-20" ->
       "On date 2018-09-20, there were 1 power outages")
   def groupBy1(
-    l: List[String],
+    events: List[String],
     by: String => String)(
       reducer: (String, List[String]) => String):
       Map[String, String] =
         ???
-  groupBy1(Data, By)(Reducer) == Expected
+  groupBy1(TestData, ByDate)(Reducer) == ExpectedResults
 
   //
   // EXERCISE 6
@@ -482,7 +483,7 @@ object poly_functions {
   object groupBy2 {
 
   }
-  // groupBy2(Data, By)(Reducer) == Expected
+  // groupBy2(TestData, ByDate)(Reducer) == ExpectedResults
 }
 
 object higher_kinded {
@@ -524,6 +525,9 @@ object higher_kinded {
   // Create a trait with kind `[*, *, *] => *`.
   //
   trait Answer4 /*[]*/
+
+  def flip[A, B, C](f: (A, B) => C): (B, A) => C = ???
+  
 
   //
   // EXERCISE 5
@@ -595,7 +599,8 @@ object higher_kinded {
   // Implement `Sized` for `Map`, partially applied with its first type
   // parameter to `String`.
   //
-  val MapStringSized: Sized[Map[String, ?]] =
+  type MapString[A] = Map[String, A]
+  val MapStringSized: Sized[MapString] =
     ???
 
   //
@@ -627,6 +632,7 @@ object tc_motivating {
   set of types.
 
   */
+
   /**
    * All implementations are required to satisfy the transitivityLaw.
    *
