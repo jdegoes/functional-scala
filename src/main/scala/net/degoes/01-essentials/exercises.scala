@@ -262,7 +262,7 @@ object functions {
     coffee
   }
   final case class Charge(account: Account, amount: Double)
-  def buyCoffee2(account: Account): (Coffee, Charge) = ???
+  def buyCoffee2(account: Account): ??? = ???
 
   //
   // EXERCISE 8
