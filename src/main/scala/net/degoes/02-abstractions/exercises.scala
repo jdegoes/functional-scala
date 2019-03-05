@@ -205,16 +205,12 @@ object algebra {
 }
 
 object functor {
-  trait Functor[F[_]] {
-    def map[A, B](fa: F[A])(f: A => B): F[B]
-  }
-
   /**
    * Identity Law
-   *   map(fa, identity) == fa
+   *   map(fa)(identity) == fa
    *
    * Composition Law
-   *   map(map(fa, g), f) == map(fa, f.compose(g))
+   *   map(map(fa)(g))(f) == map(fa)(f compose g)
    */
 
   val Numbers  = List(12, 123, 0, 123981)
@@ -222,7 +218,7 @@ object functor {
   val g : Int    => String = (i:    Int) => i.toString
   val f : String =>    Int = (s: String) => s.length
   Numbers.map(identity)    == Numbers
-  Numbers.map(g andThen f) == Numbers.map(g).map(f)
+  Numbers.map(f compose g) == (Numbers map g).map(f)
 
   //
   // EXERCISE 1
@@ -327,9 +323,9 @@ object functor {
   //
   // Define a natural transformation between `List` and `Option`.
   //
-  val ListToOption: List ~> Option = ???
-  ListToOption(List(1, 2, 3))
-  ListToOption(List("foo", "bar", "baz"))
+  val listToOption: List ~> Option = ???
+  listToOption(List(1, 2, 3))
+  listToOption(List("foo", "bar", "baz"))
 
   //
   // EXERCISE 9
@@ -337,8 +333,8 @@ object functor {
   // Define a natural transformation between `Either[Throwable, ?]` and
   // `Future`.
   //
-  val EitherToFuture: Either[Throwable, ?] ~> scala.concurrent.Future =
-    new NaturalTransformation[Either[Throwable, ?], scala.concurrent.Future] {
+  val eitherToFuture: Either[Throwable, ?] ~> scala.concurrent.Future =
+    new (Either[Throwable, ?] ~> scala.concurrent.Future) {
       def apply[A](fa: Either[Throwable, A]): scala.concurrent.Future[A] =
         ???
     }
@@ -356,7 +352,7 @@ object functor {
 
     implicit val ZipOption: Zip[Option] =
       new Zip[Option] {
-        def map[A, B](fa: Option[A])(f: A => B) = fa.map(f)
+        def map[A, B](fa: Option[A])(f: A => B) = fa map f
 
         def zip[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
           ???
@@ -375,7 +371,7 @@ object functor {
   val ZipList: Zip[List] =
     new Zip[List] {
       def map[A, B](fa: List[A])(f: A => B): List[B] =
-        ???
+        fa map f
 
       def zip[A, B](l: List[A], r: List[B]): List[(A, B)] =
         ???
@@ -389,7 +385,7 @@ object functor {
   def ZipParser[E]: Zip[Parser[E, ?]] =
     new Zip[Parser[E, ?]] {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] =
-        ParserFunctor.map(fa)(f)
+        fa map f
 
       def zip[A, B](l: Parser[E, A], r: Parser[E, B]): Parser[E, (A, B)] =
         ???
@@ -405,7 +401,7 @@ object functor {
       import scala.concurrent.Future
       import scala.concurrent.ExecutionContext.Implicits.global
 
-      def map[A, B](fa: Future[A])(f: A => B): Future[B] = fa.map(f)
+      def map[A, B](fa: Future[A])(f: A => B): Future[B] = fa map f
 
       def zip[A, B](l: Future[A], r: Future[B]): Future[(A, B)] =
         ???
