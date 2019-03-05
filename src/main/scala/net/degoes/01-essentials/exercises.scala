@@ -638,15 +638,14 @@ object tc_motivating {
    *
    * Transitivity Law:
    * forall a b c.
-   *   lt(a, b) && lt(b, c) ==
-   *     lt(a, c) || (!lt(a, b) || !lt(b, c))
+   *   lt(a, b) && lt(b, c) ==> 
+   *     lt(a, c)
    */
   trait LessThan[A] {
     def lt(l: A, r: A): Boolean
 
     final def transitivityLaw(a: A, b: A, c: A): Boolean =
-      (lt(a, b) && lt(b, c) == lt(a, c)) ||
-      (!lt(a, b) || !lt(b, c))
+      lt(a, c) || !lt(a, b) || !lt(b, c)
   }
   implicit class LessThanSyntax[A](l: A) {
     def < (r: A)(implicit A: LessThan[A]): Boolean = A.lt(l, r)
@@ -677,6 +676,11 @@ object tc_motivating {
       sort(lessThan) ++ List(x) ++ sort(notLessThan)
   }
 
+  final case class Person(name: String, age: Int)
+  object Person {
+    implicit val PersonLessThan: LessThan[Person] = ???
+  }
+
   object oop {
     trait Comparable[A] {
       def lessThan(a: A): Boolean
@@ -695,6 +699,15 @@ object tc_motivating {
 object hashmap {
   trait Eq[A] {
     def eq(l: A, r: A): Boolean
+
+    def transitivityLaw(a: A, b: A, c: A): Boolean = 
+      eq(a, c) || !eq(a, b) || !eq(b, c)
+
+    def identityLaw(a: A): Boolean = 
+      eq(a, a)
+
+    def reflexivityLaw(a: A, b: A): Boolean = 
+      eq(a, b) == eq(b, a)
   }
   object Eq {
     def apply[A](implicit A: Eq[A]): Eq[A] = A
@@ -703,7 +716,20 @@ object hashmap {
       new Eq[Int] {
         def eq(l: Int, r: Int): Boolean = l == r
       }
+    implicit val EqString: Eq[String] =
+      new Eq[String] {
+        def eq(l: String, r: String): Boolean = l == r
+      }
   }
+  final case class IgnoreCase(value: String) 
+  object IgnoreCase {
+    implicit val EqIgnoreCase: Eq[IgnoreCase] =
+      new Eq[IgnoreCase] {
+        def eq(l: IgnoreCase, r: IgnoreCase): Boolean = 
+          l.value.toLowerCase == r.value.toLowerCase
+      }
+  }
+
   implicit class EqSyntax[A](l: A) {
     def === (r: A)(implicit A: Eq[A]): Boolean = A.eq(l, r)
   }
@@ -712,7 +738,7 @@ object hashmap {
     def hash(a: A): Int
 
     final def hashConsistencyLaw(a1: A, a2: A): Boolean =
-      eq(a1, a2) == ((hash(a1) === hash(a2)) || !eq(a1, a2))
+      (hash(a1) === hash(a2)) || !eq(a1, a2)
   }
   object Hash {
     def apply[A](implicit A: Hash[A]): Hash[A] = A
