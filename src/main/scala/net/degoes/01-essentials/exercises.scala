@@ -749,6 +749,12 @@ object hashmap {
 
         def eq(l: Int, r: Int): Boolean = l == r
       }
+    implicit val HashString: Hash[String] =
+      new Hash[String] {
+        def hash(a: String): Int = a.hashCode
+
+        def eq(l: String, r: String): Boolean = l == r
+      }
   }
   implicit class HashSyntax[A](val a: A) extends AnyVal {
     def hash(implicit A: Hash[A]): Int = A.hash(a)
@@ -924,10 +930,23 @@ object typeclasses {
   // structure.
   //
   trait PathLike[A] {
+    /**
+     * Returns a node that describes the specified named
+     * child of the parent node.
+     */
     def child(parent: A, name: String): A
 
+    /**
+     * Returns the node that describes the parent of the 
+     * specified node, or `None` if the node is the root
+     * node.
+     */
     def parent(node: A): Option[A]
 
+    /**
+     * Returns the node that represents the root of the 
+     * file system.
+     */
     def root: A
   }
   object PathLike {

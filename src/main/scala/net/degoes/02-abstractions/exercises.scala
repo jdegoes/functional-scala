@@ -168,11 +168,22 @@ object algebra {
     final case object Write extends Capability
   }
   case class UserPermission(value: ???) {
+    /**
+     * Provides the set of all resources the user has access to.
+     */
     def allResources: Set[ResourceID] = ???
 
+    /**
+     * Provides the set of all capabilities the user has on the 
+     * specified resource.
+     */
     def capabilitiesFor(resourceID: ResourceID): Set[Capability] =
       ???
 
+    /**
+     * Determines which accounts give the user access to the specified 
+     * capability on the specified resource.
+     */
     def audit(resourceID: ResourceID, capability: Capability): Set[AccountID] =
       ???
   }
