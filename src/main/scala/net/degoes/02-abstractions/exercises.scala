@@ -256,7 +256,7 @@ object functor {
     final def fail[E](e: E): Parser[E, Nothing] =
       Parser(input => Left(e))
 
-    final def point[A](a: => A): Parser[Nothing, A] =
+    final def succeed[A](a: => A): Parser[Nothing, A] =
       Parser(input => Right((input, a)))
 
     final val char: Parser[Unit, Char] =
@@ -466,7 +466,7 @@ object functor {
       def bind[A, B](fa: BTree[A])(f: A => BTree[B]): BTree[B] =
         ???
     }
-
+  
   //
   // EXERCISE 18
   //
@@ -475,7 +475,7 @@ object functor {
   implicit def MonadParser[E]: Monad[Parser[E, ?]] =
     new Monad[Parser[E, ?]] {
       def point[A](a: => A): Parser[E, A] =
-        Parser[E, A]((input: String) => Right((input, a)))
+        Parser[E, A](s => Right((s, a)))
 
       def bind[A, B](fa: Parser[E, A])(f: A => Parser[E, B]): Parser[E, B] =
         ???
@@ -529,7 +529,7 @@ object parser {
       (self ~ that).map(_._1)
 
     def map[B](f: A => B): Parser[E, B] =
-      flatMap(f.andThen(Parser.point[B](_)))
+      flatMap(f.andThen(Parser.succeed[B](_)))
 
     def flatMap[E1 >: E, B](f: A => Parser[E1, B]): Parser[E1, B] =
       ???
@@ -545,10 +545,10 @@ object parser {
         })
 
     def | [E2, A1 >: A](that: => Parser[E2, A1]): Parser[E2, A1] =
-      (self orElse (that)).map(_.merge)
+      (self orElse that).map(_.merge)
 
     def rep: Parser[E, List[A]] =
-      ((self.map(List(_)) | Parser.point[List[A]](Nil)) ~ rep).map(t => t._1 ++ t._2)
+      (self.map(List(_)) ~ rep).map(t => t._1 ++ t._2) | Parser.succeed[List[A]](Nil)
 
     def rep1: Parser[E, (A, List[A])] = self ~ rep
 
@@ -560,13 +560,13 @@ object parser {
     def rep1sep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, (A, List[A])] =
       (self <~ (sep ?)) ~ repsep(sep)
 
-    def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.point(None)
+    def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.succeed(None)
   }
   object Parser {
     def fail[E](e: E): Parser[E, Nothing] =
       Parser(input => Left(e))
 
-    def point[A](a: => A): Parser[Nothing, A] =
+    def succeed[A](a: => A): Parser[Nothing, A] =
       ???
 
     def maybeChar: Parser[Nothing, Option[Char]] = char ?
@@ -580,13 +580,13 @@ object parser {
       for {
         c <- char
         option = scala.util.Try(c.toString.toInt).toOption
-        d <- option.fold[Parser[Unit, Int]](Parser.fail(()))(point(_))
+        d <- option.fold[Parser[Unit, Int]](Parser.fail(()))(succeed(_))
       } yield d
 
     def literal(c0: Char): Parser[Unit, Char] =
       for {
         c <- char
-        _ <- if (c != c0) Parser.point(c) else Parser.fail(())
+        _ <- if (c != c0) Parser.succeed(c) else Parser.fail(())
       } yield c
 
     def whitespace: Parser[Nothing, Unit] =
@@ -623,8 +623,8 @@ object foldable {
   // Define an instance of `Foldable` for `BTree`.
   //
   sealed trait BTree[+A]
-  case class Leaf[A](a: A) extends BTree[A]
-  case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
+  final case class Leaf[A](a: A) extends BTree[A]
+  final case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
   implicit val FoldableBTree: Foldable[BTree] =
     new Foldable[BTree] {
       def foldMap[A, B: Monoid](fa: BTree[A])(f: A => B): B =
@@ -828,7 +828,7 @@ object optics {
   //
   // EXERCISE 7
   //
-  // Modify the country of `org` using a `Prism`.
+  // Set the country of `org` using a `Prism`.
   //
   (Org.site ⋅ Site.address ⋅ Address.country ⋅ Country.usa)
 }
