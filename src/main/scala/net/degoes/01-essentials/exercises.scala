@@ -157,7 +157,7 @@ object types {
   //
   final case class Programmer private (level: Int) 
   object Programmer {
-    def apply(level: Int): Option[Programmer] = 
+    def make(level: Int): Option[Programmer] = 
       ???
   }
 
