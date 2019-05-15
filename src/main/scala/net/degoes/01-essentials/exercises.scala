@@ -78,7 +78,7 @@ object types {
   //
   type Person1 = ???
   final case class Person2(/*  */)
-
+  
   //
   // EXERCISE 10
   //
@@ -144,10 +144,10 @@ object types {
   // EXERCISE 17
   //
   // Create either a sum type or a product type (as appropriate) to represent a
-  // piece on a chess board, which could be a pawn, rook, bishop, knight,
-  // queen, or king.
+  // the rank of a piece on a chess board, which could be a pawn, rook, bishop,
+  // knight, queen, or king.
   //
-  type ChessPiece = ???
+  type ChessPieceRank = ???
 
   //
   // EXERCISE 18
