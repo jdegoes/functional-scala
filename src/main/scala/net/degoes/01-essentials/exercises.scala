@@ -261,7 +261,7 @@ object functions {
     processor.charge(account, coffee.price)
     coffee
   }
-  final case class Charge(account: Account, amount: Double)
+  final case class Charge[A](account: Account, amount: Double, value: A)
   def buyCoffee2(account: Account): ??? = ???
 
   //
@@ -339,7 +339,6 @@ object functions {
 }
 
 object higher_order {
-
   //
   // EXERCISE 1
   //
@@ -387,8 +386,8 @@ object higher_order {
   // the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
-    Parser[(E1, E2), Either[A, B]] = ???
-
+    Parser[(E1, E2), Either[A, B]] = 
+      ???
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
     final def fail[E](e: E): Parser[E, Nothing] =
@@ -481,7 +480,7 @@ object poly_functions {
   // the polymorphic function. Compare to the original.
   //
   object groupBy2 {
-
+    ???
   }
   // groupBy2(TestData, ByDate)(Reducer) == ExpectedResults
 }
@@ -527,7 +526,6 @@ object higher_kinded {
   trait Answer4 /*[]*/
 
   def flip[A, B, C](f: (A, B) => C): (B, A) => C = ???
-  
 
   //
   // EXERCISE 5
@@ -600,8 +598,7 @@ object higher_kinded {
   // parameter to `String`.
   //
   type MapString[A] = Map[String, A]
-  val MapStringSized: Sized[MapString] =
-    ???
+  val MapStringSized: Sized[MapString] = ???
 
   //
   // EXERCISE 10
@@ -620,7 +617,7 @@ object higher_kinded {
   def Tuple3Sized[C, B]: ?? = ???
 }
 
-object tc_motivating {
+object tc_motivating {  
   /*
   A type class is a tuple of three things:
 
