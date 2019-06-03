@@ -77,15 +77,15 @@ object types {
   // name of a person.
   //
   type Person1 = ???
-  final case class Person2(/*  */)
-  
+  final case class Person2( /*  */ )
+
   //
   // EXERCISE 10
   //
   // Prove that `A * 1` is equivalent to `A` by implementing the following two
   // functions.
   //
-  def to1[A](t: (A, Unit)): A = ???
+  def to1[A](t: (A, Unit)): A   = ???
   def from1[A](a: A): (A, Unit) = ???
 
   //
@@ -94,7 +94,7 @@ object types {
   // Prove that `A * 0` is equivalent to `0` by implementing the following two
   // functions.
   //
-  def to2[A](t: (A, Nothing)): Nothing = ???
+  def to2[A](t: (A, Nothing)): Nothing   = ???
   def from2[A](n: Nothing): (A, Nothing) = ???
 
   //
@@ -112,7 +112,7 @@ object types {
   // Prove that `A + 0` is equivalent to `A` by implementing the following two
   // functions.
   //
-  def to3[A](t: Either[A, Nothing]): A = ???
+  def to3[A](t: Either[A, Nothing]): A   = ???
   def from3[A](a: A): Either[A, Nothing] = ???
 
   //
@@ -155,27 +155,23 @@ object types {
   // Create a "smart constructor" for `Programmer` that only permits levels
   // that are non-negative.
   //
-  final case class Programmer private (level: Int) 
+  final case class Programmer private (level: Int)
   object Programmer {
-    def make(level: Int): Option[Programmer] = 
+    def make(level: Int): Option[Programmer] =
       ???
   }
 
   //
   // EXERCISE 19
-  // 
+  //
   // Using algebraic data types and smart constructors, make it impossible to
-  // construct a `BankAccount` with an illegal (undefined) state in the 
+  // construct a `BankAccount` with an illegal (undefined) state in the
   // business domain. Note any limitations in your solution.
   //
-  case class BankAccount(
-    ownerId: String, 
-    balance: BigDecimal,
-    accountType: String, 
-    openedDate: Long)
+  case class BankAccount(ownerId: String, balance: BigDecimal, accountType: String, openedDate: Long)
 
   //
-  // EXERCISE 20 
+  // EXERCISE 20
   //
   // Create an ADT model of a game world, including a map, a player, non-player
   // characters, different classes of items, and character stats.
@@ -222,7 +218,7 @@ object functions {
     id += 1
     newId
   }
-  def freshId2(/* ??? */): (Int, Int) = ???
+  def freshId2( /* ??? */ ): (Int, Int) = ???
 
   //
   // EXERCISE 5
@@ -230,8 +226,8 @@ object functions {
   // Convert the following non-function into a function.
   //
   import java.time.LocalDateTime
-  def afterOneHour1: LocalDateTime = LocalDateTime.now.plusHours(1)
-  def afterOneHour2(/* ??? */): LocalDateTime = ???
+  def afterOneHour1: LocalDateTime              = LocalDateTime.now.plusHours(1)
+  def afterOneHour2( /* ??? */ ): LocalDateTime = ???
 
   //
   // EXERCISE 6
@@ -316,13 +312,13 @@ object functions {
   }
   def draw1(size: Int): Draw = new Draw {
     val canvas = Array.fill(size, size)(false)
-    var x = 0
-    var y = 0
+    var x      = 0
+    var y      = 0
 
-    def goLeft(): Unit = x -= 1
+    def goLeft(): Unit  = x -= 1
     def goRight(): Unit = x += 1
-    def goUp(): Unit = y += 1
-    def goDown(): Unit = y -= 1
+    def goUp(): Unit    = y += 1
+    def goDown(): Unit  = y -= 1
     def draw(): Unit = {
       def wrap(x: Int): Int =
         if (x < 0) (size - 1) + ((x + 1) % size) else x % size
@@ -335,7 +331,7 @@ object functions {
     def finish(): List[List[Boolean]] =
       canvas.map(_.toList).toList
   }
-  def draw2(size: Int /* ... */): ??? = ???
+  def draw2(size: Int /* ... */ ): ??? = ???
 }
 
 object higher_order {
@@ -385,9 +381,8 @@ object higher_order {
   // Implement the following higher-order function. After you implement
   // the function, interpret its meaning.
   //
-  def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]):
-    Parser[(E1, E2), Either[A, B]] = 
-      ???
+  def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]): Parser[(E1, E2), Either[A, B]] =
+    ???
   case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
     final def fail[E](e: E): Parser[E, Nothing] =
@@ -397,9 +392,11 @@ object higher_order {
       Parser(input => Right((input, a)))
 
     final def char: Parser[Unit, Char] =
-      Parser(input =>
-        if (input.length == 0) Left(())
-        else Right((input.drop(1), input.charAt(0))))
+      Parser(
+        input =>
+          if (input.length == 0) Left(())
+          else Right((input.drop(1), input.charAt(0)))
+      )
   }
 }
 
@@ -413,7 +410,7 @@ object poly_functions {
   object snd {
     def apply[A, B](t: (A, B)): B = ???
   }
-  snd((1, "foo")) // "foo"
+  snd((1, "foo"))            // "foo"
   snd((true, List(1, 2, 3))) // List(1, 2, 3)
 
   //
@@ -427,8 +424,8 @@ object poly_functions {
     def apply[A](n: Int)(a: A, f: A => A): A =
       ???
   }
-  repeat[       Int](100)(       0, _ +   1) // 100
-  repeat[    String]( 10)(      "", _ + "*") // "**********"
+  repeat[Int](100)(0, _ + 1)                           // 100
+  repeat[String](10)("", _ + "*")                      // "**********"
   repeat[Int => Int](100)(identity, _ andThen (_ + 1)) // (_ + 100)
 
   //
@@ -437,7 +434,7 @@ object poly_functions {
   // Count the number of unique implementations of the following method.
   //
   def countExample1[A, B](a: A, b: B): Either[A, B] = ???
-  val countExample1Answer = ???
+  val countExample1Answer                           = ???
 
   //
   // EXERCISE 4
@@ -463,14 +460,14 @@ object poly_functions {
         date + ", there were " +
         events.length + " power outages"
   val ExpectedResults =
-    Map("2018-09-20" ->
-      "On date 2018-09-20, there were 1 power outages")
-  def groupBy1(
-    events: List[String],
-    by: String => String)(
-      reducer: (String, List[String]) => String):
-      Map[String, String] =
-        ???
+    Map(
+      "2018-09-20" ->
+        "On date 2018-09-20, there were 1 power outages"
+    )
+  def groupBy1(events: List[String], by: String => String)(
+    reducer: (String, List[String]) => String
+  ): Map[String, String] =
+    ???
   groupBy1(TestData, ByDate)(Reducer) == ExpectedResults
 
   //
@@ -486,9 +483,9 @@ object poly_functions {
 }
 
 object higher_kinded {
-  type ?? = Nothing
-  type ???[A] = Nothing
-  type ????[A, B] = Nothing
+  type ??          = Nothing
+  type ???[A]      = Nothing
+  type ????[A, B]  = Nothing
   type ?????[F[_]] = Nothing
 
   trait `* => *`[F[_]]
@@ -560,7 +557,7 @@ object higher_kinded {
     final def append[A](l: F[A], r: F[A]): F[A] =
       uncons(l) match {
         case Some((l, ls)) => append(ls, cons(l, r))
-        case None => r
+        case None          => r
       }
 
     final def filter[A](fa: F[A])(f: A => Boolean): F[A] =
@@ -569,7 +566,7 @@ object higher_kinded {
     final def bind[A, B](fa: F[A])(f: A => F[B]): F[B] =
       uncons(fa) match {
         case Some((a, as)) => append(f(a), bind(as)(f))
-        case None => empty[B]
+        case None          => empty[B]
       }
 
     final def fmap[A, B](fa: F[A])(f: A => B): F[B] = {
@@ -617,7 +614,7 @@ object higher_kinded {
   def Tuple3Sized[C, B]: ?? = ???
 }
 
-object tc_motivating {  
+object tc_motivating {
   /*
   A type class is a tuple of three things:
 
@@ -628,14 +625,14 @@ object tc_motivating {
   A type class instance is an instance of a type class for a given
   set of types.
 
-  */
+   */
 
   /**
    * All implementations are required to satisfy the transitivityLaw.
    *
    * Transitivity Law:
    * forall a b c.
-   *   lt(a, b) && lt(b, c) ==> 
+   *   lt(a, b) && lt(b, c) ==>
    *     lt(a, c)
    */
   trait LessThan[A] {
@@ -645,8 +642,8 @@ object tc_motivating {
       lt(a, c) || !lt(a, b) || !lt(b, c)
   }
   implicit class LessThanSyntax[A](l: A) {
-    def < (r: A)(implicit A: LessThan[A]): Boolean = A.lt(l, r)
-    def >= (r: A)(implicit A: LessThan[A]): Boolean = !A.lt(l, r)
+    def <(r: A)(implicit A: LessThan[A]): Boolean  = A.lt(l, r)
+    def >=(r: A)(implicit A: LessThan[A]): Boolean = !A.lt(l, r)
   }
   object LessThan {
     def apply[A](implicit A: LessThan[A]): LessThan[A] = A
@@ -657,9 +654,9 @@ object tc_motivating {
     implicit def LessThanList[A: LessThan]: LessThan[List[A]] = new LessThan[List[A]] {
       def lt(l: List[A], r: List[A]): Boolean =
         (l, r) match {
-          case (Nil, Nil) => false
-          case (Nil, _) => true
-          case (_, Nil) => false
+          case (Nil, Nil)         => false
+          case (Nil, _)           => true
+          case (_, Nil)           => false
           case (l :: ls, r :: rs) => l < r && lt(ls, rs)
         }
     }
@@ -697,13 +694,13 @@ object hashmap {
   trait Eq[A] {
     def eq(l: A, r: A): Boolean
 
-    def transitivityLaw(a: A, b: A, c: A): Boolean = 
+    def transitivityLaw(a: A, b: A, c: A): Boolean =
       eq(a, c) || !eq(a, b) || !eq(b, c)
 
-    def identityLaw(a: A): Boolean = 
+    def identityLaw(a: A): Boolean =
       eq(a, a)
 
-    def reflexivityLaw(a: A, b: A): Boolean = 
+    def reflexivityLaw(a: A, b: A): Boolean =
       eq(a, b) == eq(b, a)
   }
   object Eq {
@@ -718,17 +715,17 @@ object hashmap {
         def eq(l: String, r: String): Boolean = l == r
       }
   }
-  final case class IgnoreCase(value: String) 
+  final case class IgnoreCase(value: String)
   object IgnoreCase {
     implicit val EqIgnoreCase: Eq[IgnoreCase] =
       new Eq[IgnoreCase] {
-        def eq(l: IgnoreCase, r: IgnoreCase): Boolean = 
+        def eq(l: IgnoreCase, r: IgnoreCase): Boolean =
           l.value.toLowerCase == r.value.toLowerCase
       }
   }
 
   implicit class EqSyntax[A](l: A) {
-    def === (r: A)(implicit A: Eq[A]): Boolean = A.eq(l, r)
+    def ===(r: A)(implicit A: Eq[A]): Boolean = A.eq(l, r)
   }
 
   trait Hash[A] extends Eq[A] {
@@ -790,6 +787,7 @@ object hashmap {
 }
 
 object typeclasses {
+
   /**
    * {{
    * Reflexivity:   a ==> equals(a, a)
@@ -814,15 +812,15 @@ object typeclasses {
         def equals(l: List[A], r: List[A]): Boolean =
           (l, r) match {
             case (Nil, Nil) => true
-            case (Nil, _) => false
-            case (_, Nil) => false
+            case (Nil, _)   => false
+            case (_, Nil)   => false
             case (l :: ls, r :: rs) =>
               Eq[A].equals(l, r) && equals(ls, rs)
           }
       }
   }
   implicit class EqSyntax[A](val l: A) extends AnyVal {
-    def === (r: A)(implicit eq: Eq[A]): Boolean =
+    def ===(r: A)(implicit eq: Eq[A]): Boolean =
       eq.equals(l, r)
   }
 
@@ -831,8 +829,8 @@ object typeclasses {
   //
   sealed trait Ordering
   case object EQUAL extends Ordering
-  case object LT extends Ordering
-  case object GT extends Ordering
+  case object LT    extends Ordering
+  case object GT    extends Ordering
   object Ordering {
     implicit val OrderingEq: Eq[Ordering] = new Eq[Ordering] {
       def equals(l: Ordering, r: Ordering): Boolean = l == r
@@ -842,23 +840,23 @@ object typeclasses {
   trait Ord[A] {
     def compare(l: A, r: A): Ordering
 
-    final def eq(l: A, r: A): Boolean = compare(l, r) == EQUAL
-    final def lt(l: A, r: A): Boolean = compare(l, r) == LT
+    final def eq(l: A, r: A): Boolean  = compare(l, r) == EQUAL
+    final def lt(l: A, r: A): Boolean  = compare(l, r) == LT
     final def lte(l: A, r: A): Boolean = lt(l, r) || eq(l, r)
-    final def gt(l: A, r: A): Boolean = compare(l, r) == GT
+    final def gt(l: A, r: A): Boolean  = compare(l, r) == GT
     final def gte(l: A, r: A): Boolean = gt(l, r) || eq(l, r)
 
     final def transitivityLaw1(a: A, b: A, c: A): Boolean =
       (lt(a, b) && lt(b, c) == lt(a, c)) ||
-      (!lt(a, b) || !lt(b, c))
+        (!lt(a, b) || !lt(b, c))
 
     final def transitivityLaw2(a: A, b: A, c: A): Boolean =
       (gt(a, b) && gt(b, c) == gt(a, c)) ||
-      (!gt(a, b) || !gt(b, c))
+        (!gt(a, b) || !gt(b, c))
 
     final def equalityLaw(a: A, b: A): Boolean =
       (lt(a, b) && gt(a, b) == eq(a, b)) ||
-      (!lt(a, b) || !gt(a, b))
+        (!lt(a, b) || !gt(a, b))
   }
   object Ord {
     def apply[A](implicit A: Ord[A]): Ord[A] = A
@@ -869,33 +867,35 @@ object typeclasses {
     }
   }
   implicit class OrdSyntax[A](val l: A) extends AnyVal {
-    def =?= (r: A)(implicit A: Ord[A]): Ordering =
+    def =?=(r: A)(implicit A: Ord[A]): Ordering =
       A.compare(l, r)
 
-    def < (r: A)(implicit A: Ord[A]): Boolean =
+    def <(r: A)(implicit A: Ord[A]): Boolean =
       Eq[Ordering].equals(A.compare(l, r), LT)
 
-    def <= (r: A)(implicit A: Ord[A]): Boolean =
+    def <=(r: A)(implicit A: Ord[A]): Boolean =
       (l < r) || (this === r)
 
-    def > (r: A)(implicit A: Ord[A]): Boolean =
+    def >(r: A)(implicit A: Ord[A]): Boolean =
       Eq[Ordering].equals(A.compare(l, r), GT)
 
-    def >= (r: A)(implicit A: Ord[A]): Boolean =
+    def >=(r: A)(implicit A: Ord[A]): Boolean =
       (l > r) || (this === r)
 
-    def === (r: A)(implicit A: Ord[A]): Boolean =
+    def ===(r: A)(implicit A: Ord[A]): Boolean =
       Eq[Ordering].equals(A.compare(l, r), EQUAL)
 
-    def !== (r: A)(implicit A: Ord[A]): Boolean =
+    def !==(r: A)(implicit A: Ord[A]): Boolean =
       !Eq[Ordering].equals(A.compare(l, r), EQUAL)
   }
   case class Person(age: Int, name: String)
   object Person {
     implicit val OrdPerson: Ord[Person] = new Ord[Person] {
       def compare(l: Person, r: Person): Ordering =
-        if (l.age < r.age) LT else if (l.age > r.age) GT
-        else if (l.name < r.name) LT else if (l.name > r.name) GT
+        if (l.age < r.age) LT
+        else if (l.age > r.age) GT
+        else if (l.name < r.name) LT
+        else if (l.name > r.name) GT
         else EQUAL
     }
     implicit val EqPerson: Eq[Person] = new Eq[Person] {
@@ -927,6 +927,7 @@ object typeclasses {
   // structure.
   //
   trait PathLike[A] {
+
     /**
      * Returns a node that describes the specified named
      * child of the parent node.
@@ -934,14 +935,14 @@ object typeclasses {
     def child(parent: A, name: String): A
 
     /**
-     * Returns the node that describes the parent of the 
+     * Returns the node that describes the parent of the
      * specified node, or `None` if the node is the root
      * node.
      */
     def parent(node: A): Option[A]
 
     /**
-     * Returns the node that represents the root of the 
+     * Returns the node that represents the root of the
      * file system.
      */
     def root: A
@@ -954,10 +955,10 @@ object typeclasses {
     implicit val MyPathPathLike: PathLike[MyPath] =
       new PathLike[MyPath] {
         def child(parent: MyPath, name: String): MyPath = ???
-        def parent(node: MyPath): Option[MyPath] = ???
-        def root: MyPath = ???
+        def parent(node: MyPath): Option[MyPath]        = ???
+        def root: MyPath                                = ???
       }
-    }
+  }
 
   //
   // EXERCISE 3
@@ -985,10 +986,10 @@ object typeclasses {
   // into the given named node.
   //
   implicit class PathLikeSyntax[A](a: A) {
-    def / (name: String)(implicit A : PathLike[A]): A =
+    def /(name: String)(implicit A: PathLike[A]): A =
       ???
 
-    def parent(implicit A : PathLike[A]): Option[A] =
+    def parent(implicit A: PathLike[A]): Option[A] =
       ???
   }
   def root[A: PathLike]: A = PathLike[A].root
@@ -1042,9 +1043,7 @@ object typeclasses {
   //
   // Create laws for the `Collection` type class.
   //
-  trait CollectionLaws[F[_]] extends Collection[F] {
-
-  }
+  trait CollectionLaws[F[_]] extends Collection[F] {}
 
   //
   // EXERCISE 10
