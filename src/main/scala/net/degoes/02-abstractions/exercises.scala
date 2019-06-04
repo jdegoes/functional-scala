@@ -4,6 +4,8 @@ package net.degoes.abstractions
 
 import scalaz._
 import Scalaz._
+import net.degoes.abstractions.functor.Leaf
+import net.degoes.abstractions.functor.Fork
 
 object algebra {
   type ??? = Nothing
@@ -143,8 +145,7 @@ object algebra {
     new Monoid[Map[K, V]] {
       def zero: Map[K, V] = ???
 
-      def append(l: Map[K, V], r: => Map[K, V]): Map[K, V] =
-        ???
+      def append(l: Map[K, V], r: => Map[K, V]): Map[K, V] = ???
     }
 
   //
@@ -230,8 +231,7 @@ object functor {
   final case class Fork[A](left: BTree[A], right: BTree[A]) extends BTree[A]
   implicit val BTreeFunctor: Functor[BTree] =
     new Functor[BTree] {
-      def map[A, B](fa: BTree[A])(f: A => B): BTree[B] =
-        ???
+      def map[A, B](fa: BTree[A])(f: A => B): BTree[B] = ???
     }
 
   //
@@ -353,8 +353,7 @@ object functor {
       new Zip[Option] {
         def map[A, B](fa: Option[A])(f: A => B) = fa map f
 
-        def zip[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
-          ???
+        def zip[A, B](l: Option[A], r: Option[B]): Option[(A, B)] = ???
       }
   }
   implicit class ZipSyntax[F[_], A](left: F[A]) {
@@ -568,7 +567,7 @@ object parser {
       Parser(input => Left(e))
 
     def succeed[A](a: => A): Parser[Nothing, A] =
-      ???
+      Parser(input => Right((input, a)))
 
     def maybeChar: Parser[Nothing, Option[Char]] = char ?
 
@@ -613,11 +612,9 @@ object foldable {
   // Define an instance of `Foldable` for `List`
   //
   implicit val FoldableList: Foldable[List] = new Foldable[List] {
-    def foldMap[A, B: Monoid](fa: List[A])(f: A => B): B =
-      ???
+    def foldMap[A, B: Monoid](fa: List[A])(f: A => B): B = ???
 
-    def foldRight[A, B](fa: List[A], z: => B)(f: (A, => B) => B): B =
-      ???
+    def foldRight[A, B](fa: List[A], z: => B)(f: (A, => B) => B): B = ???
   }
 
   //
@@ -705,6 +702,9 @@ object optics {
   }
   case class Employee(name: String, dob: java.time.Instant, salary: BigDecimal, address: Address)
   object Employee {
+    val name: Lens[Employee, String] =
+      Lens[Employee, String](_.name, n => _.copy(name = n))
+
     val salary: Lens[Employee, BigDecimal] =
       Lens[Employee, BigDecimal](_.salary, s => _.copy(salary = s))
   }
@@ -720,8 +720,7 @@ object optics {
     get: S => A,
     set: A => (S => S)
   ) { self =>
-    def ⋅[B](that: Lens[A, B]): Lens[S, B] =
-      ???
+    def ⋅[B](that: Lens[A, B]): Lens[S, B] = ???
 
     def ⋅[B](that: Optional[A, B]): Optional[S, B] = ???
 
@@ -749,7 +748,7 @@ object optics {
   import Org.site
   import Site.manager
   import Employee.salary
-  val org2_lens: Org = ???
+  lazy val org2_lens: Org = ???
 
   //
   // EXERCISE 3
@@ -757,8 +756,7 @@ object optics {
   // Implement `⋅` for `Prism` for `Prism`.
   //
   final case class Prism[S, A](get: S => Option[A], set: A => S) { self =>
-    def ⋅[B](that: Prism[A, B]): Prism[S, B] =
-      ???
+    def ⋅[B](that: Prism[A, B]): Prism[S, B] = ???
 
     def ⋅[B](that: Lens[A, B]): Optional[S, B] = ???
 
@@ -773,17 +771,15 @@ object optics {
   //
   // Implement `_Left` and `_Right`.
   //
-  def _Left[A, B]: Prism[Either[A, B], A] =
-    ???
-  def _Right[A, B]: Prism[Either[A, B], B] =
-    ???
+  def _Left[A, B]: Prism[Either[A, B], A]  = ???
+  def _Right[A, B]: Prism[Either[A, B], B] = ???
 
   //
   // EXERCISE 5
   //
   // Implement `⋅` for `Optional` for `Optional`.
   //
-  final case class Optional[S, A](getOrModify: S => Either[S, A], set: A => (S => S)) {
+  final case class Optional[S, A](get: S => Option[A], set: A => (S => S)) {
     def ⋅[B](that: Optional[A, B]): Optional[S, B] = ???
 
     def ⋅[B](that: Lens[A, B]): Optional[S, B] = ???
@@ -791,8 +787,6 @@ object optics {
     def ⋅[B](that: Prism[A, B]): Optional[S, B] = ???
 
     def ⋅[B](that: Traversal[A, B]): Traversal[S, B] = ???
-
-    final def get(s: S): Option[A] = getOrModify(s).right.toOption
   }
 
   //

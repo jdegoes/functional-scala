@@ -341,7 +341,7 @@ object higher_order {
   //
   // Implement the following higher-order function.
   //
-  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) = 
+  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) =
     ???
 
   //
@@ -614,7 +614,6 @@ object higher_kinded {
 }
 
 object tc_motivating {
-
 
   /*
   A type class is a tuple of three things:
