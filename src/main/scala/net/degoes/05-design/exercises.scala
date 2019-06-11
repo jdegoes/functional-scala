@@ -138,6 +138,76 @@ object orthogonality {
 
 }
 
+object polymorphism {
+  /**
+   * EXERCISE 1
+   * 
+   * Introduce more polymorphism into the following API.
+   */
+  def partition[A](list: List[A], by: A => Either[A, A]): (List[A], List[A]) = ???
+
+  /**
+   * EXERCISE 2
+   * 
+   * Introduce more polymorphism into the following API.
+   */
+  trait API2[F[_]] {
+    def choose[A](left: F[A], right: F[A]): F[A]
+  }
+
+  /**
+   * EXERCISE 3
+   * 
+   * Introduce more polymorphism into the following API.
+   */
+  def fallback[A, B](first: Either[A, B], second: Either[A, B]): Either[A, B] = ???
+
+  /**
+   * EXERCISE 4
+   * 
+   * Introduce more polymorphism into the following API.
+   */
+  def reduce[A](f: (A, A) => A)(tuple: (A, A, A)): A = ???
+}
+
+object symmetry {
+  /**
+   * EXERCISE 1
+   * 
+   * Improve the symmetry of the following API.
+   */
+  trait API1[F[_]] {
+    def product[A, B](left: F[A], right: F[B]): F[(A, B)]
+  }
+
+  /**
+   * EXERCISE 2
+   * 
+   * Improve the symmetry of the following API.
+   */
+  trait API2[F[_]] {
+    def unit: F[Unit]
+  }
+
+  /**
+   * EXERCISE 3
+   * 
+   * Improve the symmetry of the following API.
+   */
+  trait API3[F[_]] {
+    def map[A, B](fa: F[A])(f: A => B): F[B]
+  }
+
+  /**
+   * EXERCISE 4
+   * 
+   * Improve the symmetry of the following API.
+   */
+  trait API4 {
+    def rassoc[A, B, C](t: ((A, B), C)): (A, (B, C))
+  }
+}
+
 object inference {
 
   /**
