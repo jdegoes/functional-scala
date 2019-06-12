@@ -1,3 +1,5 @@
+package net.degoes.applications
+
 import data.User
 import scalaz.zio.{TaskR, ZIO}
 

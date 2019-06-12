@@ -1,3 +1,5 @@
+package net.degoes.applications
+
 import doobie.h2.H2Transactor
 import org.flywaydb.core.Flyway
 import pureconfig.loadConfigOrThrow
@@ -6,15 +8,6 @@ import scalaz.zio.{Managed, Reservation, Task, ZIO}
 import pureconfig.generic.auto._
 
 package object configuration {
-
-  case class Config(api: ApiConfig, dbConfig: DbConfig)
-  case class ApiConfig(endpoint: String, port: Int)
-  case class DbConfig(
-      url: String,
-      user: String,
-      password: String
-  )
-
   def loadConfig: Task[Config] = Task.effect(loadConfigOrThrow[Config])
   def initDB(conf: DbConfig): Task[Unit] =
     Task.effect {
@@ -42,5 +35,4 @@ package object configuration {
 
     Managed(res)
   }
-
 }

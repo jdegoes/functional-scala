@@ -1,4 +1,5 @@
-package db
+
+package net.degoes.applications.db
 
 import data.{ User, UserNotFound }
 import doobie.{ Query0, Transactor, Update0 }

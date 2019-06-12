@@ -1,6 +1,9 @@
+package net.degoes.applications
+
 import cats.effect.ExitCode
-import db.Persistence
-import http.Api
+import net.degoes.applications.db.Persistence
+import net.degoes.applications.http.Api
+import net.degoes.applications.configuration._
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder

@@ -1,8 +1,8 @@
-package http
+package net.degoes.applications.http
 
 import data.User
-import db._
-import db.Persistence
+import net.degoes.applications.db._
+import net.degoes.applications.db.Persistence
 import io.circe.{ Decoder, Encoder }
 import org.http4s.{ EntityDecoder, EntityEncoder, HttpRoutes }
 import org.http4s.dsl.Http4sDsl
