@@ -1,6 +1,6 @@
 package net.degoes.applications.http
 
-import data.User
+import net.degoes.applications.data.User
 import net.degoes.applications.db._
 import net.degoes.applications.db.Persistence
 import io.circe.{ Decoder, Encoder }

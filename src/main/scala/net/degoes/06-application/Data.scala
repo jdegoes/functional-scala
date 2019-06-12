@@ -1,4 +1,4 @@
-package data
+package net.degoes.applications.data
 
 final case class User(id: Long, name: String)
 
