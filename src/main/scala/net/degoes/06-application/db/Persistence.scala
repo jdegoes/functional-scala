@@ -17,7 +17,7 @@ object Persistence {
   trait Service[R] {
     def get(id: Int): TaskR[R, User]
     def create(user: User): TaskR[R, User]
-    def delete(id: Int): TaskR[R, Boolean]
+    def delete(id: Int): TaskR[R, Unit]
   }
 
   /**
@@ -46,12 +46,12 @@ object Persistence {
           .transact(tnx)
           .foldM(err => Task.fail(err), _ => Task.succeed(user))
 
-      def delete(id: Int): Task[Boolean] =
+      def delete(id: Int): Task[Unit] =
         SQL
           .delete(id)
           .run
           .transact(tnx)
-          .fold(_ => false, _ => true)
+        .foldM(err => Task.fail(err), _ => Task.succeed(()))
     }
 
     object SQL {
