@@ -4,7 +4,7 @@ import doobie.h2.H2Transactor
 import org.flywaydb.core.Flyway
 import pureconfig.loadConfigOrThrow
 import scala.concurrent.ExecutionContext
-import scalaz.zio.{Managed, Reservation, Task, ZIO}
+import scalaz.zio.{ Managed, Reservation, Task, ZIO }
 import pureconfig.generic.auto._
 
 package object configuration {
@@ -19,9 +19,9 @@ package object configuration {
     }.unit
 
   def mkTransactor(
-      conf: DbConfig,
-      connectEC: ExecutionContext,
-      transactEC: ExecutionContext
+    conf: DbConfig,
+    connectEC: ExecutionContext,
+    transactEC: ExecutionContext
   ): Managed[Throwable, H2Transactor[Task]] = {
     import scalaz.zio.interop.catz._
 

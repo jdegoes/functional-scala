@@ -1,4 +1,3 @@
-
 package net.degoes.applications.db
 
 import data.{ User, UserNotFound }
@@ -52,7 +51,7 @@ object Persistence {
           .delete(id)
           .run
           .transact(tnx)
-        .foldM(err => Task.fail(err), _ => Task.succeed(()))
+          .foldM(err => Task.fail(err), _ => Task.succeed(()))
     }
 
     object SQL {

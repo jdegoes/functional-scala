@@ -12,7 +12,7 @@ import scalaz.zio.blocking.Blocking
 import scalaz.zio.clock.Clock
 import scalaz.zio.console.putStrLn
 import scalaz.zio.interop.catz._
-import scalaz.zio.{Task, TaskR, ZIO, _}
+import scalaz.zio.{ Task, TaskR, ZIO, _ }
 
 object Main extends App {
 
@@ -23,10 +23,10 @@ object Main extends App {
   override def run(args: List[String]): ZIO[Environment, Nothing, Int] = {
     val program: ZIO[Main.Environment, Throwable, Unit] = for {
       conf <- configuration.loadConfig
-      _ <- configuration.initDB(conf.dbConfig)
+      _    <- configuration.initDB(conf.dbConfig)
 
       blockingEnv <- ZIO.environment[Blocking]
-      blockingEC <- blockingEnv.blocking.blockingExecutor.map(_.asEC)
+      blockingEC  <- blockingEnv.blocking.blockingExecutor.map(_.asEC)
 
       transactorR = configuration.mkTransactor(
         conf.dbConfig,
@@ -47,13 +47,12 @@ object Main extends App {
           .drain
       }
       program <- transactorR.use { transactor =>
-        server.provideSome[Environment] { _ =>
-          new Clock.Live with Blocking.Live
-          with Persistence.Live {
-            override protected def tnx: doobie.Transactor[Task] = transactor
-          }
-        }
-      }
+                  server.provideSome[Environment] { _ =>
+                    new Clock.Live with Blocking.Live with Persistence.Live {
+                      override protected def tnx: doobie.Transactor[Task] = transactor
+                    }
+                  }
+                }
     } yield program
 
     program.foldM(

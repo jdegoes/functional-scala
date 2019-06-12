@@ -80,9 +80,8 @@ object composability {
    * Introduce a new composable data type to model delivery schedules and
    * refactor the API to use this new data type.
    */
-  sealed trait EmailSchedule 
-  trait EmailScheduler2 {
-  }
+  sealed trait EmailSchedule
+  trait EmailScheduler2 {}
 
   /**
    * EXERCISE 7
@@ -150,16 +149,17 @@ object orthogonality {
 }
 
 object polymorphism {
+
   /**
    * EXERCISE 1
-   * 
+   *
    * Introduce more polymorphism into the following API.
    */
   def partition[A](list: List[A], by: A => Either[A, A]): (List[A], List[A]) = ???
 
   /**
    * EXERCISE 2
-   * 
+   *
    * Introduce more polymorphism into the following API.
    */
   trait API2[F[_]] {
@@ -168,23 +168,24 @@ object polymorphism {
 
   /**
    * EXERCISE 3
-   * 
+   *
    * Introduce more polymorphism into the following API.
    */
   def fallback[A, B](first: Either[A, B], second: Either[A, B]): Either[A, B] = ???
 
   /**
    * EXERCISE 4
-   * 
+   *
    * Introduce more polymorphism into the following API.
    */
   def reduce[A](f: (A, A) => A)(tuple: (A, A, A)): A = ???
 }
 
 object symmetry {
+
   /**
    * EXERCISE 1
-   * 
+   *
    * Improve the symmetry of the following API.
    */
   trait API1[F[_]] {
@@ -193,7 +194,7 @@ object symmetry {
 
   /**
    * EXERCISE 2
-   * 
+   *
    * Improve the symmetry of the following API.
    */
   trait API2[F[_]] {
@@ -202,7 +203,7 @@ object symmetry {
 
   /**
    * EXERCISE 3
-   * 
+   *
    * Improve the symmetry of the following API.
    */
   trait API3[F[_]] {
@@ -211,7 +212,7 @@ object symmetry {
 
   /**
    * EXERCISE 4
-   * 
+   *
    * Improve the symmetry of the following API.
    */
   trait API4 {
@@ -309,7 +310,7 @@ object inference {
    * parameters or the number of parameter lists.
    */
   def foldLeft2[A, Z](list: List[A])(z: Z, f: (Z, A) => Z) = ???
-  lazy val somes2: Option[Int]                = foldLeft2(List(1, 2, 3, 4))(None, (_ : Any, b) => Some(b))
+  lazy val somes2: Option[Int]                             = foldLeft2(List(1, 2, 3, 4))(None, (_: Any, b) => Some(b))
 
   /**
    * EXERCISE 7
@@ -319,7 +320,7 @@ object inference {
    * parameters or the number of parameter lists.
    */
   def foldLeft3[A](list: List[A]): FoldLeft3[A] = ???
-  lazy val somes3: Option[Int]       = foldLeft3(List(1, 2, 3, 4))(None)((_ : Any, b) => Some(b))
+  lazy val somes3: Option[Int]                  = foldLeft3(List(1, 2, 3, 4))(None)((_: Any, b) => Some(b))
 
   class FoldLeft3_2[+A, Z](list: List[A], z: Z) {
     def apply[Z1 >: Z](f: (Z1, A) => Z1): Z1 = ???
