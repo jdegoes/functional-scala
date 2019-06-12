@@ -1,6 +1,8 @@
 // Copyright(C) 2018-2019 John A. De Goes. All rights reserved.
 
 package net.degoes.design
+import java.sql.ResultSet
+import java.net.URL
 
 object composability {
 
@@ -19,7 +21,7 @@ object composability {
    * Introduce a new composable data type (`Async2`) to model async
    * computations that builds on `Async`.
    */
-  trait Async2[+A] extends Async[A] {
+  trait Async2[+A] extends Async[A] { self =>
     ???
   }
 
@@ -78,8 +80,9 @@ object composability {
    * Introduce a new composable data type to model delivery schedules and
    * refactor the API to use this new data type.
    */
-  sealed trait EmailSchedule
-  trait EmailScheduler2 {}
+  sealed trait EmailSchedule 
+  trait EmailScheduler2 {
+  }
 
   /**
    * EXERCISE 7
@@ -116,10 +119,18 @@ object orthogonality {
    * type.
    */
   object pipeline1 {
-    sealed trait Pipeline[+A]
-    final case class Map[A0, A](p: Pipeline[A0], f: A => A0)                                 extends Pipeline[A]
-    final case class FlatMap[A0, A](p: Pipeline[A0], f: A => Pipeline[A0], parallelism: Int) extends Pipeline[A]
-    final case class Emit[A](value: A)                                                       extends Pipeline[A]
+    sealed trait Pipeline[+A] { self =>
+      def map[B](f: A => B): Pipeline[B] = Pipeline.Map(self, f)
+
+      def flatMap[B](f: A => Pipeline[B], parallelism: Int): Pipeline[B] = Pipeline.FlatMap(self, f, parallelism)
+    }
+    object Pipeline {
+      final case class Map[A0, A](p: Pipeline[A0], f: A0 => A)                                 extends Pipeline[A]
+      final case class FlatMap[A0, A](p: Pipeline[A0], f: A0 => Pipeline[A], parallelism: Int) extends Pipeline[A]
+      final case class Emit[A](value: A)                                                       extends Pipeline[A]
+
+      def succeed[A](a: A): Pipeline[A] = Emit(a)
+    }
 
     def run[A](pipeline: Pipeline[A]): List[A] = ???
   }
@@ -297,8 +308,8 @@ object inference {
    * inference problems of `foldLeft1`. You may change the order of
    * parameters or the number of parameter lists.
    */
-  def foldLeft2[A, Z](list: List[A]) = ???
-  lazy val somes2: Option[Int]       = ??? // foldLeft2
+  def foldLeft2[A, Z](list: List[A])(z: Z, f: (Z, A) => Z) = ???
+  lazy val somes2: Option[Int]                = foldLeft2(List(1, 2, 3, 4))(None, (_ : Any, b) => Some(b))
 
   /**
    * EXERCISE 7
@@ -307,8 +318,16 @@ object inference {
    * inference problems of `foldLeft1`. You may not change the order of
    * parameters or the number of parameter lists.
    */
-  def foldLeft3[A, Z](list: List[A]) = ???
-  lazy val somes3: Option[Int]       = ??? // foldLeft3
+  def foldLeft3[A](list: List[A]): FoldLeft3[A] = ???
+  lazy val somes3: Option[Int]       = foldLeft3(List(1, 2, 3, 4))(None)((_ : Any, b) => Some(b))
+
+  class FoldLeft3_2[+A, Z](list: List[A], z: Z) {
+    def apply[Z1 >: Z](f: (Z1, A) => Z1): Z1 = ???
+  }
+
+  class FoldLeft3[+A](list: List[A]) {
+    def apply[Z](z: Z): FoldLeft3_2[A, Z] = new FoldLeft3_2(list, z)
+  }
 }
 
 object performance {
@@ -318,7 +337,7 @@ object performance {
    *
    * Count the number of allocations in the following expression.
    */
-  val solution1              = List(1, 2, 3, 4).foldLeft(0)(_ + _)
+  val solution1              = (1 :: 2 :: 3 :: 4 :: Nil).foldLeft(0)(_ + _)
   lazy val allocations1: Int = ???
 
   /**
@@ -326,7 +345,7 @@ object performance {
    *
    * Count the number of allocations in the following expression.
    */
-  val solution2 = List(1, 2, 3, 4).map(_ + 1).foldLeft(Option.empty[Int]) {
+  val solution2 = (1 :: 2 :: 3 :: 4 :: Nil).map(_ + 1).foldLeft(Option.empty[Int]) {
     case (None, _) => None
     case (Some(x), y) if x % 2 == 0 => Some(x + y)
     case (Some(x), _) => Some(x)
