@@ -813,3 +813,154 @@ object optics {
   //
   (Org.site ⋅ Site.address ⋅ Address.country ⋅ Country.usa)
 }
+
+object recursion {
+  object manual {
+    sealed trait Json { self =>
+      import Json._
+
+      def fold0[Z](pf: PartialFunction[(Z, Json), Z]): Z = ???
+
+      def fold1[Z](
+        ifNull: Z => Z,
+        ifBool: (Z, Boolean) => Z,
+        ifStr: (Z, String) => Z,
+        ifObj: (Z, Map[String, Json]) => Z,
+        ifArr: (Z, List[Json]) => Z
+      ): Z = ???
+
+      def fold[Z](
+        ifNull: => Z,
+        ifBool: Boolean => Z,
+        ifStr: String => Z,
+        ifObj: Map[String, Z] => Z,
+        ifArr: List[Z] => Z
+      ): Z = self match {
+        case Json.Null        => ifNull
+        case Json.Bool(value) => ifBool(value)
+        case Json.Str(value)  => ifStr(value)
+        case Json.Obj(values) => ifObj(values.mapValues(_.fold(ifNull, ifBool, ifStr, ifObj, ifArr)))
+        case Json.Arr(values) => ifArr(values.map(_.fold(ifNull, ifBool, ifStr, ifObj, ifArr)))
+      }
+    }
+    object Json {
+      case object Null                                extends Json
+      final case class Bool(value: Boolean)           extends Json
+      final case class Str(value: String)             extends Json
+      final case class Obj(values: Map[String, Json]) extends Json
+      final case class Arr(values: List[Json])        extends Json
+    }
+
+    def sum1(list: List[Int]): Int =
+      list match {
+        case Nil     => 0
+        case x :: xs => x + sum1(xs)
+      }
+
+    def sum2(list: List[Int], acc: Int): Int =
+      list match {
+        case Nil     => acc
+        case x :: xs => sum2(xs, x + acc)
+      }
+
+    def sum3(list: List[Int]): Int = list.foldLeft(0)(_ + _)
+
+    def keys(json: Json): Set[String] =
+      json.fold[Set[String]](
+        Set(),
+        _ => Set(),
+        _ => Set(),
+        (map: Map[String, Set[String]]) => map.keys.toSet ++ map.values.flatten,
+        _.toSet.flatten
+      )
+  }
+
+  object fixpoint {
+    sealed trait JsonF[+A]
+    object JsonF {
+      case object Null                                extends JsonF[Nothing]
+      final case class Bool(value: Boolean)           extends JsonF[Nothing]
+      final case class Str(value: String)             extends JsonF[Nothing]
+      final case class Obj[A](values: Map[String, A]) extends JsonF[A]
+      final case class Arr[A](values: List[A])        extends JsonF[A]
+
+      implicit val FunctorJsonF: Functor[JsonF] =
+        new Functor[JsonF] {
+          def map[A, B](fa: JsonF[A])(f: A => B): JsonF[B] =
+            fa match {
+              case Str(value)  => Str(value)
+              case Bool(value) => Bool(value)
+              case Null        => Null
+              case Obj(values) => Obj(values.mapValues(f))
+              case Arr(values) => Arr(values.map(f))
+            }
+        }
+    }
+
+    val array: JsonF[JsonF[JsonF[Nothing]]] =
+      JsonF.Arr(JsonF.Arr(JsonF.Bool(true) :: Nil) :: JsonF.Bool(false) :: Nil)
+
+    // type IndefiniteJson = JsonF[IndefiniteJson]
+
+    final case class Fix[F[_]](unfix: F[Fix[F]]) {
+      def cata[Z](alg: F[Z] => Z)(implicit F: Functor[F]): Z = alg(F.map(unfix)(_.cata(alg)))
+    }
+
+    type Json = Fix[JsonF]
+    object Json {
+      def bool(v: Boolean): Json          = Fix[JsonF](JsonF.Bool(v))
+      val jnull: Json                     = Fix[JsonF](JsonF.Null)
+      def str(v: String): Json            = Fix[JsonF](JsonF.Str(v))
+      def obj(v: Map[String, Json]): Json = Fix[JsonF](JsonF.Obj(v))
+      def arr(v: List[Json]): Json        = Fix[JsonF](JsonF.Arr(v))
+    }
+
+    val json: Json =
+      Json.obj(
+        Map(
+          "name" -> Json.str("John Doe"),
+          "age"  -> Json.str("42")
+        )
+      )
+
+    type Algebra[F[_], A] = F[A] => A
+
+    val CollectKeys: Algebra[JsonF, Set[String]] = {
+      case JsonF.Obj(v) => v.keys.toSet ++ v.values.flatten
+      case JsonF.Arr(v) => v.toSet.flatten
+      case _            => Set()
+    }
+
+    val CollectIndices: Algebra[JsonF, Set[Int]] = {
+      case JsonF.Obj(v) => v.values.toSet.flatten
+      case JsonF.Arr(v) => v.toSet.flatten ++ (0 to v.length).toSet
+      case _            => Set()
+    }
+
+    def product[F[_]: Functor, A, B](left: Algebra[F, A], right: Algebra[F, B]): Algebra[F, (A, B)] =
+      (fab: F[(A, B)]) => (left(fab.map(_._1)), right(fab.map(_._2)))
+
+    def keys(json: Json): Set[String] = json.cata(CollectKeys)
+
+    def indices(json: Json): Set[Int] = json.cata(CollectIndices)
+
+    val KeysAndIndices = product(CollectKeys, CollectIndices)
+  }
+
+  object composition {
+    import fixpoint._
+    import scalaz._
+    import Scalaz._
+
+    sealed trait NewLeafF[+A]
+    final case class DateTime(value: java.time.LocalDate) extends NewLeafF[Nothing]
+
+    type ExtendedJson = Fix[Coproduct[JsonF, NewLeafF, ?]]
+
+    def upgrade[A](jsonF: JsonF[A]): Coproduct[JsonF, NewLeafF, A] =
+      jsonF match {
+        case JsonF.Str(value) => ???
+        case x                => Coproduct(-\/(x))
+      }
+  }
+}
