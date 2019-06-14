@@ -6,7 +6,6 @@ package net.degoes.applications
 import cats.effect.ExitCode
 import net.degoes.applications.db.Persistence
 import net.degoes.applications.http.Api
-import net.degoes.applications.configuration._
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -15,7 +14,7 @@ import scalaz.zio.blocking.Blocking
 import scalaz.zio.clock.Clock
 import scalaz.zio.console.putStrLn
 import scalaz.zio.interop.catz._
-import scalaz.zio.{ Task, TaskR, ZIO, _ }
+import scalaz.zio.{Task, TaskR, ZIO, _}
 
 object Main extends App {
 

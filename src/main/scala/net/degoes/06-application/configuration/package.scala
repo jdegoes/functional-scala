@@ -1,7 +1,6 @@
 package net.degoes.applications
 
 import doobie.h2.H2Transactor
-import org.flywaydb.core.Flyway
 import pureconfig.loadConfigOrThrow
 import scala.concurrent.ExecutionContext
 import scalaz.zio.{ Managed, Reservation, Task, ZIO }
