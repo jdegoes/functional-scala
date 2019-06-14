@@ -9,14 +9,6 @@ import pureconfig.generic.auto._
 
 package object configuration {
   def loadConfig: Task[Config] = Task.effect(loadConfigOrThrow[Config])
-  def initDB(conf: DbConfig): Task[Unit] =
-    Task.effect {
-      Flyway
-        .configure()
-        .dataSource(conf.url, conf.user, conf.password)
-        .load()
-        .migrate()
-    }.unit
 
   def mkTransactor(
     conf: DbConfig,

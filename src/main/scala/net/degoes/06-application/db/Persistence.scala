@@ -15,6 +15,7 @@ trait Persistence extends Serializable {
 
 object Persistence {
   trait Service[R] {
+    val createTable: TaskR[R, Unit]
     def get(id: Int): TaskR[R, User]
     def create(user: User): TaskR[R, User]
     def delete(id: Int): TaskR[R, Unit]
@@ -29,13 +30,16 @@ object Persistence {
 
     val userPersistence: Service[Any] = new Service[Any] {
 
+      val createTable: Task[Unit] =
+        SQL.createTable.run.transact(tnx).foldM(err => Task.fail(err), _ => Task.succeed(()))
+
       def get(id: Int): Task[User] =
         SQL
           .get(id)
           .option
           .transact(tnx)
           .foldM(
-            err => Task.fail(err),
+           Task.fail,
             maybeUser => Task.require(UserNotFound(id))(Task.succeed(maybeUser))
           )
 
@@ -55,6 +59,8 @@ object Persistence {
     }
 
     object SQL {
+
+      def createTable: Update0 = sql"""CREATE TABLE IF NOT EXISTS Users (id int PRIMARY KEY, name varchar)""".update
 
       def get(id: Int): Query0[User] =
         sql"""SELECT * FROM USERS WHERE ID = $id """.query[User]

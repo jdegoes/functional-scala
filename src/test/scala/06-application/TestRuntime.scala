@@ -1,4 +1,4 @@
-package example.db
+package net.degoes.applications
 
 import java.util.{Timer, TimerTask}
 import org.specs2.Specification

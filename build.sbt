@@ -48,7 +48,6 @@ val DoobieVersion = "0.7.0-M5"
 val ZIOVersion = "1.0-RC4"
 val PureConfigVersion = "0.11.0"
 val H2Version = "1.4.199"
-val FlywayVersion = "6.0.0-beta2"
 
 libraryDependencies ++= Seq(
   // -- testing --
@@ -79,8 +78,6 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig" % PureConfigVersion,
   //h2
   "com.h2database" % "h2" % H2Version,
-  //flyway
-  "org.flywaydb" %  "flyway-core" % FlywayVersion,
   // Ammonite
   "com.lihaoyi" % "ammonite" % "1.1.2" % "test" cross CrossVersion.full
 )

@@ -1,3 +1,6 @@
+/**
+ * This example is inspired by [[https://github.com/mschuwalow/zio-todo-backend]]
+ */
 package net.degoes.applications
 
 import cats.effect.ExitCode
@@ -23,8 +26,6 @@ object Main extends App {
   override def run(args: List[String]): ZIO[Environment, Nothing, Int] = {
     val program: ZIO[Main.Environment, Throwable, Unit] = for {
       conf <- configuration.loadConfig
-      _    <- configuration.initDB(conf.dbConfig)
-
       blockingEnv <- ZIO.environment[Blocking]
       blockingEC  <- blockingEnv.blocking.blockingExecutor.map(_.asEC)
 
@@ -39,12 +40,13 @@ object Main extends App {
       ).orNotFound
 
       server = ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
-        BlazeServerBuilder[AppTask]
-          .bindHttp(conf.api.port, "0.0.0.0")
-          .withHttpApp(CORS(httpApp))
-          .serve
-          .compile[AppTask, AppTask, ExitCode]
-          .drain
+        db.createTable *>
+          BlazeServerBuilder[AppTask]
+            .bindHttp(conf.api.port, "0.0.0.0")
+            .withHttpApp(CORS(httpApp))
+            .serve
+            .compile[AppTask, AppTask, ExitCode]
+            .drain
       }
       program <- transactorR.use { transactor =>
                   server.provideSome[Environment] { _ =>
