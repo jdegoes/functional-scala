@@ -32,7 +32,7 @@ abstract class TestRuntime extends Specification with DefaultRuntime {
     }
     timer.schedule(task, timeout.toMillis)
 
-    unsafeRunToFuture(zio.sandbox.mapError(FiberFailure).map(p.success))
+    unsafeRunToFuture(zio.sandbox.mapError(FiberFailure).map(p.success).supervised)
     p.future
   }
 

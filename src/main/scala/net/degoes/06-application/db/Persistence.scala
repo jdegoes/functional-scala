@@ -1,9 +1,9 @@
 package net.degoes.applications.db
 
-import net.degoes.applications.data.{ User, UserNotFound }
-import doobie.{ Query0, Transactor, Update0 }
-import scalaz.zio._
 import doobie.implicits._
+import doobie.{ Query0, Transactor, Update0 }
+import net.degoes.applications.data.{ User, UserNotFound }
+import scalaz.zio._
 import scalaz.zio.interop.catz._
 
 /**
@@ -39,7 +39,7 @@ object Persistence {
           .option
           .transact(tnx)
           .foldM(
-           Task.fail,
+            Task.fail,
             maybeUser => Task.require(UserNotFound(id))(Task.succeed(maybeUser))
           )
 
@@ -55,7 +55,8 @@ object Persistence {
           .delete(id)
           .run
           .transact(tnx)
-          .foldM(err => Task.fail(err), _ => Task.succeed(()))
+          .unit
+          .orDie
     }
 
     object SQL {
@@ -66,10 +67,10 @@ object Persistence {
         sql"""SELECT * FROM USERS WHERE ID = $id """.query[User]
 
       def create(user: User): Update0 =
-        sql"""INSERT INTO USERS (id, name) VALUES (${user.id}, ${user.name})""".update
+        sql"""INSERT INTO USERS (ID, NAME) VALUES (${user.id}, ${user.name})""".update
 
       def delete(id: Int): Update0 =
-        sql"""DELETE FROM USERS WHERE id = $id""".update
+        sql"""DELETE FROM USERS WHERE ID = $id""".update
     }
   }
 
