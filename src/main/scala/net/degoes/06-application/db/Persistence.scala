@@ -1,8 +1,11 @@
 package net.degoes.applications.db
 
+import doobie.h2.H2Transactor
 import doobie.implicits._
 import doobie.{ Query0, Transactor, Update0 }
+import net.degoes.applications.configuration.DbConfig
 import net.degoes.applications.data.{ User, UserNotFound }
+import scala.concurrent.ExecutionContext
 import scalaz.zio._
 import scalaz.zio.interop.catz._
 
@@ -14,6 +17,7 @@ trait Persistence extends Serializable {
 }
 
 object Persistence {
+
   trait Service[R] {
     val createTable: TaskR[R, Unit]
     def get(id: Int): TaskR[R, User]
@@ -72,6 +76,24 @@ object Persistence {
       def delete(id: Int): Update0 =
         sql"""DELETE FROM USERS WHERE ID = $id""".update
     }
+
+  }
+  def mkTransactor(
+    conf: DbConfig,
+    connectEC: ExecutionContext,
+    transactEC: ExecutionContext
+  ): Managed[Throwable, H2Transactor[Task]] = {
+    import scalaz.zio.interop.catz._
+
+    val xa = H2Transactor
+      .newH2Transactor[Task](conf.url, conf.user, conf.password, connectEC, transactEC)
+
+    val res = xa.allocated.map {
+      case (transactor, cleanupM) =>
+        Reservation(ZIO.succeed(transactor), cleanupM.orDie)
+    }.uninterruptible
+
+    Managed(res)
   }
 
 }

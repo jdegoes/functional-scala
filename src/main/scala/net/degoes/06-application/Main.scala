@@ -4,6 +4,7 @@
 package net.degoes.applications
 
 import cats.effect.ExitCode
+import net.degoes.applications.configuration.Configuration
 import net.degoes.applications.db.Persistence
 import net.degoes.applications.http.Api
 import org.http4s.implicits._
@@ -14,7 +15,7 @@ import scalaz.zio.blocking.Blocking
 import scalaz.zio.clock.Clock
 import scalaz.zio.console.putStrLn
 import scalaz.zio.interop.catz._
-import scalaz.zio.{Task, TaskR, ZIO, _}
+import scalaz.zio.{ Task, TaskR, ZIO, _ }
 
 object Main extends App {
 
@@ -24,11 +25,11 @@ object Main extends App {
 
   override def run(args: List[String]): ZIO[Environment, Nothing, Int] = {
     val program: ZIO[Main.Environment, Throwable, Unit] = for {
-      conf <- configuration.loadConfig
+      conf        <- configuration.load.provide(Configuration.Live)
       blockingEnv <- ZIO.environment[Blocking]
       blockingEC  <- blockingEnv.blocking.blockingExecutor.map(_.asEC)
 
-      transactorR = configuration.mkTransactor(
+      transactorR = Persistence.mkTransactor(
         conf.dbConfig,
         Platform.executor.asEC,
         blockingEC

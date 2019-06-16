@@ -13,7 +13,7 @@ class PersistenceSpec extends TestRuntime {
 
 
   def e =
-    mkTransactor(DbConfig("jdbc:h2:mem:test", "", ""), Platform.executor.asEC, ec).use { transaction =>
+    Persistence.mkTransactor(DbConfig("jdbc:h2:mem:test", "", ""), Platform.executor.asEC, ec).use { transaction =>
       (for {
         _        <- createTable
         notFound <- get(100).either
