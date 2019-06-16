@@ -7,7 +7,7 @@ import net.degoes.applications.configuration.DbConfig
 import net.degoes.applications.data.{ User, UserNotFound }
 import scala.concurrent.ExecutionContext
 import scalaz.zio._
-import scalaz.zio.interop.catz._
+import scalaz.zio.interop.catz.taskConcurrentInstances
 
 /**
  * Persistence Service
@@ -96,4 +96,10 @@ object Persistence {
     Managed(res)
   }
 
+  /**
+   * Persistence Module for test
+   */
+  case class Test(users: Ref[Vector[User]]) extends Persistence {
+    override val userPersistence: Service[Any] = ???
+  }
 }

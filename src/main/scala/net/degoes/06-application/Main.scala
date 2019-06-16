@@ -19,15 +19,14 @@ import scalaz.zio.{ Task, TaskR, ZIO, _ }
 
 object Main extends App {
 
-  type AppEnvironment = Clock with Blocking with Persistence
+  type AppEnvironment = Clock with Persistence
 
   type AppTask[A] = TaskR[AppEnvironment, A]
 
   override def run(args: List[String]): ZIO[Environment, Nothing, Int] = {
     val program: ZIO[Main.Environment, Throwable, Unit] = for {
       conf        <- configuration.load.provide(Configuration.Live)
-      blockingEnv <- ZIO.environment[Blocking]
-      blockingEC  <- blockingEnv.blocking.blockingExecutor.map(_.asEC)
+      blockingEC  <- blocking.blockingExecutor.map(_.asEC).provide(Blocking.Live)
 
       transactorR = Persistence.mkTransactor(
         conf.dbConfig,
@@ -50,7 +49,7 @@ object Main extends App {
       }
       program <- transactorR.use { transactor =>
                   server.provideSome[Environment] { _ =>
-                    new Clock.Live with Blocking.Live with Persistence.Live {
+                    new Clock.Live with Persistence.Live {
                       override protected def tnx: doobie.Transactor[Task] = transactor
                     }
                   }

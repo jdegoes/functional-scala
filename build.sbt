@@ -61,7 +61,6 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-zio-interop-cats" % ZIOVersion,
   // Http4s
   "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
-  "org.http4s" %% "http4s-blaze-client" % Http4sVersion,
   "org.http4s" %% "http4s-circe" % Http4sVersion,
   "org.http4s" %% "http4s-dsl" % Http4sVersion,
   // Circe
@@ -69,8 +68,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic-extras" % CirceVersion,
   // Doobie
   "org.tpolecat" %% "doobie-core" % DoobieVersion,
-  "org.tpolecat" %% "doobie-h2" % DoobieVersion,
-  "org.tpolecat" %% "doobie-hikari" % DoobieVersion,
   "org.tpolecat" %% "doobie-h2"     % DoobieVersion,
   // log4j
   "org.slf4j" % "slf4j-log4j12" % "1.7.26",

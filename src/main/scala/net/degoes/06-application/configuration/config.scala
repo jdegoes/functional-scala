@@ -25,5 +25,7 @@ object Configuration {
       val load: Task[Config] = Task.effect(loadConfigOrThrow[Config])
     }
   }
+
+
   object Live extends Live
 }
