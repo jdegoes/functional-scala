@@ -964,3 +964,30 @@ object recursion {
       }
   }
 }
+
+object comonads {
+  case class NonEmptyList[A](head: A, tail: List[A])
+
+  type Tuple[A] = (String, A)
+
+  trait Monad[F[_]] {
+    def point[A](a: => A): F[A]
+
+    def map[A, B](fa: F[A])(f: A => B): F[B]
+
+    def join[A](fa: F[F[A]]): F[A]
+  }
+
+  trait Comonad[F[_]] {
+    def copoint[A](fa: F[A]): A
+
+    def map[A, B](fa: F[A])(f: A => B): F[B]
+
+    def cojoin[A](fa: F[A]): F[F[A]]
+  }
+
+  case class Cofree[F[_], A](head: A, tail: F[Cofree[F, A]]) { self =>
+    def cojoin(implicit F: Functor[F]): Cofree[F, Cofree[F, A]] = 
+      Cofree(self, tail.map(_.cojoin))
+  }
+}
