@@ -1,9 +1,8 @@
 package net.degoes.applications.db
 
-import data.User
-import example.db.TestRuntime
-
+import net.degoes.applications.TestRuntime
 import net.degoes.applications.configuration._
+import net.degoes.applications.data.{User, UserNotFound}
 
 class PersistenceSpec extends TestRuntime {
 
@@ -12,19 +11,20 @@ class PersistenceSpec extends TestRuntime {
       * Persistence Live $e
     """
 
+
   def e =
-    mkTransactor(DbConfig("jdbc:h2:~/test", "", ""), Platform.executor.asEC, ec).use {
-      transaction =>
-        (for {
-          notFound <- get(100).either
-          created  <- create(User(13, "usr")).either
-          deleted  <- delete(13).either
-        } yield
-          (notFound.isLeft must beTrue) and (created must be right User(13, "usr")) and (
-            deleted must_=== Right(()) 
-          )).provide(new Persistence.Live {
-          def tnx = transaction
-        })
+    Persistence.mkTransactor(DbConfig("jdbc:h2:mem:test", "", ""), Platform.executor.asEC, ec).use { transaction =>
+      (for {
+        _        <- createTable
+        notFound <- get(100).either
+        created  <- create(User(13, "usr")).either
+        deleted  <- delete(13).either
+      } yield
+        ((notFound == Left(UserNotFound(100))) must beTrue) and (created must be right User(13, "usr")) and (
+          deleted.isRight must beTrue
+        )).provide(new Persistence.Live {
+        def tnx = transaction
+      })
     }
 
 }

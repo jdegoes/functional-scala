@@ -48,7 +48,6 @@ val DoobieVersion = "0.7.0-M5"
 val ZIOVersion = "1.0-RC4"
 val PureConfigVersion = "0.11.0"
 val H2Version = "1.4.199"
-val FlywayVersion = "6.0.0-beta2"
 
 libraryDependencies ++= Seq(
   // -- testing --
@@ -62,7 +61,6 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-zio-interop-cats" % ZIOVersion,
   // Http4s
   "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
-  "org.http4s" %% "http4s-blaze-client" % Http4sVersion,
   "org.http4s" %% "http4s-circe" % Http4sVersion,
   "org.http4s" %% "http4s-dsl" % Http4sVersion,
   // Circe
@@ -70,8 +68,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic-extras" % CirceVersion,
   // Doobie
   "org.tpolecat" %% "doobie-core" % DoobieVersion,
-  "org.tpolecat" %% "doobie-h2" % DoobieVersion,
-  "org.tpolecat" %% "doobie-hikari" % DoobieVersion,
   "org.tpolecat" %% "doobie-h2"     % DoobieVersion,
   // log4j
   "org.slf4j" % "slf4j-log4j12" % "1.7.26",
@@ -79,8 +75,6 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig" % PureConfigVersion,
   //h2
   "com.h2database" % "h2" % H2Version,
-  //flyway
-  "org.flywaydb" %  "flyway-core" % FlywayVersion,
   // Ammonite
   "com.lihaoyi" % "ammonite" % "1.1.2" % "test" cross CrossVersion.full
 )

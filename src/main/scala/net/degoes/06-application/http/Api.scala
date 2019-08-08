@@ -1,15 +1,14 @@
 package net.degoes.applications.http
 
-import net.degoes.applications.data.User
-import net.degoes.applications.db._
-import net.degoes.applications.db.Persistence
-import io.circe.{ Decoder, Encoder }
-import org.http4s.{ EntityDecoder, EntityEncoder, HttpRoutes }
-import org.http4s.dsl.Http4sDsl
-import scalaz.zio._
-import org.http4s.circe._
-import scalaz.zio.interop.catz._
 import io.circe.generic.auto._
+import io.circe.{Decoder, Encoder}
+import net.degoes.applications.data.User
+import net.degoes.applications.db.{Persistence, _}
+import org.http4s.circe._
+import org.http4s.dsl.Http4sDsl
+import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
+import scalaz.zio._
+import scalaz.zio.interop.catz._
 
 final case class Api[R <: Persistence](rootUri: String) {
 
@@ -30,7 +29,7 @@ final case class Api[R <: Persistence](rootUri: String) {
           Created(create(user))
         }
       case DELETE -> Root / IntVar(id) =>
-        delete(id).foldM(_ => NotFound(), Ok(_))
+        (get(id) *> delete(id)).foldM(_ => NotFound(), Ok(_))
     }
 
 }
