@@ -8,12 +8,7 @@ lazy val functionalScala = (project in file(".")).
     scalaVersion  := "2.12.6",
     initialCommands in Compile in console := """
                                                |import scalaz._
-                                               |import scalaz.zio._
-                                               |import scalaz.zio.console._
                                                |import net.degoes._
-                                               |object replRTS extends RTS {}
-                                               |import replRTS._
-                                               |implicit class RunSyntax[E, A](io: IO[E, A]){ def unsafeRun: A = replRTS.unsafeRun(io) }
     """.stripMargin
   )
 
