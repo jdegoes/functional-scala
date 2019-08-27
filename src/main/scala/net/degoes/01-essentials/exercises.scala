@@ -110,7 +110,7 @@ object types {
   // EXERCISE 13
   //
   // Prove that `A + 0` is equivalent to `A` by implementing the following two
-  // functions.
+  // functions in a way that loses no information.
   //
   def to3[A](t: Either[A, Nothing]): A   = ???
   def from3[A](a: A): Either[A, Nothing] = ???
@@ -335,7 +335,7 @@ object functions {
   def draw2(size: Int /* ... */ ): ??? = ???
 }
 
-object higher_order {
+object parametric {
   //
   // EXERCISE 1
   //
@@ -399,11 +399,9 @@ object higher_order {
           else Right((input.drop(1), input.charAt(0)))
       )
   }
-}
 
-object poly_functions {
   //
-  // EXERCISE 1
+  // EXERCISE 7
   //
   // Create a polymorphic function of two type parameters `A` and `B` called
   // `snd` that returns the second element out of any pair of `A` and `B`.
@@ -415,7 +413,7 @@ object poly_functions {
   snd((true, List(1, 2, 3))) // List(1, 2, 3)
 
   //
-  // EXERCISE 2
+  // EXERCISE 8
   //
   // Create a polymorphic function called `repeat` that can take any
   // function `A => A`, and apply it repeatedly to a starting value
@@ -430,7 +428,7 @@ object poly_functions {
   repeat[Int => Int](100)(identity, _ andThen (_ + 1)) // (_ + 100)
 
   //
-  // EXERCISE 3
+  // EXERCISE 9
   //
   // Count the number of unique implementations of the following method.
   //
@@ -438,7 +436,7 @@ object poly_functions {
   val countExample1Answer                           = ???
 
   //
-  // EXERCISE 4
+  // EXERCISE 10
   //
   // Count the number of unique implementations of the following method.
   //
@@ -447,7 +445,7 @@ object poly_functions {
   val countExample2Answer = ???
 
   //
-  // EXERCISE 5
+  // EXERCISE 11
   //
   // Implement the function `groupBy1`.
   //
@@ -472,7 +470,7 @@ object poly_functions {
   groupBy1(TestData, ByDate)(Reducer) == ExpectedResults
 
   //
-  // EXERCISE 6
+  // EXERCISE 12
   //
   // Make the function `groupBy1` as polymorphic as possible and implement
   // the polymorphic function. Compare to the original.
