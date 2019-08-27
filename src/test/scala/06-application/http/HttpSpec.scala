@@ -58,8 +58,8 @@ final class HttpSpec extends TestRuntime {
     } yield delete.status == Status.Ok && response.status == Status.NotFound)
   }
 
-  private def provideLivePersistence(zio: TaskR[Persistence, Boolean]) =
-    Persistence.mkTransactor(DbConfig("jdbc:h2:mem:test", "", ""), Platform.executor.asEC, ec).use { transaction =>
+  private def provideLivePersistence(zio: TaskR[Persistence, Boolean]): Task[Boolean] =
+    Persistence.mkTransactor(DbConfig("jdbc:h2:mem:test", "", ""), Platform.executor.asEC, ec).use[Any, Throwable, Boolean] { transaction =>
       (db.createTable *> zio).provide(new Persistence.Live {
         def tnx = transaction
       })
