@@ -155,7 +155,7 @@ object types {
   // Create a "smart constructor" for `Programmer` that only permits levels
   // that are non-negative.
   //
-  final case class Programmer private (level: Int)
+  sealed abstract case class Programmer private (level: Int)
   object Programmer {
     def make(level: Int): Option[Programmer] =
       ???
@@ -336,51 +336,94 @@ object functions {
 }
 
 object parametric {
+  def left[A](a: A): Either[A, Nothing] = Left(a)
+  def right[B](b: B): Either[Nothing, B] = Right(b)
+
   //
   // EXERCISE 1
   //
-  // Implement the following higher-order function.
+  // Implement the following higher-order, parametrically polymorphic function.
   //
-  def fanout[A, B, C](f: A => B, g: A => C): A => (B, C) =
+  def fanout[C, A, B](fst: C => A, snd: C => B): C => (A, B) = 
     ???
 
   //
-  // EXERCISE 2
+  // EXERCISE 1
   //
-  // Implement the following higher-order function.
+  // Implement the following higher-order, parametrically polymorphic function.
   //
-  def cross[A, B, C, D](f: A => B, g: C => D): (A, C) => (B, D) =
+  def fanin[C, A, B](h: C => (A, B)): (C => A, C => B) = 
     ???
 
   //
   // EXERCISE 3
   //
-  // Implement the following higher-order function.
+  // Implement the following higher-order, parametrically polymorphic function.
   //
-  def either[A, B, C](f: A => B, g: C => B): Either[A, C] => B =
+  def bimap[A, A1, B, B1](f: A => A1, g: B => B1): ((A, B)) => (A1, B1) =
     ???
 
   //
   // EXERCISE 4
   //
-  // Implement the following higher-order function.
+  // Implement the following higher-order, parametrically polymorphic function.
   //
-  def choice[A, B, C, D](f: A => B, g: C => D): Either[A, C] => Either[B, D] =
+  def either[C, A, B](f: A => C, g: B => C): Either[A, B] => C = 
     ???
 
   //
   // EXERCISE 5
   //
-  // Implement the following higher-order function.
+  // Implement the following higher-order, parametrically polymorphic function.
   //
-  def compose[A, B, C](f: B => C, g: A => B): A => C =
+  def uneither[C, A, B](h: Either[A, B] => C): (A => C, B => C) = 
     ???
 
   //
   // EXERCISE 6
   //
-  // Implement the following higher-order function. After you implement
-  // the function, interpret its meaning.
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) = 
+    ???
+
+  //
+  // EXERCISE 7
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def distLeft[C, A, B]: ((Either[A, B], C)) => Either[(A, C), (B, C)] =
+    ???
+    
+  //
+  // EXERCISE 8
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def curry[C, A, B](f: ((C, A)) => B): C => A => B = 
+    ???
+
+  //
+  // EXERCISE 9
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def uncurry[C, A, B](f: C => A => B): ((C, A)) => B = 
+    ???
+
+  //
+  // EXERCISE 10
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def compose[A, B, C](f: B => C, g: A => B): A => C =
+    ???
+
+  //
+  // EXERCISE 11
+  //
+  // Implement the following higher-order, parametrically polymorphic function. 
+  // After you implement the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]): Parser[(E1, E2), Either[A, B]] =
     ???
@@ -401,7 +444,7 @@ object parametric {
   }
 
   //
-  // EXERCISE 7
+  // EXERCISE 12
   //
   // Create a polymorphic function of two type parameters `A` and `B` called
   // `snd` that returns the second element out of any pair of `A` and `B`.
@@ -413,7 +456,7 @@ object parametric {
   snd((true, List(1, 2, 3))) // List(1, 2, 3)
 
   //
-  // EXERCISE 8
+  // EXERCISE 13
   //
   // Create a polymorphic function called `repeat` that can take any
   // function `A => A`, and apply it repeatedly to a starting value
@@ -428,7 +471,7 @@ object parametric {
   repeat[Int => Int](100)(identity, _ andThen (_ + 1)) // (_ + 100)
 
   //
-  // EXERCISE 9
+  // EXERCISE 14
   //
   // Count the number of unique implementations of the following method.
   //
@@ -436,7 +479,7 @@ object parametric {
   val countExample1Answer                           = ???
 
   //
-  // EXERCISE 10
+  // EXERCISE 15
   //
   // Count the number of unique implementations of the following method.
   //
@@ -445,7 +488,7 @@ object parametric {
   val countExample2Answer = ???
 
   //
-  // EXERCISE 11
+  // EXERCISE 16
   //
   // Implement the function `groupBy1`.
   //
@@ -470,7 +513,7 @@ object parametric {
   groupBy1(TestData, ByDate)(Reducer) == ExpectedResults
 
   //
-  // EXERCISE 12
+  // EXERCISE 17
   //
   // Make the function `groupBy1` as polymorphic as possible and implement
   // the polymorphic function. Compare to the original.
@@ -612,7 +655,6 @@ object higher_kinded {
 }
 
 object tc_motivating {
-
   /*
   A type class is a tuple of three things:
 
@@ -971,10 +1013,9 @@ object typeclasses {
   // Create two laws for the `PathLike` type class.
   //
   trait PathLikeLaws[A] extends PathLike[A] {
-    def law1: Boolean = ???
+    def law1: Boolean = parent(root) == None
 
-    def law2(node: A, name: String, assertEquals: (A, A) => Boolean): Boolean =
-      ???
+    def law2(node: A, name: String, assertEquals: (A, A) => Boolean): Boolean = ???
   }
 
   //
@@ -984,10 +1025,10 @@ object typeclasses {
   // into the given named node.
   //
   implicit class PathLikeSyntax[A](a: A) {
-    def /(name: String)(implicit A: PathLike[A]): A =
+    def /(name: String)(implicit pathLike: PathLike[A]): A =
       ???
 
-    def parent(implicit A: PathLike[A]): Option[A] =
+    def parent(implicit pathLike: PathLike[A]): Option[A] =
       ???
   }
   def root[A: PathLike]: A = PathLike[A].root
@@ -1005,8 +1046,9 @@ object typeclasses {
   }
   object Filterable {
     def apply[F[_]](implicit F: Filterable[F]): Filterable[F] = F
+
+    implicit val FilterableList: Filterable[List] = ???
   }
-  implicit val FilterableList: Filterable[List] = ???
 
   //
   // EXERCISE 7
