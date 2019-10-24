@@ -103,7 +103,7 @@ object types {
   // Create a sum type of `Int` and `String` representing the identifier of
   // a robot (a number) or the identifier of a person (a name).
   //
-  type Identifier1 = ???
+  type Identifier1
   sealed trait Identifier2
 
   //
@@ -157,8 +157,7 @@ object types {
   //
   sealed abstract case class Programmer private (level: Int)
   object Programmer {
-    def make(level: Int): Option[Programmer] =
-      ???
+    def make(level: Int): Option[Programmer] = ???
   }
 
   //
@@ -180,7 +179,6 @@ object types {
 }
 
 object functions {
-
   type ??? = Nothing
 
   //
@@ -250,8 +248,8 @@ object functions {
   trait Processor {
     def charge(account: Account, amount: Double): Unit
   }
-  case class Coffee() {
-    val price = 3.14
+  final case class Coffee() {
+    final val price = 3.14
   }
   def buyCoffee1(processor: Processor, account: Account): Coffee = {
     val coffee = Coffee()
@@ -294,8 +292,7 @@ object functions {
     println("For help on a command, type `help <command>`")
     println("To exit the help page, type `exit`.")
   }
-  def printer2[A](println: String => A, combine: (A, A) => A): A =
-    ???
+  def printer2[A](println: String => A, combine: (A, A) => A): A = ???
 
   //
   // EXERCISE 12
@@ -336,7 +333,7 @@ object functions {
 }
 
 object parametric {
-  def left[A](a: A): Either[A, Nothing] = Left(a)
+  def left[A](a: A): Either[A, Nothing]  = Left(a)
   def right[B](b: B): Either[Nothing, B] = Right(b)
 
   //
@@ -344,16 +341,14 @@ object parametric {
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def fanout[C, A, B](fst: C => A, snd: C => B): C => (A, B) = 
-    ???
+  def fanout[C, A, B](fst: C => A, snd: C => B): C => (A, B) = ???
 
   //
-  // EXERCISE 1
+  // EXERCISE 2
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def fanin[C, A, B](h: C => (A, B)): (C => A, C => B) = 
-    ???
+  def fanin[C, A, B](h: C => (A, B)): (C => A, C => B) = ???
 
   //
   // EXERCISE 3
@@ -368,15 +363,14 @@ object parametric {
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def either[C, A, B](f: A => C, g: B => C): Either[A, B] => C = 
-    ???
+  def either[C, A, B](f: A => C, g: B => C): Either[A, B] => C = ???
 
   //
   // EXERCISE 5
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def uneither[C, A, B](h: Either[A, B] => C): (A => C, B => C) = 
+  def uneither[C, A, B](h: Either[A, B] => C): (A => C, B => C) =
     ???
 
   //
@@ -384,7 +378,7 @@ object parametric {
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) = 
+  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) =
     ???
 
   //
@@ -394,13 +388,17 @@ object parametric {
   //
   def distLeft[C, A, B]: ((Either[A, B], C)) => Either[(A, C), (B, C)] =
     ???
-    
+
+  // EXERCISE 7.2
+  def choice[A, A1, B, B1](f: A => A1, g: B => B1): Either[A, B] => Either[A1, B1] =
+    ???
+
   //
   // EXERCISE 8
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def curry[C, A, B](f: ((C, A)) => B): C => A => B = 
+  def curry[C, A, B](f: ((C, A)) => B): C => A => B =
     ???
 
   //
@@ -408,7 +406,7 @@ object parametric {
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def uncurry[C, A, B](f: C => A => B): ((C, A)) => B = 
+  def uncurry[C, A, B](f: C => A => B): ((C, A)) => B =
     ???
 
   //
@@ -422,7 +420,7 @@ object parametric {
   //
   // EXERCISE 11
   //
-  // Implement the following higher-order, parametrically polymorphic function. 
+  // Implement the following higher-order, parametrically polymorphic function.
   // After you implement the function, interpret its meaning.
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]): Parser[(E1, E2), Either[A, B]] =
@@ -483,8 +481,7 @@ object parametric {
   //
   // Count the number of unique implementations of the following method.
   //
-  def countExample2[A, B](f: A => B, g: A => B, a: A): B =
-    ???
+  def countExample2[A, B](f: A => B, g: A => B, a: A): B = ???
   val countExample2Answer = ???
 
   //
@@ -652,6 +649,93 @@ object higher_kinded {
   // Implement `Sized` for `Tuple3`.
   //
   def Tuple3Sized[C, B]: ?? = ???
+}
+
+object example {
+  import scala.annotation._ 
+
+  @implicitNotFound("Please define an implementation of Combinable for your data type")
+  trait Combinable[A] {
+    /**
+     * The combine operator must be associative, that is:
+     * `combine(a, combine(b, c)) == combine(combine(a, b), c)`
+     */
+    def combine(left: => A, right: => A): A
+
+    final def associativityLaw(a: A, b: A, c: A): Boolean =
+      combine(a, combine(b, c)) == 
+        combine(combine(a, b), c)
+  }
+  object Combinable {
+    def apply[A](implicit combinable: Combinable[A]): Combinable[A] = combinable
+
+    implicit val CombinableString: Combinable[String] = 
+      new Combinable[String] {
+        def combine(left: => String, right: => String): String = 
+          left + right
+      }
+
+    implicit val CombinableInt: Combinable[Int] = 
+      new Combinable[Int] {
+        def combine(left: => Int, right: => Int): Int = 
+          left + right
+      }
+  }
+  implicit class CombinableSyntax[A](left: => A) {
+    def combine(right: => A)(implicit combinable: Combinable[A]): A = 
+      combinable.combine(left, right)
+
+    def |+|(right: => A)(implicit combinable: Combinable[A]): A = 
+      combine(right)
+  }
+  final case class MultInt(value: Int) extends AnyVal
+  object MultInt {
+    implicit val CombinableMultInt: Combinable[MultInt] = 
+      new Combinable[MultInt] {
+        def combine(left: => MultInt, right: => MultInt): MultInt = 
+          MultInt(left.value * right.value)
+      }
+  }
+
+  final case class Person(name: String, age: Int)
+  object Person {
+    implicit val CombinablePerson: Combinable[Person] = 
+      new Combinable[Person] {
+        def combine(left: => Person, right: => Person): Person = 
+          Person(left.name + right.name, left.age + right.age)
+      }
+    }
+
+  def retried[A: Combinable](n: Int)(a: A): A =
+    if (n <= 0) a else a combine retried(n - 1)(a)
+
+  trait Task[+E, +A] { self =>
+    def run(): Either[E, A]
+
+    def fallback[E1, A1 >: A](that: => Task[E1, A1]): Task[E1, A1] = 
+      new Task[E1, A1] {
+        def run(): Either[E1, A1] = 
+          self.run() match {
+            case Left(e1) => that.run() 
+            case Right(a) => Right(a)
+          }
+      }
+  }
+  object Task {
+    implicit def CombinableTask[E, A]: Combinable[Task[E, A]] =
+      new Combinable[Task[E, A]] {
+        def combine(left: => Task[E, A], right: => Task[E, A]): Task[E, A] = 
+          left fallback right
+      }
+  }
+  type InfallibleTask[+A] = Task[Nothing, A]
+
+  def retriedTask[E, A](retryCount: Int)(task: Task[E, A]): Task[E, A] =
+    retried[Task[E, A]](retryCount)(task)(_ fallback _)
+
+  def executeTask[E, A](task: Task[E, A]): Either[E, A] = 
+    task.run()
+
 }
 
 object tc_motivating {
@@ -1013,9 +1097,10 @@ object typeclasses {
   // Create two laws for the `PathLike` type class.
   //
   trait PathLikeLaws[A] extends PathLike[A] {
-    def law1: Boolean = parent(root) == None
+    def law1: Boolean
 
-    def law2(node: A, name: String, assertEquals: (A, A) => Boolean): Boolean = ???
+    def law2(node: A, name: String, assertEquals: (A, A) => Boolean): Boolean = 
+      ???
   }
 
   //

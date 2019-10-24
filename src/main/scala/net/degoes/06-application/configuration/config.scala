@@ -26,6 +26,5 @@ object Configuration {
     }
   }
 
-
   object Live extends Live
 }

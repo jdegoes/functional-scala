@@ -1,12 +1,12 @@
 package net.degoes.applications.http
 
 import io.circe.generic.auto._
-import io.circe.{Decoder, Encoder}
+import io.circe.{ Decoder, Encoder }
 import net.degoes.applications.data.User
-import net.degoes.applications.db.{Persistence, _}
+import net.degoes.applications.db.{ Persistence, _ }
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
+import org.http4s.{ EntityDecoder, EntityEncoder, HttpRoutes }
 import scalaz.zio._
 import scalaz.zio.interop.catz._
 

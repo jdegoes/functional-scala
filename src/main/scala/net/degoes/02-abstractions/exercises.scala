@@ -4,8 +4,6 @@ package net.degoes.abstractions
 
 import scalaz._
 import Scalaz._
-import net.degoes.abstractions.functor.Leaf
-import net.degoes.abstractions.functor.Fork
 
 object algebra {
   type ??? = Nothing
@@ -41,8 +39,7 @@ object algebra {
   final case class Max(value: Int)
   implicit val MaxSemigroup: Semigroup[Max] =
     new Semigroup[Max] {
-      def append(l: Max, r: => Max): Max =
-        ???
+      def append(l: Max, r: => Max): Max = ???
     }
 
   //
@@ -132,8 +129,7 @@ object algebra {
 
       def zero: Try[A] = ???
 
-      def append(l: Try[A], r: => Try[A]): Try[A] =
-        ???
+      def append(l: Try[A], r: => Try[A]): Try[A] = ???
     }
 
   //
@@ -167,7 +163,7 @@ object algebra {
     final case object Read  extends Capability
     final case object Write extends Capability
   }
-  case class UserPermission(value: ???) {
+  case class UserPermission(value: Set[(AccountID, ResourceID, Capability)]) {
 
     /**
      * Provides the set of all resources the user has access to.
@@ -190,7 +186,8 @@ object algebra {
     new Monoid[UserPermission] {
       def zero: UserPermission = ???
 
-      def append(l: UserPermission, r: => UserPermission): UserPermission = ???
+      def append(l: UserPermission, r: => UserPermission): UserPermission = 
+        ???
     }
   val example2 = mzero[UserPermission] |+| UserPermission(???)
 
@@ -242,7 +239,7 @@ object functor {
   //
   // Define an instance of `Functor` for Parser[E, ?].
   //
-  def ParserFunctor[E]: Functor[Parser[E, ?]] = 
+  def ParserFunctor[E]: Functor[Parser[E, ?]] =
     new Functor[Parser[E, ?]] {
       def map[A, B](fa: Parser[E, A])(f: A => B): Parser[E, B] = ???
     }
@@ -348,7 +345,7 @@ object functor {
       new Zip[Option] {
         def map[A, B](fa: Option[A])(f: A => B) = fa map f
 
-        def zip[A, B](l: Option[A], r: Option[B]): Option[(A, B)] = 
+        def zip[A, B](l: Option[A], r: Option[B]): Option[(A, B)] =
           ???
       }
   }
@@ -367,8 +364,7 @@ object functor {
       def map[A, B](fa: List[A])(f: A => B): List[B] =
         fa map f
 
-      def zip[A, B](l: List[A], r: List[B]): List[(A, B)] =
-        ???
+      def zip[A, B](l: List[A], r: List[B]): List[(A, B)] = ???
     }
 
   //
@@ -397,8 +393,7 @@ object functor {
 
       def map[A, B](fa: Future[A])(f: A => B): Future[B] = fa map f
 
-      def zip[A, B](l: Future[A], r: Future[B]): Future[(A, B)] =
-        ???
+      def zip[A, B](l: Future[A], r: Future[B]): Future[(A, B)] = ???
     }
 
   //
@@ -454,11 +449,9 @@ object functor {
   //
   implicit val MonadBTree: Monad[BTree] =
     new Monad[BTree] {
-      def point[A](a: => A): BTree[A] =
-        ???
+      def point[A](a: => A): BTree[A] = ???
 
-      def bind[A, B](fa: BTree[A])(f: A => BTree[B]): BTree[B] =
-        ???
+      def bind[A, B](fa: BTree[A])(f: A => BTree[B]): BTree[B] = ???
     }
 
   //
@@ -548,12 +541,12 @@ object parser {
     def rep1: Parser[E, (A, List[A])] = self ~ rep
 
     def repsep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, List[A]] =
-      ((self <~ sep).rep ~ (self ?)).map {
-        case (list, opt) => list ++ opt.toList
-      }
+      (self ~ (sep ~> self).rep).map {
+        case (head, tail) => List(head) ++ tail
+      } | (self ?).map(_.toList)
 
     def rep1sep[E1 >: E](sep: Parser[E1, Any]): Parser[E1, (A, List[A])] =
-      (self <~ (sep ?)) ~ repsep(sep)
+      (self ~ (sep ~> self).rep) | self.map((_, Nil))
 
     def ? : Parser[Nothing, Option[A]] = self.map(Some(_)) | Parser.succeed(None)
   }
@@ -982,18 +975,18 @@ object comonads {
   }
 
   case class Cofree[F[_], A](head: A, tail: F[Cofree[F, A]]) { self =>
-    def cojoin(implicit F: Functor[F]): Cofree[F, Cofree[F, A]] = 
+    def cojoin(implicit F: Functor[F]): Cofree[F, Cofree[F, A]] =
       Cofree(self, tail.map(_.cojoin))
   }
 }
 
 object validation {
   final case class Validate[+E, +A](run: Either[List[E], A]) { self =>
-    def zip[E1 >: E, B](that: Validate[E1, B]): Validate[E1, (A, B)] = 
+    def zip[E1 >: E, B](that: Validate[E1, B]): Validate[E1, (A, B)] =
       Validate((self.run, that.run) match {
         case (Left(el), Left(er)) => Left(el ++ er)
-        case (Left(e), _) => Left(e)
-        case (_, Left(e)) => Left(e) 
+        case (Left(e), _)         => Left(e)
+        case (_, Left(e))         => Left(e)
         case (Right(a), Right(b)) => Right((a, b))
       })
   }
@@ -1011,17 +1004,23 @@ object state {
   val stats = Stats(100, 100)
 
   final case class State[S, +A](run: S => (S, A)) { self =>
-    def map[B](f: A => B): State[S, B] = 
-      State[S, B](state => self.run(state) match {
-        case (state, a) => (state, f(a))
-      })
+    def map[B](f: A => B): State[S, B] =
+      State[S, B](
+        state =>
+          self.run(state) match {
+            case (state, a) => (state, f(a))
+          }
+      )
 
-    def flatMap[B](f: A => State[S, B]): State[S, B] = 
-      State[S, B](state => self.run(state) match {
-        case (state, a) => f(a).run(state)
-      })
-    
-    def zip[B](that: State[S, B]): State[S, (A, B)] = 
+    def flatMap[B](f: A => State[S, B]): State[S, B] =
+      State[S, B](
+        state =>
+          self.run(state) match {
+            case (state, a) => f(a).run(state)
+          }
+      )
+
+    def zip[B](that: State[S, B]): State[S, (A, B)] =
       self.flatMap(a => that.map(b => (a, b)))
   }
   object State {
@@ -1031,19 +1030,19 @@ object state {
 
     def set[S](s: S): State[S, Unit] = State[S, Unit](state => (s, ()))
 
-    def update[S](f: S => S): State[S, S] = State[S, S] { state => 
+    def update[S](f: S => S): State[S, S] = State[S, S] { state =>
       val newState = f(state)
       (newState, newState)
     }
   }
-  
-  def updateHealth(adjust: Int): State[Stats, Int] = 
+
+  def updateHealth(adjust: Int): State[Stats, Int] =
     State.update[Stats](s => s.copy(health = s.health + adjust)).map(_.health)
 
-  def updateStamina(adjust: Int): State[Stats, Int] = 
+  def updateStamina(adjust: Int): State[Stats, Int] =
     State.update[Stats](s => s.copy(stamina = s.stamina + adjust)).map(_.stamina)
 
-  val update: State[Stats, (Int, Int)] = 
+  val update: State[Stats, (Int, Int)] =
     for {
       newHealth  <- updateHealth(50)
       newStamina <- updateStamina(25)
@@ -1053,10 +1052,10 @@ object state {
 }
 
 object tagless_final {
-  import zio._ 
+  import zio._
 
   trait Console[F[_]] {
-    def putStrLn(line: String): F[Unit] 
+    def putStrLn(line: String): F[Unit]
 
     val getStrLn: F[String]
   }
@@ -1064,9 +1063,9 @@ object tagless_final {
     def apply[F[_]](implicit F: Console[F]): Console[F] = F
 
     def putStrLn[F[_]: Console](line: String): F[Unit] = Console[F].putStrLn(line)
-    def getStrLn[F[_]: Console]: F[String] = Console[F].getStrLn
+    def getStrLn[F[_]: Console]: F[String]             = Console[F].getStrLn
 
-    implicit val ConsoleTask: Console[Task] = 
+    implicit val ConsoleTask: Console[Task] =
       new Console[Task] {
         def putStrLn(line: String): Task[Unit] = Task(println(line))
 
@@ -1076,12 +1075,11 @@ object tagless_final {
 
   case class TestTask[A]()
 
-  def program[F[_]: Console]: F[String] = 
+  def program[F[_]: Console]: F[String] =
     Console.getStrLn[F]
-  
+
   val programTask: Task[String] = program[Task]
 
   // val programTestTask: TestTask[String] = program[TestTask]
-
 
 }
