@@ -520,8 +520,7 @@ object parser {
     def flatMap[E1 >: E, B](f: A => Parser[E1, B]): Parser[E1, B] =
       ???
 
-    def orElse[E2, B](that: => Parser[E2, B]): Parser[E2, Either[A, B]] =
-      ???
+    def orElse[E2, B](that: => Parser[E2, B]): Parser[E2, Either[A, B]] = ???
 
     def filter[E1 >: E](e0: E1)(f: A => Boolean): Parser[E1, A] =
       Parser(
@@ -600,9 +599,11 @@ object foldable {
   // Define an instance of `Foldable` for `List`
   //
   implicit val FoldableList: Foldable[List] = new Foldable[List] {
-    def foldMap[A, B: Monoid](fa: List[A])(f: A => B): B = ???
+    def foldMap[A, B: Monoid](fa: List[A])(f: A => B): B = 
+      ???
 
-    def foldRight[A, B](fa: List[A], z: => B)(f: (A, => B) => B): B = ???
+    def foldRight[A, B](fa: List[A], z: => B)(f: (A, => B) => B): B = 
+      ???
   }
 
   //
@@ -629,6 +630,46 @@ object foldable {
   // Try to define an instance of `Foldable` for `A0 => ?`.
   //
   implicit def FunctionFoldable[A0]: Foldable[A0 => ?] = ???
+
+  object exercises {
+    import scala.concurrent._ 
+    import scala.concurrent.ExecutionContext.Implicits._
+
+    def foreachOption[A, B](list: List[A])(f: A => Option[B]): Option[List[B]] = 
+      list match {
+        case Nil => Some(Nil)
+
+        case a :: as => 
+          val optionB  = f(a)
+          val optionBs = foreachOption(as)(f)
+
+          for {
+            b  <- optionB 
+            bs <- optionBs 
+          } yield b :: bs
+      }
+
+    def foreachFuture[A, B](tree: BTree[A])(f: A => Future[B]): Future[BTree[B]] = 
+      tree match {
+        case Leaf(a) => f(a).map(Leaf(_))
+        case Fork(l, r) => 
+          val left  = foreachFuture(l)(f)
+          val right = foreachFuture(r)(f)
+
+          (left zip right).map {
+            case (l, r) => Fork(l, r)
+          }
+      }
+
+    def foreachEither[K, E, A, B](map: Map[K, A])(f: A => Either[E, B]): Either[E, Map[K, B]] = 
+      map.foldLeft[Either[E, Map[K, B]]](Right(Map())) {
+        case (eitherMap, (k, a)) => 
+          for {
+            map <- eitherMap
+            b   <- f(a)
+          } yield map + (k -> b)
+      }
+  }
 
   //
   // EXERCISE 4
@@ -673,18 +714,31 @@ object optics {
   object Org {
     val site: Lens[Org, Site] =
       Lens[Org, Site](_.site, s => _.copy(site = s))
+
+    val address: Lens[Org, Address] =
+      Lens[Org, Address](_.address, s => _.copy(address = s))
+
+    val name: Lens[Org, String] =
+      Lens[Org, String](_.name, s => _.copy(name = s))
   }
 
   case class Address(number: String, street: String, postalCode: String, country: Country)
   object Address {
     val country: Lens[Address, Country] =
       Lens[Address, Country](_.country, c => _.copy(country = c))
+
+    val street: Lens[Address, String] = 
+      Lens[Address, String](_.street, s => _.copy(street = s))
+
+    val postalCode: Lens[Address, String] = 
+      Lens[Address, String](_.postalCode, s => _.copy(postalCode = s))
   }
 
   case class Site(manager: Employee, address: Address, employees: Set[Employee])
   object Site {
     val address: Lens[Site, Address] =
       Lens[Site, Address](_.address, a => _.copy(address = a))
+
     val manager: Lens[Site, Employee] =
       Lens[Site, Employee](_.manager, m => _.copy(manager = m))
   }
