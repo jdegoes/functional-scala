@@ -167,7 +167,7 @@ object types {
   // construct a `BankAccount` with an illegal (undefined) state in the
   // business domain. Note any limitations in your solution.
   //
-  case class BankAccount(ownerId: String, balance: BigDecimal, accountType: String, openedDate: Long)
+  final case class BankAccount(ownerId: String, balance: BigDecimal, accountType: String, openedDate: Long)
 
   //
   // EXERCISE 20
@@ -256,7 +256,7 @@ object functions {
     processor.charge(account, coffee.price)
     coffee
   }
-  final case class Charge[A](account: Account, amount: Double, value: A)
+  final case class Charge[+A](account: Account, amount: Double, value: A)
   def buyCoffee2(account: Account): ??? = ???
 
   //
@@ -425,7 +425,7 @@ object parametric {
   //
   def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]): Parser[(E1, E2), Either[A, B]] =
     ???
-  case class Parser[+E, +A](run: String => Either[E, (String, A)])
+  final case class Parser[+E, +A](run: String => Either[E, (String, A)])
   object Parser {
     final def fail[E](e: E): Parser[E, Nothing] =
       Parser(_ => Left(e))
@@ -516,7 +516,7 @@ object parametric {
   // the polymorphic function. Compare to the original.
   //
   object groupBy2 {
-    ???
+
   }
   // groupBy2(TestData, ByDate)(Reducer) == ExpectedResults
 }
@@ -640,15 +640,14 @@ object higher_kinded {
   // Implement `Sized` for `Map`, partially applied with its first type
   // parameter to a user-defined type parameter.
   //
-  def MapSized2[K]: Sized[Map[K, ?]] =
-    ???
+  def MapSized2[K]: Sized[Map[K, ?]] = ???
 
   //
   // EXERCISE 11
   //
   // Implement `Sized` for `Tuple3`.
   //
-  def Tuple3Sized[C, B]: ?? = ???
+  def Tuple3Sized[C, B]: Sized[(C, B, ?)] = ???
 }
 
 object example {
@@ -1097,10 +1096,11 @@ object typeclasses {
   // Create two laws for the `PathLike` type class.
   //
   trait PathLikeLaws[A] extends PathLike[A] {
-    def law1: Boolean
+    def noCycles(path: A): Boolean = ???
 
-    def law2(node: A, name: String, assertEquals: (A, A) => Boolean): Boolean = 
-      ???
+    def rootHasNoParent: Boolean = ???
+
+    def parentOfChildOfNodeIsNode(node: A, name: String): Boolean = ???
   }
 
   //
