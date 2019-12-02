@@ -10,7 +10,7 @@ lazy val functionalScala = (project in file(".")).
                                                |import scalaz._
                                                |import net.degoes._
     """.stripMargin
-  )
+)
 
 scalaVersion := "2.12.10"
 
@@ -29,41 +29,37 @@ scalacOptions ++= Seq(
   "-language:_"
 )
 
-javacOptions ++= Seq("-Xlint:unchecked",
-                     "-Xlint:deprecation",
-                     "-source",
-                     "1.7",
-                     "-target",
-                     "1.7")
+javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.7", "-target", "1.7")
 
-val ScalaZVersion = "7.2.26"
-val Http4sVersion = "0.20.1"
-val CirceVersion = "0.12.0-M1"
-val DoobieVersion = "0.7.0-M5"
-val ZIOVersion = "1.0-RC4"
-val PureConfigVersion = "0.11.0"
-val H2Version = "1.4.199"
+val ScalaZVersion      = "7.2.26"
+val Http4sVersion      = "0.20.13"
+val CirceVersion       = "0.12.3"
+val CirceVersionExtras = "0.12.2"
+val DoobieVersion      = "0.7.0-M5"
+val ZIOVersion         = "1.0-RC4"
+val PureConfigVersion  = "0.11.0"
+val H2Version          = "1.4.199"
 
 libraryDependencies ++= Seq(
   // -- testing --
-  "org.scalacheck" %% "scalacheck" % "1.13.4" % "test",
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  "org.specs2" %% "specs2-core" % "4.3.2" % "test",
+  "org.scalacheck" %% "scalacheck"  % "1.13.4" % Test,
+  "org.scalatest"  %% "scalatest"   % "3.0.8"  % Test,
+  "org.specs2"     %% "specs2-core" % "4.3.2"  % Test,
   // Scalaz
   "org.scalaz" %% "scalaz-core" % ScalaZVersion,
   // ZIO
-  "org.scalaz" %% "scalaz-zio" % ZIOVersion,
+  "org.scalaz" %% "scalaz-zio"              % ZIOVersion,
   "org.scalaz" %% "scalaz-zio-interop-cats" % ZIOVersion,
   // Http4s
   "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
-  "org.http4s" %% "http4s-circe" % Http4sVersion,
-  "org.http4s" %% "http4s-dsl" % Http4sVersion,
+  "org.http4s" %% "http4s-circe"        % Http4sVersion,
+  "org.http4s" %% "http4s-dsl"          % Http4sVersion,
   // Circe
-  "io.circe" %% "circe-generic" % CirceVersion,
-  "io.circe" %% "circe-generic-extras" % CirceVersion,
+  "io.circe" %% "circe-generic"        % CirceVersion,
+  "io.circe" %% "circe-generic-extras" % CirceVersionExtras,
   // Doobie
   "org.tpolecat" %% "doobie-core" % DoobieVersion,
-  "org.tpolecat" %% "doobie-h2"     % DoobieVersion,
+  "org.tpolecat" %% "doobie-h2"   % DoobieVersion,
   // log4j
   "org.slf4j" % "slf4j-log4j12" % "1.7.26",
   //pure config
