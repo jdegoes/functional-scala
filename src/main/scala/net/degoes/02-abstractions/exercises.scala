@@ -179,7 +179,7 @@ object algebra {
     new Monoid[UserPermission] {
       def zero: UserPermission = ???
 
-      def append(l: UserPermission, r: => UserPermission): UserPermission = 
+      def append(l: UserPermission, r: => UserPermission): UserPermission =
         ???
     }
   val example2 = mzero[UserPermission] |+| UserPermission(???)
@@ -193,6 +193,7 @@ object algebra {
 }
 
 object functor {
+
   /**
    * Identity Law
    *   map(fa)(identity) == fa
@@ -456,7 +457,7 @@ object functor {
       def point[A](a: => A): Parser[E, A] =
         Parser[E, A](s => Right((s, a)))
 
-      def bind[A, B](fa: Parser[E, A])(f: A => Parser[E, B]): Parser[E, B] = 
+      def bind[A, B](fa: Parser[E, A])(f: A => Parser[E, B]): Parser[E, B] =
         ???
     }
 
@@ -513,7 +514,7 @@ object parser {
     def flatMap[E1 >: E, B](f: A => Parser[E1, B]): Parser[E1, B] =
       ???
 
-    def orElse[E2, B](that: => Parser[E2, B]): Parser[E2, Either[A, B]] = 
+    def orElse[E2, B](that: => Parser[E2, B]): Parser[E2, Either[A, B]] =
       ???
 
     def filter[E1 >: E](e0: E1)(f: A => Boolean): Parser[E1, A] =
@@ -623,32 +624,32 @@ object foldable {
   implicit def FunctionFoldable[A0]: Foldable[A0 => ?] = ???
 
   object exercises {
-    import scala.concurrent._ 
+    import scala.concurrent._
     import scala.concurrent.ExecutionContext.Implicits._
 
-    def foreachOption[A, B](list: List[A])(f: A => Option[B]): Option[List[B]] = 
+    def foreachOption[A, B](list: List[A])(f: A => Option[B]): Option[List[B]] =
       list match {
         case Nil => Some(Nil)
-        case a :: as => 
+        case a :: as =>
           val optionB     = f(a)
           val optionListB = foreachOption(as)(f)
 
           optionB.flatMap(b => optionListB.map(bs => b :: bs))
       }
 
-    def foreachFuture[A, B](tree: BTree[A])(f: A => Future[B]): Future[BTree[B]] = 
+    def foreachFuture[A, B](tree: BTree[A])(f: A => Future[B]): Future[BTree[B]] =
       tree match {
         case Leaf(a) => f(a).map(Leaf(_))
-        case Fork(left, right) => 
+        case Fork(left, right) =>
           val leftF  = foreachFuture(left)(f)
           val rightF = foreachFuture(right)(f)
 
           (leftF zip rightF).map { case (l, r) => Fork(l, r) }
       }
 
-    def foreachEither[K, E, A, B](map: Map[K, A])(f: A => Either[E, B]): Either[E, Map[K, B]] = 
+    def foreachEither[K, E, A, B](map: Map[K, A])(f: A => Either[E, B]): Either[E, Map[K, B]] =
       map.foldLeft[Either[E, Map[K, B]]](Right(Map())) {
-        case (eitherMap, (k, a)) => 
+        case (eitherMap, (k, a)) =>
           for {
             map <- eitherMap
             b   <- f(a)
@@ -709,16 +710,16 @@ object optics {
 
   final case class Address(number: String, street: String, postalCode: String, country: Country)
   object Address {
-    val number: Lens[Address, String] = 
+    val number: Lens[Address, String] =
       Lens[Address, String](_.number, n => _.copy(number = n))
 
     val country: Lens[Address, Country] =
       Lens[Address, Country](_.country, c => _.copy(country = c))
 
-    val street: Lens[Address, String] = 
+    val street: Lens[Address, String] =
       Lens[Address, String](_.street, s => _.copy(street = s))
 
-    val postalCode: Lens[Address, String] = 
+    val postalCode: Lens[Address, String] =
       Lens[Address, String](_.postalCode, s => _.copy(postalCode = s))
   }
 
@@ -735,13 +736,13 @@ object optics {
     val name: Lens[Employee, String] =
       Lens[Employee, String](_.name, n => _.copy(name = n))
 
-    val dob: Lens[Employee, java.time.Instant] = 
+    val dob: Lens[Employee, java.time.Instant] =
       Lens[Employee, java.time.Instant](_.dob, d => _.copy(dob = d))
 
     val salary: Lens[Employee, BigDecimal] =
       Lens[Employee, BigDecimal](_.salary, s => _.copy(salary = s))
 
-    val address: Lens[Employee, Address] = 
+    val address: Lens[Employee, Address] =
       Lens[Employee, Address](_.address, a => _.copy(address = a))
   }
 
@@ -756,7 +757,7 @@ object optics {
     get: S => A,
     set: A => (S => S)
   ) { self =>
-    def ⋅[B](that: Lens[A, B]): Lens[S, B] = 
+    def ⋅[B](that: Lens[A, B]): Lens[S, B] =
       ???
 
     def ⋅[B](that: Optional[A, B]): Optional[S, B] = ???
@@ -794,7 +795,7 @@ object optics {
   // Implement `⋅` for `Prism` for `Prism`.
   //
   final case class Prism[S, A](get: S => Option[A], set: A => S) { self =>
-    def ⋅[B](that: Prism[A, B]): Prism[S, B] =  
+    def ⋅[B](that: Prism[A, B]): Prism[S, B] =
       ???
 
     def ⋅[B](that: Lens[A, B]): Optional[S, B] = ???
@@ -804,7 +805,7 @@ object optics {
     final def select(implicit ev: Unit =:= A): S =
       set(ev(()))
 
-    final def updated(f: A => A): S => S = 
+    final def updated(f: A => A): S => S =
       (s: S) => self.get(s).fold(s)(self.set compose f)
   }
 

@@ -5,14 +5,14 @@ lazy val functionalScala = (project in file(".")).
     name          := "Functional Scala",
     organization  := "net.degoes",
     version       := "0.1-SNAPSHOT",
-    scalaVersion  := "2.12.6",
+    scalaVersion  := "2.12.10",
     initialCommands in Compile in console := """
                                                |import scalaz._
                                                |import net.degoes._
     """.stripMargin
   )
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.10"
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6")
 
@@ -69,9 +69,7 @@ libraryDependencies ++= Seq(
   //pure config
   "com.github.pureconfig" %% "pureconfig" % PureConfigVersion,
   //h2
-  "com.h2database" % "h2" % H2Version,
-  // Ammonite
-  "com.lihaoyi" % "ammonite" % "1.1.2" % "test" cross CrossVersion.full
+  "com.h2database" % "h2" % H2Version
 )
 
 resolvers ++= Seq(
@@ -79,10 +77,3 @@ resolvers ++= Seq(
   "Secured Central Repository" at "https://repo1.maven.org/maven2",
   Resolver.sonatypeRepo("snapshots")
 )
-
-// Ammonite REPL
-sourceGenerators in Test += Def.task {
-  val file = (sourceManaged in Test).value / "amm.scala"
-  IO.write(file, """object amm extends App { ammonite.Main().run() }""")
-  Seq(file)
-}.taskValue

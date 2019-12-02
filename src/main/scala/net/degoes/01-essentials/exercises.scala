@@ -103,7 +103,7 @@ object types {
   // Create a sum type of `Int` and `String` representing the identifier of
   // a robot (a number) or the identifier of a person (a name).
   //
-  type Identifier1
+  type Identifier1 = ???
   sealed trait Identifier2
 
   //
@@ -157,7 +157,7 @@ object types {
   //
   sealed abstract case class Programmer private (level: Int)
   object Programmer {
-    def make(level: Int): Option[Programmer] = ???
+    def fromInt(level: Int): Option[Programmer] = ???
   }
 
   //
@@ -233,7 +233,7 @@ object functions {
   //
   // Convert the following non-function into function.
   //
-  def head1[A](as: List[A]): A = {
+  def head1[A](as: List[A], ifEmpty: A): A = {
     if (as.length == 0) println("Oh no, it's impossible!!!")
     as.head
   }
@@ -330,162 +330,39 @@ object functions {
       canvas.map(_.toList).toList
   }
   def draw2(size: Int /* ... */ ): ??? = ???
+
 }
 
-object parametric {
-  def left[A](a: A): Either[A, Nothing]  = Left(a)
-  def right[B](b: B): Either[Nothing, B] = Right(b)
+object parametric_beginning {
 
-  //
-  // EXERCISE 1
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def fanout[C, A, B](fst: C => A, snd: C => B): C => (A, B) = ???
-
-  //
-  // EXERCISE 2
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def fanin[C, A, B](h: C => (A, B)): (C => A, C => B) = ???
-
-  //
-  // EXERCISE 3
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def bimap[A, A1, B, B1](f: A => A1, g: B => B1): ((A, B)) => (A1, B1) =
-    ???
-
-  //
-  // EXERCISE 4
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def either[C, A, B](f: A => C, g: B => C): Either[A, B] => C = ???
-
-  //
-  // EXERCISE 5
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def uneither[C, A, B](h: Either[A, B] => C): (A => C, B => C) =
-    ???
-
-  //
-  // EXERCISE 6
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) =
-    ???
-
-  //
-  // EXERCISE 7
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def distLeft[C, A, B]: ((Either[A, B], C)) => Either[(A, C), (B, C)] =
-    ???
-
-  // EXERCISE 7.2
-  def choice[A, A1, B, B1](f: A => A1, g: B => B1): Either[A, B] => Either[A1, B1] =
-    ???
-
-  //
-  // EXERCISE 8
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def curry[C, A, B](f: ((C, A)) => B): C => A => B =
-    ???
-
-  //
-  // EXERCISE 9
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def uncurry[C, A, B](f: C => A => B): ((C, A)) => B =
-    ???
-
-  //
-  // EXERCISE 10
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  //
-  def compose[A, B, C](f: B => C, g: A => B): A => C =
-    ???
-
-  //
-  // EXERCISE 11
-  //
-  // Implement the following higher-order, parametrically polymorphic function.
-  // After you implement the function, interpret its meaning.
-  //
-  def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]): Parser[(E1, E2), Either[A, B]] =
-    ???
-  final case class Parser[+E, +A](run: String => Either[E, (String, A)])
-  object Parser {
-    final def fail[E](e: E): Parser[E, Nothing] =
-      Parser(_ => Left(e))
-
-    final def succeed[A](a: => A): Parser[Nothing, A] =
-      Parser(input => Right((input, a)))
-
-    final def char: Parser[Unit, Char] =
-      Parser(
-        input =>
-          if (input.length == 0) Left(())
-          else Right((input.drop(1), input.charAt(0)))
-      )
+  /**
+   * EXERCISE 1
+   *
+   * Introduce polymorphism into the `ListInt` data type so that it can be
+   * reused for lists that elements of some type other than `Int`.
+   */
+  sealed trait ListInt
+  object ListInt {
+    case object Empty extends ListInt
+    final case class Cons(head: Int, tail: ListInt)
   }
+  sealed trait ListPoly /* ??? */
+
+  /**
+   * EXERCISE 2
+   *
+   * Introduce polymorphism into the `interleave1` method so that it can be
+   * reused for other data types.
+   */
+  def interleave1(char: Char, list: List[String]): List[String] =
+    list match {
+      case Nil          => Nil
+      case head :: tail => head :: char.toString :: interleave1(char, tail)
+    }
+  def interleave2 = ???
 
   //
-  // EXERCISE 12
-  //
-  // Create a polymorphic function of two type parameters `A` and `B` called
-  // `snd` that returns the second element out of any pair of `A` and `B`.
-  //
-  object snd {
-    def apply[A, B](t: (A, B)): B = ???
-  }
-  snd((1, "foo"))            // "foo"
-  snd((true, List(1, 2, 3))) // List(1, 2, 3)
-
-  //
-  // EXERCISE 13
-  //
-  // Create a polymorphic function called `repeat` that can take any
-  // function `A => A`, and apply it repeatedly to a starting value
-  // `A` the specified number of times.
-  //
-  object repeat {
-    def apply[A](n: Int)(a: A, f: A => A): A =
-      ???
-  }
-  repeat[Int](100)(0, _ + 1)                           // 100
-  repeat[String](10)("", _ + "*")                      // "**********"
-  repeat[Int => Int](100)(identity, _ andThen (_ + 1)) // (_ + 100)
-
-  //
-  // EXERCISE 14
-  //
-  // Count the number of unique implementations of the following method.
-  //
-  def countExample1[A, B](a: A, b: B): Either[A, B] = ???
-  val countExample1Answer                           = ???
-
-  //
-  // EXERCISE 15
-  //
-  // Count the number of unique implementations of the following method.
-  //
-  def countExample2[A, B](f: A => B, g: A => B, a: A): B = ???
-  val countExample2Answer = ???
-
-  //
-  // EXERCISE 16
+  // GRADUATION PROJECT: PART 1
   //
   // Implement the function `groupBy1`.
   //
@@ -510,15 +387,173 @@ object parametric {
   groupBy1(TestData, ByDate)(Reducer) == ExpectedResults
 
   //
-  // EXERCISE 17
+  // GRADUATION PROJECT: PART 2
   //
   // Make the function `groupBy1` as polymorphic as possible and implement
   // the polymorphic function. Compare to the original.
   //
-  object groupBy2 {
-
-  }
+  def groupBy2 = ???
   // groupBy2(TestData, ByDate)(Reducer) == ExpectedResults
+}
+
+object polymorphic_space {
+  //
+  // EXERCISE 1
+  //
+  // Count the number of unique implementations of the following method.
+  //
+  def countExample1[A, B](a: A, b: B): Either[A, B] = ???
+  val countExample1Answer                           = ???
+
+  //
+  // EXERCISE 2
+  //
+  // Count the number of unique implementations of the following method.
+  //
+  def countExample2[A, B](f: A => B, g: A => B, a: A): B = ???
+  val countExample2Answer                                = ???
+}
+
+object parametric_advanced {
+  def left[A](a: A): Either[A, Nothing]  = Left(a)
+  def right[B](b: B): Either[Nothing, B] = Right(b)
+
+  //
+  // EXERCISE 1
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def curry[C, A, B](f: ((C, A)) => B): C => A => B =
+    ???
+
+  //
+  // EXERCISE 2
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def uncurry[C, A, B](f: C => A => B): ((C, A)) => B =
+    ???
+
+  //
+  // EXERCISE 3
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def compose[A, B, C](f: B => C, g: A => B): A => C =
+    ???
+
+  //
+  // EXERCISE 4
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def fanout[C, A, B](fst: C => A, snd: C => B): C => (A, B) =
+    ???
+
+  //
+  // EXERCISE 5
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def fanin[C, A, B](h: C => (A, B)): (C => A, C => B) =
+    ???
+
+  //
+  // EXERCISE 6
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def bimap[A, A1, B, B1](f: A => A1, g: B => B1): ((A, B)) => (A1, B1) =
+    ???
+
+  //
+  // EXERCISE 7
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def either[C, A, B](f: A => C, g: B => C): Either[A, B] => C = ???
+
+  //
+  // EXERCISE 8
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def uneither[C, A, B](h: Either[A, B] => C): (A => C, B => C) =
+    ???
+
+  //
+  // EXERCISE 9
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) = ???
+
+  //
+  // EXERCISE 10
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def distLeft[C, A, B]: ((Either[A, B], C)) => Either[(A, C), (B, C)] =
+    ???
+
+  //
+  // EXERCISE 11
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  //
+  def choice[A, A1, B, B1](f: A => A1, g: B => B1): Either[A, B] => Either[A1, B1] =
+    ???
+
+  //
+  // EXERCISE 12
+  //
+  // Implement the following higher-order, parametrically polymorphic function.
+  // After you implement the function, interpret its meaning.
+  //
+  def alt[E1, E2, A, B](l: Parser[E1, A], r: E1 => Parser[E2, B]): Parser[(E1, E2), Either[A, B]] =
+    ???
+  final case class Parser[+E, +A](run: String => Either[E, (String, A)])
+  object Parser {
+    final def fail[E](e: E): Parser[E, Nothing] =
+      Parser(_ => Left(e))
+
+    final def succeed[A](a: => A): Parser[Nothing, A] =
+      Parser(input => Right((input, a)))
+
+    final def char: Parser[Unit, Char] =
+      Parser(
+        input =>
+          if (input.length == 0) Left(())
+          else Right((input.drop(1), input.charAt(0)))
+      )
+  }
+
+  //
+  // EXERCISE 13
+  //
+  // Create a polymorphic function of two type parameters `A` and `B` called
+  // `snd` that returns the second element out of any pair of `A` and `B`.
+  //
+  object snd {
+    def apply[A, B](t: (A, B)): B = ???
+  }
+  snd((1, "foo"))            // "foo"
+  snd((true, List(1, 2, 3))) // List(1, 2, 3)
+
+  //
+  // EXERCISE 14
+  //
+  // Create a polymorphic function called `repeat` that can take any
+  // function `A => A`, and apply it repeatedly to a starting value
+  // `A` the specified number of times.
+  //
+  object repeat {
+    def apply[A](n: Int)(a: A, f: A => A): A =
+      ???
+  }
+  repeat[Int](100)(0, _ + 1)                           // 100
+  repeat[String](10)("", _ + "*")                      // "**********"
+  repeat[Int => Int](100)(identity, _ andThen (_ + 1)) // (_ + 100)
 }
 
 object higher_kinded {
@@ -648,93 +683,6 @@ object higher_kinded {
   // Implement `Sized` for `Tuple3`.
   //
   def Tuple3Sized[C, B]: Sized[(C, B, ?)] = ???
-}
-
-object example {
-  import scala.annotation._ 
-
-  @implicitNotFound("Please define an implementation of Combinable for your data type")
-  trait Combinable[A] {
-    /**
-     * The combine operator must be associative, that is:
-     * `combine(a, combine(b, c)) == combine(combine(a, b), c)`
-     */
-    def combine(left: => A, right: => A): A
-
-    final def associativityLaw(a: A, b: A, c: A): Boolean =
-      combine(a, combine(b, c)) == 
-        combine(combine(a, b), c)
-  }
-  object Combinable {
-    def apply[A](implicit combinable: Combinable[A]): Combinable[A] = combinable
-
-    implicit val CombinableString: Combinable[String] = 
-      new Combinable[String] {
-        def combine(left: => String, right: => String): String = 
-          left + right
-      }
-
-    implicit val CombinableInt: Combinable[Int] = 
-      new Combinable[Int] {
-        def combine(left: => Int, right: => Int): Int = 
-          left + right
-      }
-  }
-  implicit class CombinableSyntax[A](left: => A) {
-    def combine(right: => A)(implicit combinable: Combinable[A]): A = 
-      combinable.combine(left, right)
-
-    def |+|(right: => A)(implicit combinable: Combinable[A]): A = 
-      combine(right)
-  }
-  final case class MultInt(value: Int) extends AnyVal
-  object MultInt {
-    implicit val CombinableMultInt: Combinable[MultInt] = 
-      new Combinable[MultInt] {
-        def combine(left: => MultInt, right: => MultInt): MultInt = 
-          MultInt(left.value * right.value)
-      }
-  }
-
-  final case class Person(name: String, age: Int)
-  object Person {
-    implicit val CombinablePerson: Combinable[Person] = 
-      new Combinable[Person] {
-        def combine(left: => Person, right: => Person): Person = 
-          Person(left.name + right.name, left.age + right.age)
-      }
-    }
-
-  def retried[A: Combinable](n: Int)(a: A): A =
-    if (n <= 0) a else a combine retried(n - 1)(a)
-
-  trait Task[+E, +A] { self =>
-    def run(): Either[E, A]
-
-    def fallback[E1, A1 >: A](that: => Task[E1, A1]): Task[E1, A1] = 
-      new Task[E1, A1] {
-        def run(): Either[E1, A1] = 
-          self.run() match {
-            case Left(e1) => that.run() 
-            case Right(a) => Right(a)
-          }
-      }
-  }
-  object Task {
-    implicit def CombinableTask[E, A]: Combinable[Task[E, A]] =
-      new Combinable[Task[E, A]] {
-        def combine(left: => Task[E, A], right: => Task[E, A]): Task[E, A] = 
-          left fallback right
-      }
-  }
-  type InfallibleTask[+A] = Task[Nothing, A]
-
-  def retriedTask[E, A](retryCount: Int)(task: Task[E, A]): Task[E, A] =
-    retried[Task[E, A]](retryCount)(task)(_ fallback _)
-
-  def executeTask[E, A](task: Task[E, A]): Either[E, A] = 
-    task.run()
-
 }
 
 object tc_motivating {
