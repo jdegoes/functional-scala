@@ -8,23 +8,23 @@ object types {
   //
   // EXERCISE 1
   //
+  // List all values of the type `Boolean`.
+  //
+  val BoolValues: Set[Boolean] = ???
+
+  //
+  // EXERCISE 2
+  //
   // List all values of the type `Unit`.
   //
   val UnitValues: Set[Unit] = ???
 
   //
-  // EXERCISE 2
+  // EXERCISE 3
   //
   // List all values of the type `Nothing`.
   //
   val NothingValues: Set[Nothing] = ???
-
-  //
-  // EXERCISE 3
-  //
-  // List all values of the type `Boolean`.
-  //
-  val BoolValues: Set[Boolean] = ???
 
   //
   // EXERCISE 4
@@ -233,7 +233,7 @@ object functions {
   //
   // Convert the following non-function into function.
   //
-  def head1[A](as: List[A], ifEmpty: A): A = {
+  def head1[A](as: List[A]): A = {
     if (as.length == 0) println("Oh no, it's impossible!!!")
     as.head
   }
@@ -344,7 +344,7 @@ object parametric_beginning {
   sealed trait ListInt
   object ListInt {
     case object Empty extends ListInt
-    final case class Cons(head: Int, tail: ListInt)
+    final case class Cons(head: Int, tail: ListInt) extends ListInt 
   }
   sealed trait ListPoly /* ??? */
 
@@ -486,7 +486,8 @@ object parametric_advanced {
   //
   // Implement the following higher-order, parametrically polymorphic function.
   //
-  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) = ???
+  def distRight[C, A, B]: Either[(A, C), (B, C)] => (Either[A, B], C) = 
+    ???
 
   //
   // EXERCISE 10
